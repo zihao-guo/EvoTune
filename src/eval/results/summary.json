@@ -1,0 +1,137 @@
+{
+  "generated_at_utc": "2026-03-02T17:57:11.087856+00:00",
+  "tasks": {
+    "tsp": {
+      "summary_path": "/mnt/e/currentWORK/AAA_LCM/EvoTune/src/eval/tsp/results/test_summary.json",
+      "local_metric": {
+        "name": "average_optimality_gap_percent",
+        "value": 2.7678545289439693
+      },
+      "gap_reference": "optimal_tour",
+      "paper_reference": {
+        "metric": "optimality gap percent, lower is better",
+        "best_single_program": 2.446
+      },
+      "comparison": {
+        "reference_name": "paper_best_single_program",
+        "absolute_gap_delta_percent_points": 0.32185452894396915
+      }
+    },
+    "bp": {
+      "summary_path": "/mnt/e/currentWORK/AAA_LCM/EvoTune/src/eval/bp/results/OR3_val_summary.json",
+      "local_metric": {
+        "name": "optimality_gap_percent",
+        "value": 1.984426023612152
+      },
+      "gap_reference": "l1_lower_bound",
+      "baseline_metric": {
+        "name": "best_fit",
+        "value": 5.048982667671431
+      },
+      "comparison": {
+        "absolute_optimality_gap_reduction_percent": 3.0645566440592784,
+        "relative_optimality_gap_reduction_percent": 60.69651741293537
+      },
+      "paper_reference": {
+        "metric": "optimality gap percent, lower is better",
+        "human_designed_heuristic": 5.37,
+        "evotune": 2.06,
+        "funsearch": 2.96
+      }
+    },
+    "fp": {
+      "summary_path": "/mnt/e/currentWORK/AAA_LCM/EvoTune/src/eval/fp/results/test_flatpack_dynamic_0_seed_summary.json",
+      "local_metric": {
+        "name": "optimality_gap_fraction",
+        "value": 0.0926073303177678
+      },
+      "gap_reference": "full_occupancy",
+      "baseline_metrics": {
+        "all_equal": 0.190073938033534,
+        "heuristic_flatpack": 0.14068033874094488
+      },
+      "comparison": {
+        "best_priority_vs_all_equal": {
+          "absolute_optimality_gap_reduction_fraction": 0.09746660771576621,
+          "relative_optimality_gap_reduction_percent": 51.27825977834507
+        },
+        "best_priority_vs_heuristic_flatpack": {
+          "absolute_optimality_gap_reduction_fraction": 0.04807300842317708,
+          "relative_optimality_gap_reduction_percent": 34.171803148484656
+        }
+      },
+      "paper_reference": {
+        "metric": "optimality gap fraction, lower is better",
+        "human_designed_heuristic": 0.1092,
+        "evotune": 0.0829,
+        "funsearch": 0.0898
+      }
+    }
+  },
+  "comparison_table": [
+    {
+      "task": "TSP",
+      "dataset": "test100+test200",
+      "metric": "optimality_gap_percent",
+      "gap_reference": "optimal_tour",
+      "best_program_model": "ibm-granite/granite-3.1-2b-instruct",
+      "local_best": 2.767855,
+      "baseline_or_reference": "paper_best_single_program",
+      "baseline_gap": "",
+      "reference_gap": 2.446,
+      "absolute_delta": 0.321855,
+      "relative_improvement_percent": "",
+      "paper_human": "",
+      "paper_evotune": "",
+      "paper_funsearch": ""
+    },
+    {
+      "task": "BP",
+      "dataset": "OR3_val",
+      "metric": "optimality_gap_percent",
+      "gap_reference": "l1_lower_bound",
+      "best_program_model": "Phi 3.5 Instruct",
+      "local_best": 1.984426,
+      "baseline_or_reference": "best_fit",
+      "baseline_gap": 5.048983,
+      "reference_gap": "",
+      "absolute_delta": 3.064557,
+      "relative_improvement_percent": 60.696517,
+      "paper_human": 5.37,
+      "paper_evotune": 2.06,
+      "paper_funsearch": 2.96
+    },
+    {
+      "task": "FP",
+      "dataset": "test_flatpack_dynamic_0_seed.json",
+      "metric": "optimality_gap_fraction",
+      "gap_reference": "full_occupancy",
+      "best_program_model": "Llama 3.2 1B Instruct",
+      "local_best": 0.092607,
+      "baseline_or_reference": "all_equal",
+      "baseline_gap": 0.190074,
+      "reference_gap": "",
+      "absolute_delta": 0.097467,
+      "relative_improvement_percent": 51.27826,
+      "paper_human": 0.1092,
+      "paper_evotune": 0.0829,
+      "paper_funsearch": 0.0898
+    },
+    {
+      "task": "FP",
+      "dataset": "test_flatpack_dynamic_0_seed.json",
+      "metric": "optimality_gap_fraction",
+      "gap_reference": "full_occupancy",
+      "best_program_model": "Llama 3.2 1B Instruct",
+      "local_best": 0.092607,
+      "baseline_or_reference": "heuristic_flatpack",
+      "baseline_gap": 0.14068,
+      "reference_gap": "",
+      "absolute_delta": 0.048073,
+      "relative_improvement_percent": 34.171803,
+      "paper_human": 0.1092,
+      "paper_evotune": 0.0829,
+      "paper_funsearch": 0.0898
+    }
+  ]
+}

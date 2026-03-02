@@ -1,0 +1,58 @@
+{
+  "heuristic_source": {
+    "paper": "Algorithm Discovery With LLMs: Evolutionary Search Meets Reinforcement Learning",
+    "arxiv": "2504.05108",
+    "appendix": "A.9",
+    "paper_label": "listing:best_program_fp",
+    "model": "Llama 3.2 1B Instruct"
+  },
+  "dataset": "/mnt/e/currentWORK/AAA_LCM/EvoTune/data/flat_pack/test_flatpack_dynamic_0_seed.json",
+  "num_instances": 45,
+  "mean_upper_bound_optimal_score": 27.333333333333332,
+  "heuristics": {
+    "best_priority": {
+      "mean_occupied_proportion": 0.9073926696822322,
+      "mean_occupancy_percent": 90.73926696822322,
+      "gap_to_full_fraction": 0.0926073303177678,
+      "gap_to_full_percent": 9.26073303177678,
+      "evotune_score": -9.260999999999996,
+      "total_runtime_sec": 15.506549975005328,
+      "mean_duration_sec": 0.3445899994445628
+    },
+    "all_equal": {
+      "mean_occupied_proportion": 0.809926061966466,
+      "mean_occupancy_percent": 80.9926061966466,
+      "gap_to_full_fraction": 0.190073938033534,
+      "gap_to_full_percent": 19.007393803353402,
+      "evotune_score": -19.007000000000005,
+      "total_runtime_sec": 11.410191838003811,
+      "mean_duration_sec": 0.2535598186223069
+    },
+    "heuristic_flatpack": {
+      "mean_occupied_proportion": 0.8593196612590551,
+      "mean_occupancy_percent": 85.93196612590552,
+      "gap_to_full_fraction": 0.14068033874094488,
+      "gap_to_full_percent": 14.068033874094487,
+      "evotune_score": -14.067999999999998,
+      "total_runtime_sec": 15.103877536996151,
+      "mean_duration_sec": 0.3356417230443589
+    }
+  },
+  "comparisons": {
+    "best_priority_vs_all_equal": {
+      "absolute_gap_reduction_fraction": 0.09746660771576621,
+      "relative_gap_reduction_percent": 51.27825977834507
+    },
+    "best_priority_vs_heuristic_flatpack": {
+      "absolute_gap_reduction_fraction": 0.04807300842317708,
+      "relative_gap_reduction_percent": 34.171803148484656
+    }
+  },
+  "paper_reference": {
+    "metric": "optimality gap fraction, lower is better",
+    "human_designed_heuristic": 0.1092,
+    "evotune": 0.0829,
+    "funsearch": 0.0898
+  },
+  "total_runtime_sec": 42.021078456993564
+}

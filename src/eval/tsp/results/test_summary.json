@@ -1,0 +1,43 @@
+{
+  "heuristic_source": {
+    "paper": "Algorithm Discovery With LLMs: Evolutionary Search Meets Reinforcement Learning",
+    "arxiv": "2504.05108",
+    "appendix": "A.9",
+    "paper_label": "listing:best_program_tsp",
+    "model": "ibm-granite/granite-3.1-2b-instruct"
+  },
+  "paper_reference": {
+    "metric": "optimality gap percent, lower is better",
+    "best_single_program": 2.446
+  },
+  "split": "test",
+  "drop_rate": 0.0,
+  "sizes": [
+    100,
+    200
+  ],
+  "per_size": {
+    "100": {
+      "num_instances": 100,
+      "perturbation_moves": 20,
+      "iter_limit": 16,
+      "mean_cost": 7.921962695121765,
+      "optimal_mean_cost": 7.750541034652554,
+      "optimality_gap_percent": 2.2117379896808176,
+      "mean_duration_sec": 0.004459170020272723,
+      "total_duration_sec": 0.44591700202727225
+    },
+    "200": {
+      "num_instances": 100,
+      "perturbation_moves": 20,
+      "iter_limit": 8,
+      "mean_cost": 11.034032192230224,
+      "optimal_mean_cost": 10.679063220427661,
+      "optimality_gap_percent": 3.323971068207121,
+      "mean_duration_sec": 0.013178265530295902,
+      "total_duration_sec": 1.3178265530295903
+    }
+  },
+  "average_optimality_gap_percent": 2.7678545289439693,
+  "total_runtime_sec": 2.0283082719979575
+}

@@ -1,0 +1,43 @@
+{
+  "heuristic_source": {
+    "paper": "Algorithm Discovery With LLMs: Evolutionary Search Meets Reinforcement Learning",
+    "arxiv": "2504.05108",
+    "appendix": "A.9",
+    "paper_label": "listing:best_program_bin",
+    "model": "Phi 3.5 Instruct"
+  },
+  "dataset": "OR3_val",
+  "num_instances": 20,
+  "mean_dataset_l1_lower_bound_full": 199.05,
+  "heuristics": {
+    "best_priority": {
+      "mean_bins_used": 203.0,
+      "mean_l1_lower_bound": 199.05,
+      "excess_percent_vs_l1": 1.984426023612152,
+      "evotune_score": -198.44,
+      "mean_duration_sec": 0.044297203900350725,
+      "total_duration_sec": 0.8859440780070145
+    },
+    "best_fit": {
+      "mean_bins_used": 209.1,
+      "mean_l1_lower_bound": 199.05,
+      "excess_percent_vs_l1": 5.048982667671431,
+      "evotune_score": -504.9,
+      "mean_duration_sec": 0.0036883753004076426,
+      "total_duration_sec": 0.07376750600815285
+    }
+  },
+  "comparisons": {
+    "best_priority_vs_best_fit": {
+      "absolute_excess_reduction_percent": 3.0645566440592784,
+      "relative_excess_reduction_percent": 60.69651741293537
+    }
+  },
+  "paper_reference": {
+    "metric": "optimality gap percent, lower is better",
+    "human_designed_heuristic": 5.37,
+    "evotune": 2.06,
+    "funsearch": 2.96
+  },
+  "total_runtime_sec": 0.961400919011794
+}

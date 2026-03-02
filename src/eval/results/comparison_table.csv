@@ -1,0 +1,5 @@
+task,dataset,metric,gap_reference,best_program_model,local_best,baseline_or_reference,baseline_gap,reference_gap,absolute_delta,relative_improvement_percent,paper_human,paper_evotune,paper_funsearch
+TSP,test100+test200,optimality_gap_percent,optimal_tour,ibm-granite/granite-3.1-2b-instruct,2.767855,paper_best_single_program,,2.446,0.321855,,,,
+BP,OR3_val,optimality_gap_percent,l1_lower_bound,Phi 3.5 Instruct,1.984426,best_fit,5.048983,,3.064557,60.696517,5.37,2.06,2.96
+FP,test_flatpack_dynamic_0_seed.json,optimality_gap_fraction,full_occupancy,Llama 3.2 1B Instruct,0.092607,all_equal,0.190074,,0.097467,51.27826,0.1092,0.0829,0.0898
+FP,test_flatpack_dynamic_0_seed.json,optimality_gap_fraction,full_occupancy,Llama 3.2 1B Instruct,0.092607,heuristic_flatpack,0.14068,,0.048073,34.171803,0.1092,0.0829,0.0898
