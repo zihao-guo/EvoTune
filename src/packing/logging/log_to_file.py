@@ -145,13 +145,25 @@ def load_from_logsdir_eval(logs_dir):
                 pdb = pickle.load(f)
             pdb_list.append((round_num, pdb))
 
-    # if there are still no programbank files, raise an error
-    if not pdb_list:
-        raise FileNotFoundError("No programbank files found in the logs directory")
-
     with open(f"{logs_dir}/running_dict.pkl", "rb") as f:
         running_dict = pickle.load(f)
     # assert running_dict["num_func_generated"] == running_dict["num_func_evaluated"]
+
+    # Also expose the latest program bank snapshot when the round-specific pickle
+    # is missing. This happens when a run stops after updating running_dict but
+    # before persisting programbank_round{round_num}.pkl.
+    latest_programbank_path = f"{logs_dir}/programbank.pkl"
+    if os.path.exists(latest_programbank_path):
+        latest_round = running_dict.get("round_num", -1)
+        max_saved_round = max((round_num for round_num, _ in pdb_list), default=-1)
+        if latest_round > max_saved_round:
+            with open(latest_programbank_path, "rb") as f:
+                latest_pdb = pickle.load(f)
+            pdb_list.append((latest_round, latest_pdb))
+
+    # if there are still no programbank files, raise an error
+    if not pdb_list:
+        raise FileNotFoundError("No programbank files found in the logs directory")
 
     with open(f"{logs_dir}/input_struct.pkl", "rb") as f:
         input_struct = pickle.load(f)
