@@ -1,0 +1,64 @@
+# Score: -342.402
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To design a more effective heuristics function, we should consider incorporating some form of "greedy" strategy or utilizing properties of real-world distance matrices to make assumptions. Here's a proposal:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Normalize the distance matrix
+    max_distance = np.max(distance_matrix)
+    distance_matrix = distance_matrix / max_distance
+
+    # Calculate pairwise product
+    product_matrix = np.multiply(distance_matrix, distance_matrix)
+
+    # Incorporate a penalty for large distances
+    large_distances_penalty = 1 - np.exp(-product_matrix / 10)
+    large_distances_penalty[large_distances_penalty < 0.5] = 0
+
+    # Asymmetry penalty for distances that are not the same
+    asymmetry_penalty = np.abs(distance_matrix - np.transpose(distance_matrix))
+
+    # Combine the penalties
+    heuristics_matrix = large_distances_penalty + asymmetry_penalty
+
+    return heuristics_matrix
+```
+
+This heuristics function uses the following strategies:
+
+1. **Normalization**: Normalizing the distance matrix by dividing each element by the maximum value. This ensures that larger distances don't overwhelm smaller ones, which could affect the model's performance on different scales.
+
+2. **Product-based Penalty**: By calculating the product of the distance matrix with itself and applying an exponential function, we're emphasizing the disparity in distances. The smaller the product (indicating greater disparity), the higher the penalty. The parameter `10` in the exponential function adjusts the sensitivity to these disparities.
+
+3. **Asymmetry Penalty**: This is a simple yet effective way of penalizing solutions that would involve connecting two nodes that have significantly different distances from other nodes. 
+
+The heuristics() function is expected to yield better results than the initial ones by taking into account more aspects of the problem and penalizing less desirable connections more effectively. However, performance can vary depending on the specific characteristics of the distance matrix. Adjustments may be necessary for optimizing this function for specific types of input.
+
+
+

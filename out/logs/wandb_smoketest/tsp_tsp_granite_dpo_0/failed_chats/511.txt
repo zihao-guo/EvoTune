@@ -1,0 +1,55 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more sophisticated heuristics() function, we can incorporate ideas from both the given functions while introducing novel components to improve performance. Here, I propose a function that combines the heuristic from the first function (sum of distances) with a novel weighting scheme based on the frequency of appearances of each edge in the distance matrix. This approach encourages lower-weight edges in the final ranking, leading to potentially better solutions.
+
+The Python function would look like this:
+
+```python
+def heuristics(distance_matrix):
+    import numpy as np
+    n = distance_matrix.shape[0]  # Number of nodes
+    # Frequency count of each edge
+    edge_freq = np.sum(distance_matrix!= 0, axis=1)  # 1 for non-zero distances, 0 otherwise
+
+    # Create a weight vector where lower frequencies get lower weights
+    freq_weights = 1 / (edge_freq + 1)  # Adding 1 in the denominator to avoid division by zero
+    freq_weights /= np.sum(freq_weights)  # Normalize to get probabilities
+
+    # Combine the frequency weights with the original distances
+    weighted_distances = distance_matrix * freq_weights
+
+    return weighted_distances
+```
+
+This function first computes the frequency of each edge in the distance matrix. Then, it creates a weight vector that assigns lower weights to less frequent edges. Finally, it multiplies this weight vector by the distance matrix to create the final heuristic values.
+
+The key innovation here is the addition of edge frequency information into the heuristic, which should make it perform better than the simple distance-based approach. The experimentation and tuning of parameters such as the decay in frequency weights could further enhance its performance.
+
+Remember to evaluate this function using the same scoring method as before to compare its performance.
+
+
+

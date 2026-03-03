@@ -1,0 +1,60 @@
+# Score: -293.088
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more effective heuristics function, we can incorporate the concept of "shortest path" or "closest approach" in a graph, considering the input as an adjacency matrix. This approach will give more weight to smaller distances, reflecting the notion of "closeness" in a network.
+
+The idea is that in many real-world problems, the nearest points or edges are most important. We'll calculate the inverse of each element in the distance matrix, turning larger distances into smaller values. Then, we'll add a small constant to avoid division by zero and take the square root to provide a reasonable scale.
+
+Here's the new heuristics function:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Add a small constant to distance matrix to avoid division by zero
+    eps = 1e-6
+    distance_matrix += eps
+
+    # Take the square root of each element to scale down distances
+    distance_matrix = np.sqrt(distance_matrix)
+    
+    return distance_matrix
+
+# Test the function
+distance_matrix = np.array([[0, 10, 15, 20],
+                             [10, 0, 35, 25],
+                             [15, 35, 0, 30],
+                             [20, 25, 30, 0]])
+
+print(heuristics(distance_matrix))
+```
+
+This new function should provide better results because it emphasizes closer points over longer ones, which can be advantageous in many optimization problems where the "closeness" of points is a crucial factor.
+
+Please note that this function might not always yield the optimal solution (i.e., the shortest path) as it's a heuristic approach. It just prioritizes closer points, which can be beneficial depending on the context and requirements of the problem at hand.
+
+
+

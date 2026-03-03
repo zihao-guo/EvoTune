@@ -1,0 +1,55 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+A heuristic function in the context of graph optimization (like shortest path or minimum spanning tree problems) typically seeks to estimate the cost of the cheapest path from a given node to all other nodes. The intuition here is that the distance matrix already provides the cost of connections between nodes, and our job is to transform this information into a more informative form for heuristic decision making.
+
+To improve upon the existing function, we can incorporate a variant of the "square root of weight" heuristic often used in Dijkstra's algorithm. The idea is to reduce the influence of very large distances and enhance the influence of smaller ones, which usually are more indicative of the actual edge desirability.
+
+Here's a Python function that implements this approach:
+
+```python
+import math
+
+def heuristics(distance_matrix):
+    # Calculate the square root of each element in the distance matrix
+    # This has the effect of making large distances more manageable
+    heuristic_matrix = [math.sqrt(distance) for distance in distance_matrix]
+
+    # Normalize to sum up to 1 for each row, so they represent probabilities
+    total = sum(heuristic_matrix, [])
+    normalized_heuristic_matrix = [h / total for h in heuristic_matrix]
+
+    return normalized_heuristic_matrix
+```
+
+This function assumes that the distances in your input matrix are non-negative. It also normalizes the values in each row such that they sum up to 1, which allows these values to be interpreted as probabilities. Larger, normalized values then indicate higher probabilities for including the corresponding edges in an optimal solution.
+
+To evaluate its performance, you should run it on your test data and compare its results with the existing heuristics function and the distance matrix itself.
+
+Please note that without access to the actual dataset, I can't provide a concrete score, but this function should theoretically perform better than the initial heuristics function as it provides more informative prior indicators about edge desirability.
+
+
+

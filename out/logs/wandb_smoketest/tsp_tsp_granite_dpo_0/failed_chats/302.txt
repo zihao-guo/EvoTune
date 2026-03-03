@@ -1,0 +1,63 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Considering the characteristics of the higher-scoring function, it seems that it's leveraging a combination of distance values and some form of heuristic calculation. Let's propose a function that incorporates a simple yet effective heuristic: the concept of "connectivity" and "density".
+
+The heuristic function will be named "weighted_connectivity_density", which considers both the number of edges (connectivity) and the average distance between connected nodes (density). The idea here is that higher connectivity and lower average distances should lead to a lower score for an edge.
+
+Here's a Python function that should meet the requirements:
+
+```python
+import numpy as np
+
+def weighted_connectivity_density(distance_matrix):
+    m, n = distance_matrix.shape
+    # Calculate the number of connections for each node
+    num_connections = np.sum(distance_matrix!= 0, axis=1)
+    
+    # Calculate the density (average distance between connected nodes)
+    avg_dist_connected = np.zeros(m)
+    for i in range(m):
+        # Exclude the node from its own connections for calculating average distance
+        mask = (distance_matrix[i]!= 0) & (distance_matrix[:, i]!= 0)
+        avg_dist_connected[i] = np.mean(distance_matrix[mask]) if np.sum(mask) > 0 else 0
+
+    # Compute the weighted heuristic for each edge
+    heuristic_matrix = num_connections[:, None] - avg_dist_connected[None, :]
+
+    # Take the absolute value and flip the sign for lower is better
+    heuristic_matrix = np.abs(heuristic_matrix).T  # Transpose for consistency with distance matrix shape
+    heuristic_matrix *= -1  # Flip the sign
+
+    return heuristic_matrix
+```
+
+This function creates a new matrix where the (i, j) element represents the heuristic score of including the edge from node i to node j. The heuristic score is computed as `number_of_connections_i - average_distance_from_connections_i`. The goal is to have as many connections as possible and short average distances among them, leading to lower scores.
+
+This approach considers both the overall connectivity and the distribution of distances, which could provide better insights than a simple distance matrix. Remember that the actual performance will depend on the specific characteristics of your distance matrix.
+
+
+

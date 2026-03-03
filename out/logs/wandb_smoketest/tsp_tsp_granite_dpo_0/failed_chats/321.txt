@@ -1,0 +1,69 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+In order to create a heuristics() function that performs better than the given one, we need to introduce a more sophisticated method for estimating the undesirability of including each edge in a solution. One effective approach is to use a variant of the "Minimum Spanning Tree" (MST) heuristic, known as the "Kruskal's Algorithm" or "Prim's Algorithm". This approach considers the edge weights (distances) to construct a tree that spans all vertices, minimizing the total edge weight.
+
+Here's the new implementation of the heuristics() function using Prim's algorithm:
+
+```python
+import heapq
+
+def heuristics(distance_matrix):
+    num_vertices = len(distance_matrix)
+    # Initialize the priority queue (min-heap) and visited list
+    priority_queue = [(0, 0)]  # (weight, vertex)
+    visited = [False] * num_vertices
+    # List to store the heuristic values (undesirability scores)
+    heuristics_scores = [[0] * num_vertices for _ in range(num_vertices)]
+    
+    # Iterate over each vertex
+    for i in range(num_vertices):
+        # Add the vertex to the priority queue and mark it as visited
+        heapq.heappush(priority_queue, (distance_matrix[i][i], i))
+        visited[i] = True
+        
+        # Iterate over the unvisited vertices
+        while priority_queue and visited[i]:
+            # Pop the vertex with the smallest edge weight
+            weight, j = heapq.heappop(priority_queue)
+            # If j is already visited, skip it
+            if not visited[j]:
+                # Update the heuristic score for all unvisited neighbors
+                for k in range(num_vertices):
+                    if not visited[k]:
+                        heuristics_scores[i][k] = max(heuristics_scores[i][k], distance_matrix[i][j] + distance_matrix[j][k])
+                # Add the unvisited neighbor to the priority queue
+                heapq.heappush(priority_queue, (distance_matrix[i][j], j))
+    
+    return heuristics_scores
+```
+
+This new function, `heuristics()`, employs Prim's algorithm to calculate the minimum spanning tree (MST) of the given graph. The heuristic scores are determined by the longest path between any two connected vertices in the MST. This approach considers the entire graph structure and the interdependencies between vertices, which should lead to a higher and more accurate score compared to the previous heuristics.
+
+Please note that the score achieved by this function will depend on the specific characteristics of the input `distance_matrix`. You might need to adjust or refine the heuristics further based on your specific use case or additional context.
+
+
+

@@ -1,0 +1,62 @@
+# Score: -275.742
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To enhance the performance of the heuristics function, we can employ a simple yet effective heuristic known as the "Nearest Neighbor" heuristic, which is widely used in traveling salesman problem (TSP) solvers. This method assumes that the shortest path between any two cities is to go through the nearest unvisited city.
+
+Here's a Python function named `heuristics()` that applies this heuristic to a distance matrix:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Determine the number of cities
+    num_cities = distance_matrix.shape[0]
+
+    # Initialize the heuristic matrix with the distance matrix
+    heuristic_matrix = distance_matrix.copy()
+
+    # Create a list of indices for unvisited cities
+    unvisited_indices = np.arange(num_cities)
+
+    # Iterate through each city (starting from the first one)
+    for i in range(num_cities):
+        # Calculate the nearest unvisited city's heuristic score
+        nearest_unvisited_idx = unvisited_indices[np.argmin(heuristic_matrix[i, unvisited_indices])]
+        nearest_distance = distance_matrix[i, nearest_unvisited_idx]
+
+        # Update the heuristic score for the current city
+        heuristic_matrix[i, i] = nearest_distance
+
+        # Remove the visited city from the list of unvisited indices
+        unvisited_indices = unvisited_indices[unvisited_indices!= nearest_unvisited_idx]
+
+    return heuristic_matrix
+```
+
+This `heuristics` function calculates a novel score for each edge, which indicates the shortest hypothetical path between two cities (considering the current unvisited cities). The function assumes that the optimal tour would pass through the nearest unvisited city. This heuristic is often more efficient than the previous functions as it significantly reduces the number of edges to consider due to the sequential optimization from the first city to the last.
+
+
+

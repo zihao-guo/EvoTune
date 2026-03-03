@@ -1,0 +1,59 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To improve the heuristics() function, we can incorporate more advanced heuristic strategies. Here, I propose a function that uses the concept of the Minimum Spanning Tree (MST) and its approximation, Prim's Algorithm, to rank the edges by their potential impact on the total edge weight. This approach utilizes the idea that edges connecting more critical nodes (based on certain centrality measures) should be prioritized, as they have a more significant effect on the overall distance of the graph.
+
+I'll use the NetworkX library for graph operations and the popular edge betweenness centrality metric for node importance.
+
+Here's the new heuristics() function:
+
+```python
+import numpy as np
+import networkx as nx
+
+def heuristics(distance_matrix):
+    # Convert distance matrix into a NetworkX graph
+    G = nx.from_numpy_array(distance_matrix)
+    
+    # Compute edge betweenness centrality
+    edge_betweenness = nx.edge_betweenness_centrality(G, normalized=False, weight='weight')
+    
+    # Convert betweenness centrality to heuristics matrix
+    heuristics_matrix = np.array(list(edge_betweenness.values()))
+    
+    return heuristics_matrix
+```
+
+This heuristics() function works by first converting the distance matrix into a graph using NetworkX. It then calculates the edge betweenness centrality of each edge, which measures the number of shortest paths that pass through a given edge. Edges with higher betweenness centrality are deemed more critical.
+
+Finally, it returns a heuristics matrix where each element corresponds to the betweenness centrality of the edge between the corresponding nodes in the input distance matrix.
+
+The idea behind this method is that more critical nodes (i.e., those with higher betweenness centrality) tend to be hubs or bottlenecks in the network. Removing these edges (according to the heuristics) could lead to more efficient solutions in certain graph problems, especially in those related to routing, network design, and connectivity.
+
+Please note that this is a general approach and might need fine-tuning depending on the specifics of your problem. You may need to adjust weight parameters in the NetworkX graph, or apply different centrality measures based on your use-case.
+
+
+

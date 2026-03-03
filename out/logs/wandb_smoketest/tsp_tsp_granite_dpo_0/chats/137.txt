@@ -1,0 +1,62 @@
+# Score: -307.953
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more sophisticated heuristics function that outperforms the previous ones, I propose a method based on the concept of "Edge Importance Scoring" which takes into account not only the distances but also the connectivity between nodes and the overall structure of the network. Here's a possible implementation:
+
+```python
+def heuristics(distance_matrix):
+    # Add node degrees to the matrix (1 for each connection)
+    degree_matrix = (distance_matrix.sum(axis=0) + 1).reshape(-1, 1) + (distance_matrix.sum(axis=1) + 1).reshape(1, -1)
+    
+    # Calculate edge importance
+    # We'll use a combination of weighted distance, degree, and a connectivity score
+    # Degree is weighted more than distance
+    importance_score = (distance_matrix + 0.5) * degree_matrix  # Adjust 0.5 for desired weight
+
+    # Normalize importance_score to get probabilities
+    max_importance = importance_score.max()
+    importance_score = importance_score / max_importance
+    
+    return importance_score
+```
+
+This function computes a score for each edge, which is the weighted sum of the edge's distance, its connected nodes' degrees, and a connectivity score. The key idea is to give more importance to edges that connect nodes with high degrees, implying they are central to the network.
+
+This function scores every edge differently based on its role in the network structure, which should lead to a better performance compared to simply using the raw distance matrix.
+
+The specific changes include:
+1. Adding a 'degree' matrix to the input, which provides information about the connectivity of each node.
+2. Using a weighted sum where degree is given a higher weight.
+3. Normalizing the importance score to convert it into probabilities.
+
+These modifications enable the function to capture a richer understanding of the network topology and guide the heuristic selection process more effectively.
+
+Please note that the actual score will depend on the specific characteristics of your distance matrix, and the values above (0.5 for the distance weight) might require tuning for your particular use case.
+
+Keep in mind that scoring functions are highly problem-dependent, and there's no one-size-fits-all approach. You might need to experiment with different weights, add or remove features, or adjust the normalization method based on your specific problem requirements.
+
+
+

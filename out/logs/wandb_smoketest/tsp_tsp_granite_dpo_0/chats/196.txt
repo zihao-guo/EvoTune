@@ -1,0 +1,52 @@
+# Score: -301.709
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Based on the given guidelines, let's consider an approach that uses a combination of the Manhattan distance and the inverse of the density of connections for each node in the graph. This method will introduce a heuristic that considers both the physical proximity (Manhattan distance) and the relative isolation (density) of each node when determining the desirability of edges. This approach is different from simply rewriting existing heuristics and should provide better performance.
+
+Here is a Python function `heuristics()` that implements this strategy:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # First, calculate the Manhattan distance for each pair of nodes
+    manhattan_distances = np.abs(distance_matrix - np.diag(np.diag(distance_matrix)))
+    
+    # Calculate the inverse density for each node
+    node_densities = np.sum(distance_matrix, axis=1) / (distance_matrix.shape[0] - 1)
+    
+    # Combine these factors to create the heuristic matrix
+    heuristic_matrix = manhattan_distances + (1 / node_densities)
+    
+    return heuristic_matrix
+```
+
+This function first computes the Manhattan distance for each pair of nodes, then calculates the inverse density (the sum of the distances of each node from all other nodes divided by the number of nodes minus one). It then combines these two factors to create a heuristic matrix, indicating the desirability of each edge.
+
+This approach might perform better than both the initial functions because it considers both local (Manhattan distance) and global (density) properties of the network, which can be beneficial in certain graph problems such as facility location or network design. The actual performance will depend on the specific use case and dataset.
+
+
+

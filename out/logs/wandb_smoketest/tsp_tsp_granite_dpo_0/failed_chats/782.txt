@@ -1,0 +1,69 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To design a more effective heuristics() function, we need to incorporate a strategy that considers more factors than just raw distances. Let's consider a simple yet effective approach: incorporate a form of "distance-based cost" and "connection weight."
+
+The idea here is to assign each edge a cost that is not just the direct distance, but also considers the distances to its neighboring nodes. This makes the algorithm take into account the overall connectivity structure of the graph.
+
+Here's the outline for the new heuristics() function:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Define a connection weight function
+    def connection_weight(node, connections):
+        return 1 / (np.sum(np.abs(node - connections)) + 1)
+    
+    # Create a mask for connections of each node
+    node_connections = np.argsort(distance_matrix, axis=1)[:,1:]
+    
+    # Calculate the connection weight for each edge
+    weight_matrix = np.zeros(distance_matrix.shape)
+    for i in range(distance_matrix.shape[0]):
+        for j in node_connections[i]:
+            weight_matrix[i,j] = connection_weight(i, j)
+    
+    # Calculate the "distance-based cost" for each edge
+    # This is a simple form that increases with distance and decreases with weight
+    distance_based_cost = distance_matrix + weight_matrix
+    
+    # Normalize to ensure it's a valid score matrix
+    max_cost = np.max(distance_based_cost)
+    if max_cost == 0:
+        return distance_based_cost
+    else:
+        return distance_based_cost / max_cost
+```
+
+In this function, `connection_weight()` calculates a weighted value based on the connections of a node. This value serves as a 'connection cost' that modifies the raw distance. The 'distance-based cost' for each edge is then calculated by summing the raw distance and this connection cost.
+
+Finally, to ensure the result is a valid score matrix (all values between 0 and 1), we normalize by the maximum cost value.
+
+This should provide a better heuristic, as it takes into account both edge weights and overall graph structure. The exact score will depend on the characteristics of the distance_matrix input.
+
+
+

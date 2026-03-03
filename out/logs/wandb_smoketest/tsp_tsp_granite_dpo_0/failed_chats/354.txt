@@ -1,0 +1,65 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Given the constraints and your requirements, I propose an application of a popular heuristic for the Traveling Salesman Problem (TSP), namely the Lin–Kernighan–Hebron (LKH) heuristic, in a simplified form suitable for a matrix input. This method employs a "swap and rebalance" approach to iteratively improve the solution.
+
+The idea is to compute a "cost estimate" for each edge in the matrix, considering the potential to improve the total path length by either including or excluding the edge. This estimate will be a higher value for less desirable edges.
+
+Here's the Python function that implements this heuristic:
+
+```python
+def heuristics(distance_matrix):
+    n = len(distance_matrix)
+    heuristic_matrix = [[0.0] * n for _ in range(n)]
+
+    # Compute initial heuristic values
+    for i in range(n):
+        for j in range(n):
+            heuristic_matrix[i][j] = distance_matrix[i][j] + max(distance_matrix[i]) + max(distance_matrix[:i] + distance_matrix[i+1:])
+
+    # LKH-inspired rebalance step
+    for _ in range(100):  # LKH uses a limited number of iterations, but adjust this based on your specific use case
+        improved = False
+        for i in range(n):
+            for j in range(n):
+                if i!= j:  # Not including the edge itself
+                    prev_cost = heuristic_matrix[i][j]
+                    new_cost = distance_matrix[i][j] + min(heuristic_matrix[i][:j] + [heuristic_matrix[j][i]], heuristic_matrix[j][:i] + [heuristic_matrix[i][j]])
+                    if new_cost < prev_cost:
+                        heuristic_matrix[i][j] = new_cost
+                        improved = True
+
+    return heuristic_matrix
+```
+
+This function calculates an initial heuristic by adding the maximum distance of each node to the edge cost. Then, it iteratively attempts to improve the heuristic by considering potential swaps between nodes, similar to the LKH algorithm. The rebalance step tries to minimize the heuristic cost by either including or excluding each edge, based on the potential improvements in the total path length.
+
+Keep in mind that this implementation is a simplified version of LKH and might not reach the same level of performance for large, dense graphs. For TSP, there are specialized algorithms like LKH and its variants that are optimized for this specific problem, often leading to better results than general heuristics applied out of context.
+
+In the current implementation, you'll need to adjust the number of iterations (currently set to 100) according to the specifics of your problem, as this value significantly impacts performance. For a better solution, you may want to experiment with different parameters and advanced techniques tailored to your TSP instance.
+
+
+

@@ -1,0 +1,69 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more sophisticated heuristics() function, we'll need to take into consideration the specifics of the distance matrix. One approach could be to incorporate a weighting scheme based on the edge's frequency and the inverse of the distance to its neighboring nodes. This way, we're not just considering absolute distances, but also the relative positions of nodes. 
+
+Here's a novel heuristics() function:
+
+```python
+def heuristics(distance_matrix):
+    import numpy as np
+
+    # Ensure the matrix is square
+    n = distance_matrix.shape[0]
+    if n!= distance_matrix.shape[1]:
+        raise ValueError("Input matrix should be square.")
+
+    # Calculate the heuristic score
+    heuristic_scores = np.zeros((n, n))
+
+    for i in range(n):
+        for j in range(n):
+            if i!= j:
+                # Neighbors count
+                neighbor_count = np.sum(distance_matrix[i] < distance_matrix[j])
+                
+                # Weight based on inverse distance to neighbors
+                weight = 1 / (distance_matrix[j] + 1)
+
+                # Combine with absolute distance
+                heuristic_scores[i, j] = distance_matrix[i, j] + neighbor_count * weight
+
+    return heuristic_scores
+```
+
+The key differences between this function and the initial ones are:
+
+1. We compute a "neighbor count" for each edge (row and column i), indicating how many times this edge appears as a shorter path than its neighboring edges.
+2. We introduce a "weight" term which is inversely proportional to the distance of the edge's destination node (j) from its neighbors. This encourages including edges connecting nodes that are isolated or less connected.
+3. We add the neighbor count and weighted distance to get the heuristic score, thus combining both local (relative position) and global (absolute distance) information about each edge.
+
+This new function attempts to balance out edges that might have high absolute distances but are part of an efficient path due to their strategic positions, thus hopefully achieving a higher score.
+
+Please note that the actual performance of this function would be dependent on the specific characteristics of your data. You might need to adjust the weighting scheme or the formula to better suit your specific use case.
+
+
+

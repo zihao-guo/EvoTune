@@ -1,0 +1,69 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a new, more effective heuristics() function, we can apply some principles of the Lin-Kernighan-Helsgaun (LKH) algorithm, a popular metaheuristic for the Traveling Salesman Problem (TSP), which your function appears to be approximating. LKH improves upon the Lin-Kernighan algorithm by using 2-opt swaps to locally improve the solution, and a tabu search to avoid getting stuck in local optima.
+
+Here's a high-level description of the new heuristics() function, which uses a novel approach called "Closeness-based Heuristic":
+
+1. Define the closeness centrality for each node in the graph. Closeness centrality measures how close a node is to all other nodes in the graph.
+2. For each edge in the graph, compute a "cost-to-closeness" ratio. This ratio can be calculated as the weight of the edge (distance) divided by the sum of the closeness centralities of the nodes it connects.
+3. Normalize the cost-to-closeness ratios so that they are between 0 and 1. Lower values indicate less desirable edges.
+4. The resulting matrix represents the heuristic value of each edge.
+
+Here's a simple implementation of this approach in Python:
+
+```python
+import numpy as np
+
+def closeness_centrality(adjacency_matrix):
+    degrees = np.sum(adjacency_matrix, axis=0)
+    closeness = 1 / np.sum(np.sqrt(adjacency_matrix * (degrees[None, :] - adjacency_matrix)), axis=0)
+    return closeness
+
+def heuristics(distance_matrix):
+    n = distance_matrix.shape[0]
+    adjacency_matrix = np.eye(n) - distance_matrix
+    
+    # Calculate closeness centrality for each node
+    closeness = closeness_centrality(adjacency_matrix)
+    
+    # Compute cost-to-closeness ratio for each edge
+    cost_to_closeness = distance_matrix / closeness[:, None]
+    
+    # Normalize the ratios
+    heuristics_matrix = cost_to_closeness.copy()
+    heuristics_matrix[heuristics_matrix > 1] = 1
+    heuristics_matrix[heuristics_matrix < 0] = 0
+    
+    return heuristics_matrix
+```
+
+This approach takes into account not just the physical distance between nodes but also their relative accessibility, potentially leading to more optimal results.
+
+Keep in mind that this is a simplified version and might need fine-tuning for your specific problem. You might want to consider other factors, like graph connectivity, if your problem is more complex than a general TSP.
+
+
+

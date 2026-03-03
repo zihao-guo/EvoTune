@@ -1,0 +1,58 @@
+# Score: -323.255
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more effective heuristics() function, we need to leverage domain-specific knowledge, incorporate additional heuristics, or apply advanced mathematical models that better capture the problem's characteristics. Assuming the input is a weighted graph with non-negative weights, let's devise a function using the concept of "effective resistance" from electrical circuit theory, which can provide a heuristic estimate for the quality of an edge in a network flow context.
+
+In this solution, we'll assume each edge weight represents a resistor in an electrical circuit, and we're trying to find the path with the least total resistance (total electrical resistance) between all pairs of nodes. 
+
+Here's a Python function implementing this idea:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    n = distance_matrix.shape[0]
+    # Inverse of the diagonal elements represent the "inverse resistance" of nodes
+    inv_diag = 1 / np.diag(distance_matrix)
+    
+    # Initialize the heuristic matrix with the inverse of the diagonal elements
+    heuristic = np.diag(inv_diag)
+    
+    # Construct the inverse of the matrix D - 1/2 * (A + A.T)
+    for i in range(n):
+        for j in range(n):
+            if i!= j:
+                heuristic[i, j] = inv_diag[i] + inv_diag[j] - distance_matrix[i, j] / 2
+    
+    return heuristic
+```
+
+This function calculates the "inverse effective resistance" heuristic for each edge in the graph. Edges with larger resistance values (i.e., smaller heuristic values) are generally considered more desirable to include in a solution.
+
+In terms of score, this function may perform better than both previous ones because it uses an understanding of network flow theory, taking into account the overall structure of the graph rather than just individual edge weights. However, without knowing the specifics of the scoring function, it's hard to guarantee a precise improvement in score.
+
+
+

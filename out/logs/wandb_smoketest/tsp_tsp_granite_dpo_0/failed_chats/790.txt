@@ -1,0 +1,57 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a better heuristics() function, we'll introduce a novel approach based on the concept of "proximity-based edge weights". This new function will consider the distance of an edge not only to itself but also to its neighboring edges in the matrix. This encourages the selection of edges that not only minimize the overall distance but also create a more balanced, well-distributed network.
+
+Here's a possible implementation:
+
+```python
+def heuristics(distance_matrix):
+    num_nodes = distance_matrix.shape[0]
+    heuristics_matrix = distance_matrix.copy()
+
+    # For each edge, calculate its proximity to its neighboring edges
+    for i in range(num_nodes):
+        for j in range(i+1, num_nodes):
+            edge_weight = distance_matrix[i][j]
+            for neighbor_i in range(num_nodes):
+                for neighbor_j in range(neighbor_i+1, num_nodes):
+                    if (i!= neighbor_i and j!= neighbor_j):
+                        neighbor_weight = distance_matrix[neighbor_i][neighbor_j]
+                        heuristics_matrix[i][j] += (edge_weight + neighbor_weight) / (2 * num_nodes - 1)
+                        heuristics_matrix[j][i] = heuristics_matrix[i][j]  # symmetry across edges
+
+    return heuristics_matrix
+```
+
+In this new heuristics() function, we calculate a proximity-based weight for each edge by averaging the edge weight with the weights of its neighboring edges. The formula `(edge_weight + neighbor_weight) / (2 * num_nodes - 1)` adjusts the weight by the number of edges, promoting a more balanced and less congested network.
+
+This approach should outperform the simpler distance-based functions by considering the overall structure of the graph beyond just the direct pairwise distances. The new heuristics should encourage a more distributed and robust network. 
+
+Please note that the actual performance (score) will depend on the specific instances and datasets you're working with. You'll need to evaluate this function with your particular use-cases to confirm it meets your expectations.
+
+
+

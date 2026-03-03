@@ -1,0 +1,45 @@
+_wandb:
+    value:
+        cli_version: 0.25.0
+        e:
+            djn79mmjcnwltftc98yqz1s4bpk275ym:
+                cpu_count: 8
+                cpu_count_logical: 16
+                cudaVersion: "12.6"
+                disk:
+                    /:
+                        total: "1081101176832"
+                        used: "169682300928"
+                email: zeio99guo@gmail.com
+                executable: /mnt/e/currentWORK/AAA_LCM/EvoTune/.venv/bin/python
+                git:
+                    commit: 7ca349d1ec8b788e4fcc7d29d6be00251ac71750
+                    remote: https://github.com/zihao-guo/EvoTune.git
+                gpu: NVIDIA GeForce RTX 4070
+                gpu_count: 1
+                gpu_nvidia:
+                    - architecture: Ada
+                      memoryTotal: "12878610432"
+                      name: NVIDIA GeForce RTX 4070
+                      uuid: GPU-f05e3b25-a13e-c5d4-c7e5-bcd2c5f25c4a
+                host: ZihaoPC
+                memory:
+                    total: "16670449664"
+                os: Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39
+                program: <stdin>
+                python: CPython 3.11.14
+                root: /mnt/e/currentWORK/AAA_LCM/EvoTune
+                startedAt: "2026-03-03T09:21:57.941545Z"
+                writerId: djn79mmjcnwltftc98yqz1s4bpk275ym
+        m: []
+        python_version: 3.11.14
+        t:
+            "3":
+                - 2
+            "4": 3.11.14
+            "5": 0.25.0
+            "10":
+                - 20
+                - 21
+            "12": 0.25.0
+            "13": linux-x86_64

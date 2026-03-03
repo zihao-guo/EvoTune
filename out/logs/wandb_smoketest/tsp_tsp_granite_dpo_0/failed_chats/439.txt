@@ -1,0 +1,60 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Certainly, the existing functions simply return the distance matrix which is a non-optimal approach. To create a superior heuristics() function, I'll consider a more sophisticated scoring mechanism based on the principle of minimizing the maximum cost, also known as the "minimum bottleneck" heuristic. This approach helps avoid high-cost edges.
+
+Here's a Python function that uses this principle:
+
+```python
+def heuristics(distance_matrix):
+    n = len(distance_matrix)
+    # Initialize the heuristic matrix with the original distances
+    heuristic = distance_matrix
+
+    # Iterate to calculate the new heuristic values
+    for _ in range(100):
+        new_heuristic = heuristic.copy()
+        for i in range(n):
+            for j in range(n):
+                if i!= j:
+                    new_heuristic[i][j] = min(distance_matrix[i][j], heuristic[i][k] for k in range(n) if k!= i and k!= j)
+        heuristic = new_heuristic
+
+        # Check if the change is significant
+        if sum(sum(abs(x - y) for x, y in zip(heuristic, heuristic_prev)) for _ in range(n)) < 1e-6:
+            break
+
+    return heuristic
+```
+
+In this heuristics() function, we initially set the heuristic to be the same as the distance matrix. Then, for 100 iterations, we update the heuristic by taking the minimum distance to any neighbor (excluding the current vertex). This step helps to smooth out high-cost edges.
+
+The function stops iterating when the changes to the heuristic values become negligible (less than 1e-6). This stops further iterations and helps prevent the function from becoming overly complex.
+
+By focusing on reducing high-cost edges, this new heuristics() function provides a more strategic approach to prioritize which edges to include, thereby likely achieving a higher score than the original two functions.
+
+
+

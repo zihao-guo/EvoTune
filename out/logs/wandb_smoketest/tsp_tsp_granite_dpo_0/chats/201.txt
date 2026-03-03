@@ -1,0 +1,58 @@
+# Score: -318.932
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create an innovative and superior heuristics() function, I'll introduce a novel approach using the concept of "centrality" in graph theory, which measures the importance of vertices or edges in a network. In this case, we will estimate the importance of each edge based on the median distance between its connected vertices.
+
+Here's the new heuristics() function:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    n = distance_matrix.shape[0]
+    # Create a new matrix to store the heuristic scores
+    heuristic_scores = np.zeros_like(distance_matrix)
+    
+    for i in range(n):
+        # Sort the distances from the current vertex i
+        distances = np.sort(distance_matrix[i, :])
+        # Calculate the median distance
+        median_distance = np.median(distances)
+        
+        # Assign a higher score to edges with a distance closer to the median
+        heuristic_scores[i, distances <= median_distance] = -1 * (median_distance - distances[distances <= median_distance])
+        # Assign a lower score to edges further away from the median
+        heuristic_scores[i, distances > median_distance] = 1 * (distances[distances > median_distance] - median_distance)
+    
+    return heuristic_scores
+```
+
+This function works by calculating the median distance for each vertex from all other vertices. It assigns a higher heuristic score (negative value) to edges that are closer to the median distance, indicating that they are potentially more desirable, and lower heuristic scores (positive value) to edges that are farther away, implying they are less desirable. This approach gives a unique perspective on how "undesirable" an edge could be, contrasting with the simple redistribution of distances found in the provided initial functions.
+
+Please note that the exact score (heuristic values) will depend on the input distance matrix. I've tried to ensure the function's approach is novel and innovative, aiming for a higher performance score than the original functions.
+
+
+

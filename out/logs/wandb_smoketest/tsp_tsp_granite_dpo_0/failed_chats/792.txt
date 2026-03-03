@@ -1,0 +1,61 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+In order to create a more sophisticated heuristics function, we need to incorporate more complex heuristic principles, such as considering edge weights, route congestion, or travel time. Let's design a function that considers the shortest path length for each pair of nodes, which provides a basic yet effective heuristic. The idea is that the shorter the path between two nodes, the less desirable it is to include this edge in the solution.
+
+Here's the Python function:
+
+```python
+import numpy as np
+from scipy.sparse.csgraph import csgraph_shortest_path
+
+def heuristics(distance_matrix):
+    """
+    Calculate edge-based heuristics based on shortest path lengths.
+    A higher value indicates that the corresponding edge should be less likely to be included in the solution.
+    
+    Parameters:
+    distance_matrix (numpy.ndarray): A square matrix representing the distance between each pair of nodes.
+    
+    Returns:
+    numpy.ndarray: A matrix of the same shape as input, where each element is the heuristic value for the corresponding edge.
+    """
+    # Compute the shortest path lengths
+    n = distance_matrix.shape[0]
+    adj_matrix = csgraph_shortest_path(csgraph=distance_matrix, directed=True)
+    
+    # Create the heuristics matrix
+    heuristics_matrix = np.minimum(distance_matrix, adj_matrix)
+
+    return heuristics_matrix
+```
+
+This new function calculates the shortest path between each pair of nodes using the `scipy.sparse.csgraph.csgraph_shortest_path` function, which computes the shortest path matrix for a given graph. By taking the minimum of the original distance matrix and the shortest path matrix, we get a heuristics matrix that indicates how undesirable each edge is based on its position in the shortest path.
+
+Note that this is just one possible approach, and there may be other, more sophisticated heuristics that could be used depending on the specific requirements and constraints of the problem.
+
+
+

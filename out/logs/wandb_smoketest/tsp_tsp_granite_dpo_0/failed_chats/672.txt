@@ -1,0 +1,63 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Creating a truly innovative heuristics() function that outperforms existing ones without predefined distance matrices requires a bit more context and a clear objective for what "undesirable" means in the context of an edge inclusion. Here's a simple yet novel approach using the concept of "negative impact" on a graph's global fitness.
+
+This function will consider edges as having an "impact" score, calculated as the sum of the distance of its endpoints minus a scaling factor. Edges that connect vertices far apart will be considered more undesirable (higher impact).
+
+```python
+def heuristics(distance_matrix):
+    n = len(distance_matrix)
+    scaling_factor = 0.05  # A small scaling factor to give more weight to larger distances
+
+    # Initialize a new matrix to store the impact scores
+    impact_matrix = [[0 for _ in range(n)] for _ in range(n)]
+
+    # Calculate the impact for each edge
+    for i in range(n):
+        for j in range(n):
+            impact_matrix[i][j] = distance_matrix[i][j] - scaling_factor*(i + j)  # Adjust scaling factor as needed
+
+    return impact_matrix
+
+# Example Usage:
+distance_matrix = [[0, 5, 10, 15],
+                  [5, 0, 3, 8],
+                  [10, 3, 0, 12],
+                  [15, 8, 12, 0]]
+
+heuristics_scores = heuristics(distance_matrix)
+print(heuristics_scores)
+```
+
+This function incorporates a dynamic scaling factor, which could be tuned based on specific requirements. In this example, I've used a small constant scaling factor, but in a real application, you might adjust it based on the scale of your distances or performance metrics of your model.
+
+The scoring matrix reflects edges with larger distances and/or those where both endpoints are far from the graph's center (in this case, node 0) as more undesirable.
+
+The performance of this heuristics() function largely depends on the specific nature of your problem and the desired properties in the solution. It's important to validate this function with your particular use case.
+
+
+

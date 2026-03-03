@@ -1,0 +1,57 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Given the requirement to create a more sophisticated heuristics() function, I'll consider a few strategies that could potentially improve performance over a simple distance matrix sum. These strategies could involve incorporating additional information from the problem or applying some form of intelligent scoring.
+
+Here's a hypothetical heuristics() function that considers both the distance and the number of edges connected to each node as potential indicators of undesirability:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Assuming the input is a square matrix representing a graph where the diagonal is zero
+    n = distance_matrix.shape[0]
+    # Compute the sum of squares of distances (to penalize long paths)
+    distance_sum_of_squares = np.sum(distance_matrix**2)
+    # Compute the degree (number of edges connected to each node)
+    degree = np.sum(distance_matrix, axis=1)
+    
+    # Create a new matrix where each entry is a combination of distance_sum_of_squares and degree
+    heuristics_matrix = distance_sum_of_squares + degree
+    
+    return heuristics_matrix
+```
+
+This function incorporates two elements: 
+1. The sum of squared distances, which heavily penalizes long edges, encouraging shorter paths.
+2. The degree of each node, favoring nodes that are connected to many others, which can help balance the network.
+
+The exact combination and scaling of these factors will need to be tuned based on the specific characteristics of the problem at hand and the performance of the heuristics() function in relation to other scoring methods. This approach provides a clear break from the simpler methods by introducing additional problem-specific information into the heuristic calculation.
+
+Please note that the actual performance of this heuristics() function cannot be determined without concrete data and problem context, as the evaluation is subjective and depends on the specifics of the use case.
+
+
+

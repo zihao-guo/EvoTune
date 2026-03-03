@@ -1,0 +1,68 @@
+# Score: -275.742
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To improve the heuristics function, I'll introduce a novel approach that considers not only the direct edge distances but also the potential benefits of skipping certain edges and the cost of including others. This function will use the concept of "weighted impact" for each edge, giving a higher score to edges that might lead to more beneficial connections.
+
+Here's a possible implementation:
+
+```python
+def heuristics(distance_matrix):
+    num_nodes = distance_matrix.shape[0]
+    impact_matrix = np.full((num_nodes, num_nodes), 0.0)
+    
+    # Add positive impact for edges that connect high-impact nodes
+    for i in range(num_nodes):
+        for j in range(i+1, num_nodes):
+            distance = distance_matrix[i, j]
+            impact_i = impact_matrix[i, :]  # sum of impacts from i to all nodes
+            impact_j = impact_matrix[j, :]  # sum of impacts from j to all nodes
+            
+            # If i and j are high-impact nodes, skip other connections to i and j to increase the benefit of connection
+            if np.sum(impact_i) > 10 or np.sum(impact_j) > 10:
+                impact_i[i] += 1
+                impact_j[j] += 1
+            
+            impact_matrix[i, j] = distance
+            impact_matrix[j, i] = distance
+    
+    # Normalize impact_matrix
+    impact_matrix = impact_matrix / np.max(impact_matrix)
+    
+    return impact_matrix
+```
+
+This function introduces two aspects for each edge:
+1. Direct distance (from the original matrix).
+2. The potential for benefit, determined by the sum of impacts from the two nodes involved.
+
+This approach might outperform the simple matrix-copy function because it encourages connections that link high-impact nodes, prioritizing those connections over direct distance alone.
+
+The parameters (10 in this example) can be adjusted based on how you define "high-impact" nodes. A high number indicates that the function values connections from nodes that have significant influence more, and the low-impact nodes' edges are given less weight.
+
+Please note that the performance improvement will depend on the specific dataset and definition of "high-impact" nodes, which should be chosen based on the problem's context.
+
+
+

@@ -1,0 +1,55 @@
+# Score: -286.063
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+In order to improve upon the existing `heuristics` function, we can introduce an edge-weight heuristic that considers not just the direct distance but also the "attractiveness" of each node. This approach can be based on the concept of "closeness centrality" in graph theory, which gives higher importance to nodes that are connected to more other nodes.
+
+In our heuristics function, each element in the returned matrix will be the sum of the corresponding edge's distance and a weight that represents the attractiveness of its nodes. Here, I assume that `distance_matrix` is a square matrix where `distance_matrix[i][j]` represents the direct distance between nodes `i` and `j`.
+
+Here's how the new function `heuristics(distance_matrix)` could be defined:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Calculate the number of connections for each node.
+    num_connections = np.sum(distance_matrix, axis=1) # This represents the attractiveness of a node.
+    
+    # Multiply the original distance by the attractiveness of the nodes it connects.
+    heuristics_matrix = distance_matrix + num_connections[:, None] * distance_matrix
+    
+    return heuristics_matrix
+```
+
+This function calculates the number of connections for each node by summing the distances along each row (i.e., to every other node). It then multiplies each original distance by the attractiveness of the node it connects to, which is derived from the total number of connections that node has.
+
+This new function attempts to capture a broader measure of edge "undesirability", considering both the direct distance and the nodes' connectivity. If this approach yields a better score than the existing functions, it means it's doing a more comprehensive job of evaluating the edge "undesirability".
+
+Please note that the actual performance of this function can vary significantly depending on the specific characteristics of the graph or distance matrix you're working with, and it might need fine-tuning for optimal performance.
+
+To compute the score, you would typically use an optimization algorithm to find the best solution under this heuristic, and then calculate the objective function (the sum of the values in the heuristics matrix) as the score. The function `sum(sum(heuristics_matrix))` can serve as the objective function.
+
+
+

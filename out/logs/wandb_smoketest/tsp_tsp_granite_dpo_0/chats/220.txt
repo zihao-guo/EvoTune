@@ -1,0 +1,57 @@
+# Score: -343.136
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+In order to develop a better heuristics function that outperforms the initial ones, let's consider the following aspects:
+
+1. Re-interpreting the Distance Matrix: The higher-scoring function might have been considering the overall graph structure or connectivity, instead of just the raw distance data. We can create a new matrix by applying some transformations to the input distance matrix.
+
+2. Incorporating Connectivity: We could add a connectivity matrix (adjacency matrix) to the distance matrix, and then use a cost function that reflects the undesirability of a connection. For instance, we could use the formula: 1 / distance.
+
+3. Edge Density and Length: Consider the density and the length of the connections, giving more weight to shorter, denser connections.
+
+Based on these considerations, here's a new heuristics() function:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Convert distance matrix to connectivity matrix (adjacency matrix)
+    connectivity_matrix = np.ones((len(distance_matrix), len(distance_matrix))) - distance_matrix
+    # Compute the inverse of distances
+    inverse_distances = 1 / distance_matrix
+    # Adjust for edge density and length
+    edge_density = np.mean(distance_matrix)  # Use average distance as a simple measure of edge density
+    connectivity_weight = inverse_distances * edge_density
+    heuristics_matrix = connectivity_matrix * connectivity_weight
+    return heuristics_matrix
+```
+
+This function converts the distance matrix into a connectivity matrix (adjacency matrix), adds a cost factor based on the inverse of the distances, and adjusts for the edge density. The final heuristics matrix will have higher values for more desirable edges, taking into account both the raw distance and the overall connectivity structure.
+
+Note: This is a conceptual example, and actual performance would depend on the specifics of your use case, including the range of your distance values and the typical edge densities in your graphs. You might need to tune the parameters (like how edge density is calculated) to get the best results.
+
+
+

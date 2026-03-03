@@ -1,0 +1,78 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To develop a heuristic function that performs better than the original, we need to incorporate insights from network flow problems, particularly using the Moore-Hodgson algorithm, which is a heuristic for the minimum-cost flow problem. This approach considers the direction and capacity of edges in a network, providing a more nuanced evaluation of edge desirability.
+
+Here's a Python function, `heuristics()`, that utilizes a variant of the Moore-Hodgson algorithm to assign edge scores:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # First, we normalize the distance matrix.
+    D = distance_matrix / np.max(distance_matrix)
+
+    n = D.shape[0]
+    E = np.zeros((n, n))
+
+    # Step 1: Create residual capacities
+    for i in range(n):
+        for j in range(n):
+            E[i, j] = D[i, j] - D[i, j] * (D[i, j] <= D[j, i])
+
+    # Step 2: Relax edges
+    for _ in range(n - 1):
+        E_copy = E.copy()
+        for i in range(n):
+            for j in range(n):
+                # Find the minimum flow from i to j
+                if i == n - 1 and j == 0:
+                    # Terminal nodes, no need for relaxation
+                    continue
+                u = j
+                while E[u, i] > 0 and E[u, j] < E[i, j]:
+                    u = np.argmin([E[u, k] for k in range(n) if k!= i and k!= u])
+                if E[u, j] < E[i, j]:
+                    # Update the residual capacity
+                    E[i, j] -= E[u, j]
+                    E[u, j] = np.inf
+                    E[u, i] += E[j, u]
+                    E[j, u] = 0
+
+    # Step 3: Return the final flow matrix as heuristic scores
+    return E
+```
+
+This `heuristics()` function performs the following steps:
+1. Normalizes the input distance matrix.
+2. Creates a residual capacity matrix `E` based on the normalized distance matrix.
+3. Iteratively relaxes the edges (similar to the Bellman-Ford algorithm) to minimize the flow from source (0) to sink (n-1).
+4. Returns the final flow matrix as the heuristic edge scores.
+
+Please note that this is a simple heuristic and its performance can vary depending on the specific characteristics of the input distance matrix. You may need to further fine-tune the function or use it as part of a more complex optimization strategy based on your specific use case.
+
+
+

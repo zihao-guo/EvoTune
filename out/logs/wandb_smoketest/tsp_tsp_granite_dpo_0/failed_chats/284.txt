@@ -1,0 +1,57 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Based on your instructions, the goal is to create a heuristics function that performs significantly better than the existing ones by employing a novel strategy. In this case, let's propose a heuristic based on the "D**2" (Manhattan distance) metric and incorporate a weighting factor for edge importance. This approach considers both the physical distance and the potential impact of the edge on the overall solution, giving higher weights to edges that are more critical.
+
+Here's the new `heuristics()` function:
+
+```python
+def heuristics(distance_matrix, edge_weights):
+    num_nodes = distance_matrix.shape[0]
+    heuristic_matrix = np.zeros_like(distance_matrix)
+    
+    # D^2 heuristic
+    squared_distances = np.square(distance_matrix)
+    d_squared = squared_distances.sum(axis=1)
+    
+    # Weighted D^2 for each edge
+    for i in range(num_nodes):
+        for j in range(i + 1, num_nodes):
+            heuristic_matrix[i, j] = heuristic_matrix[j, i] = d_squared[i] + d_squared[j] * edge_weights[i][j]
+    
+    return heuristic_matrix
+```
+
+In this function, `edge_weights` is a 2D array that provides the importance of each edge, where `edge_weights[i][j]` indicates the weight associated with the edge between nodes `i` and `j`.
+
+The main improvements over the previous functions:
+1. It uses the squared Euclidean distance (`D^2`) as the base heuristic, which generally provides a lower bound on the true distance.
+2. It incorporates the edge weights to account for the potential impact of edges in the solution.
+
+These adjustments attempt to go beyond the superficial rewriting of existing approaches and offer a more nuanced representation of how undesirable each edge is in the context of the solution.
+
+
+

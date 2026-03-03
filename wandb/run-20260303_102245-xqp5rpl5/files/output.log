@@ -1,0 +1,330 @@
+[INFO] W&B run URL: https://wandb.ai/zeio99guo-institut-polytechnique-de-paris/evotune/runs/xqp5rpl5
+2026-03-03 10:22:48,250 - INFO - W&B run URL: https://wandb.ai/zeio99guo-institut-polytechnique-de-paris/evotune/runs/xqp5rpl5
+[INFO] Running with config:
+cluster:
+  scratch_path: /path/to/scratch
+  use_tgi: 0
+  use_vllm: 1
+task:
+  task_name: bin
+  function_str_to_extract: priority
+  Weibull: 0
+  OR: 1
+  init_best_fit: 1
+  failed_score: -20000
+  timeout_period: 60
+  mem_limit_gb: 10
+  programdatabaseConfig:
+    temp: 40.0
+  initial_percentile: 0.3
+model:
+  model_name: granite
+  temperature: 0.9
+  topk: 100
+  topp: 0.95
+  max_tokens: 2048
+train:
+  train_method_name: dpo
+  finetuning_frequency: 400
+  dpo_strategy: 2
+  dpo_config:
+    beta: 0.4
+    max_seq_length: 6500
+    per_device_train_batch_size: 2
+    gradient_accumulation_steps: 16
+    gradient_checkpointing: 1
+    num_train_epochs: 2
+    learning_rate: 1.0e-05
+    lr_scheduler_type: cosine
+    weight_decay: 0.001
+    warmup_steps: 0
+    logging_steps: 1
+    f_divergence_type: alpha_divergence
+    f_alpha_divergence_coef: 1.0
+multiple_models: 0
+creative_prompt: 1
+descending_order: 1
+gpu_nums: 0
+flash_attn: 0
+programdatabaseConfig:
+  functions_per_prompt: 2
+  num_islands: 6
+  temp_sampling_flag: 1
+  temp: 40.0
+initial_percentile: 0.6
+final_percentile: 0.2
+num_cont_rounds: 5
+num_outputs_per_prompt: 1
+num_workers: 2
+num_rounds: 15
+finetuning_frequency: 5
+lr_annealing: 0
+one_tuning: 1
+percentile: 70
+max_loops: 1
+accelerate_config: 1gpu_0
+lora_config:
+  r: 64
+  lora_alpha: 32
+eval_frequency: 100
+evalset: trainperturbedset
+testset: testset
+top_k_functions_for_test: 50
+function_str_to_extract: priority
+wandb_name: local4070g/bin_granite_dpo_0
+group_name: local4070g/bin_granite_dpo
+logs_path: .
+logs_dir: out/logs/local4070g/bin_bin_granite_dpo_0
+wandb: 1
+project: evotune
+entity: zeio99guo-institut-polytechnique-de-paris
+seed: 0
+run_identifier_name: bin_granite_dpo
+prefix: local4070g
+run_or_dev: dev
+use_tgi: 0
+use_vllm: 1
+vllm_gpu_memory_utilization: 0.8
+vllm_max_model_len: 8192
+full_accelerate_config: ./configs/accelerate_config/1gpu_0.yaml
+full_model_name: ibm-granite/granite-3.1-2b-instruct
+model_dtype: bfloat16
+model_adapter_dir: out/logs/local4070g/bin_bin_granite_dpo_0/model_adapter_granite
+default_wandb_name: xqp5rpl5
+2026-03-03 10:22:48,262 - INFO - Running with config:
+cluster:
+  scratch_path: /path/to/scratch
+  use_tgi: 0
+  use_vllm: 1
+task:
+  task_name: bin
+  function_str_to_extract: priority
+  Weibull: 0
+  OR: 1
+  init_best_fit: 1
+  failed_score: -20000
+  timeout_period: 60
+  mem_limit_gb: 10
+  programdatabaseConfig:
+    temp: 40.0
+  initial_percentile: 0.3
+model:
+  model_name: granite
+  temperature: 0.9
+  topk: 100
+  topp: 0.95
+  max_tokens: 2048
+train:
+  train_method_name: dpo
+  finetuning_frequency: 400
+  dpo_strategy: 2
+  dpo_config:
+    beta: 0.4
+    max_seq_length: 6500
+    per_device_train_batch_size: 2
+    gradient_accumulation_steps: 16
+    gradient_checkpointing: 1
+    num_train_epochs: 2
+    learning_rate: 1.0e-05
+    lr_scheduler_type: cosine
+    weight_decay: 0.001
+    warmup_steps: 0
+    logging_steps: 1
+    f_divergence_type: alpha_divergence
+    f_alpha_divergence_coef: 1.0
+multiple_models: 0
+creative_prompt: 1
+descending_order: 1
+gpu_nums: 0
+flash_attn: 0
+programdatabaseConfig:
+  functions_per_prompt: 2
+  num_islands: 6
+  temp_sampling_flag: 1
+  temp: 40.0
+initial_percentile: 0.6
+final_percentile: 0.2
+num_cont_rounds: 5
+num_outputs_per_prompt: 1
+num_workers: 2
+num_rounds: 15
+finetuning_frequency: 5
+lr_annealing: 0
+one_tuning: 1
+percentile: 70
+max_loops: 1
+accelerate_config: 1gpu_0
+lora_config:
+  r: 64
+  lora_alpha: 32
+eval_frequency: 100
+evalset: trainperturbedset
+testset: testset
+top_k_functions_for_test: 50
+function_str_to_extract: priority
+wandb_name: local4070g/bin_granite_dpo_0
+group_name: local4070g/bin_granite_dpo
+logs_path: .
+logs_dir: out/logs/local4070g/bin_bin_granite_dpo_0
+wandb: 1
+project: evotune
+entity: zeio99guo-institut-polytechnique-de-paris
+seed: 0
+run_identifier_name: bin_granite_dpo
+prefix: local4070g
+run_or_dev: dev
+use_tgi: 0
+use_vllm: 1
+vllm_gpu_memory_utilization: 0.8
+vllm_max_model_len: 8192
+full_accelerate_config: ./configs/accelerate_config/1gpu_0.yaml
+full_model_name: ibm-granite/granite-3.1-2b-instruct
+model_dtype: bfloat16
+model_adapter_dir: out/logs/local4070g/bin_bin_granite_dpo_0/model_adapter_granite
+default_wandb_name: xqp5rpl5
+
+[INFO] Resuming from logs directory
+
+2026-03-03 10:22:48,311 - INFO - Resuming from logs directory
+[INFO] Total functions evaluated: 5
+2026-03-03 10:22:48,319 - INFO - Total functions evaluated: 5
+[INFO] Number of functions in the programbank: 7
+2026-03-03 10:22:48,320 - INFO - Number of functions in the programbank: 7
+[INFO] Number of functions in the finetuning data: 0
+2026-03-03 10:22:48,321 - INFO - Number of functions in the finetuning data: 0
+[INFO] Flag load finetuned: False
+2026-03-03 10:22:48,323 - INFO - Flag load finetuned: False
+[INFO] ====================== Inference Engine: vLLM ======================
+2026-03-03 10:22:48,323 - INFO - ====================== Inference Engine: vLLM ======================
+[INFO] Starting with round number 5
+2026-03-03 10:22:48,324 - INFO - Starting with round number 5
+[INFO] STARTING ROUND NUM: 5
+2026-03-03 10:22:48,325 - INFO - STARTING ROUND NUM: 5
+[INFO] Prompt num: 5
+2026-03-03 10:22:48,325 - INFO - Prompt num: 5
+[INFO] Total functions generated so far: 5
+2026-03-03 10:22:48,326 - INFO - Total functions generated so far: 5
+[INFO] Total functions evaluated so far: 5
+2026-03-03 10:22:48,327 - INFO - Total functions evaluated so far: 5
+[INFO] Number of functions in the programbank: 7
+2026-03-03 10:22:48,327 - INFO - Number of functions in the programbank: 7
+[INFO] Number of datatpoints in DPO data: 0
+2026-03-03 10:22:48,328 - INFO - Number of datatpoints in DPO data: 0
+[INFO] Best overall program score: -536.78
+2026-03-03 10:22:48,328 - INFO - Best overall program score: -536.78
+[INFO] Best running_dict score: -inf
+2026-03-03 10:22:48,329 - INFO - Best running_dict score: -inf
+[INFO] Best running_dict best_true_score_from_score: -inf
+2026-03-03 10:22:48,330 - INFO - Best running_dict best_true_score_from_score: -inf
+[INFO] Starting vLLM model server...
+2026-03-03 10:22:48,332 - INFO - Starting vLLM model server...
+[INFO] Starting vLLM server for model ibm-granite/granite-3.1-2b-instruct on GPU 0 at port 8080
+2026-03-03 10:22:48,333 - INFO - Starting vLLM server for model ibm-granite/granite-3.1-2b-instruct on GPU 0 at port 8080
+[INFO] Waiting for all servers to start... Server PIDs: [3451]
+2026-03-03 10:22:48,335 - INFO - Waiting for all servers to start... Server PIDs: [3451]
+[INFO] Server is ready at port 8080. Serving ibm-granite/granite-3.1-2b-instruct.
+2026-03-03 10:23:47,690 - INFO - Server is ready at port 8080. Serving ibm-granite/granite-3.1-2b-instruct.
+[INFO] ----------
+2026-03-03 10:23:47,691 - INFO - ----------
+[INFO] GENERATING PROMPTS
+2026-03-03 10:23:47,692 - INFO - GENERATING PROMPTS
+/home/zeio99/.local/share/uv/python/cpython-3.11.14-linux-x86_64-gnu/lib/python3.11/multiprocessing/popen_fork.py:66: RuntimeWarning: os.fork() was called. os.fork() is incompatible with multithreaded code, and JAX is multithreaded, so this will likely lead to a deadlock.
+  self.pid = os.fork()
+[INFO] ----------
+2026-03-03 10:23:47,754 - INFO - ----------
+[INFO] STARTING CONSUMERS
+2026-03-03 10:23:47,756 - INFO - STARTING CONSUMERS
+[INFO] ----------
+2026-03-03 10:23:47,783 - INFO - ----------
+[INFO] STARTING THE PRODUCER
+2026-03-03 10:23:47,790 - INFO - STARTING THE PRODUCER
+[INFO]
+2026-03-03 10:23:47,792 - INFO -
+
+
+[INFO] Prompt scores: [np.float64(-536.78)]
+
+
+2026-03-03 10:23:47,793 - INFO - Prompt scores: [np.float64(-536.78)]
+[INFO] Island id 4
+2026-03-03 10:23:47,794 - INFO - Island id 4
+[INFO]
+2026-03-03 10:23:47,795 - INFO -
+
+
+[INFO] Time taken for LLM generation: 6 seconds
+
+
+2026-03-03 10:23:54,334 - INFO - Time taken for LLM generation: 6 seconds
+[INFO] Number of outputs with at least one valid function definition: 1
+2026-03-03 10:23:56,340 - INFO - Number of outputs with at least one valid function definition: 1
+[INFO] LLM generation time: 6
+2026-03-03 10:23:56,344 - INFO - LLM generation time: 6
+[INFO] Producer: Generated 1 functions for prompt 6
+2026-03-03 10:23:56,346 - INFO - Producer: Generated 1 functions for prompt 6
+[INFO] Producer: Generated 0 failed functions for prompt 6
+2026-03-03 10:23:58,357 - INFO - Producer: Generated 0 failed functions for prompt 6
+[INFO]
+2026-03-03 10:23:58,363 - INFO -
+
+
+[INFO] Prompt scores: [np.float64(-574.06), np.float64(-536.78)]
+
+
+2026-03-03 10:23:58,365 - INFO - Prompt scores: [np.float64(-574.06), np.float64(-536.78)]
+[INFO] Island id 3
+2026-03-03 10:23:58,366 - INFO - Island id 3
+[INFO]
+2026-03-03 10:23:58,368 - INFO -
+
+
+[INFO] Time taken for LLM generation: 11 seconds
+
+
+2026-03-03 10:24:09,564 - INFO - Time taken for LLM generation: 11 seconds
+[INFO] Number of outputs with at least one valid function definition: 1
+2026-03-03 10:24:10,567 - INFO - Number of outputs with at least one valid function definition: 1
+[INFO] LLM generation time: 11
+2026-03-03 10:24:10,573 - INFO - LLM generation time: 11
+[INFO] Producer: Generated 1 functions for prompt 7
+2026-03-03 10:24:10,574 - INFO - Producer: Generated 1 functions for prompt 7
+[INFO] Producer: Generated 0 failed functions for prompt 7
+2026-03-03 10:24:10,576 - INFO - Producer: Generated 0 failed functions for prompt 7
+[INFO]
+2026-03-03 10:24:10,577 - INFO -
+
+
+[INFO] Prompt scores: [np.float64(-536.78)]
+
+
+2026-03-03 10:24:10,578 - INFO - Prompt scores: [np.float64(-536.78)]
+[INFO] Island id 0
+2026-03-03 10:24:10,579 - INFO - Island id 0
+[INFO]
+2026-03-03 10:24:10,580 - INFO -
+
+
+[INFO] Time taken for LLM generation: 7 seconds
+
+
+2026-03-03 10:24:17,587 - INFO - Time taken for LLM generation: 7 seconds
+[INFO] Number of outputs with at least one valid function definition: 1
+2026-03-03 10:24:17,588 - INFO - Number of outputs with at least one valid function definition: 1
+[INFO] LLM generation time: 7
+2026-03-03 10:24:17,591 - INFO - LLM generation time: 7
+[INFO] Producer: Generated 1 functions for prompt 8
+2026-03-03 10:24:17,593 - INFO - Producer: Generated 1 functions for prompt 8
+[INFO] Producer: Generated 0 failed functions for prompt 8
+2026-03-03 10:24:17,594 - INFO - Producer: Generated 0 failed functions for prompt 8
+[INFO]
+2026-03-03 10:24:17,595 - INFO -
+
+
+[INFO] Prompt scores: [np.float64(-536.78)]
+
+
+2026-03-03 10:24:17,595 - INFO - Prompt scores: [np.float64(-536.78)]
+[INFO] Island id 0
+2026-03-03 10:24:17,596 - INFO - Island id 0
+[INFO]
+2026-03-03 10:24:17,597 - INFO -

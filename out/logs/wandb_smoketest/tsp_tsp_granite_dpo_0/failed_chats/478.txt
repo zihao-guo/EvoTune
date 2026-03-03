@@ -1,0 +1,59 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more sophisticated heuristics function, we can introduce a combination of three factors: the distance itself, the density of connections around the node, and the difference in distance to its neighbors. This approach aims to capture more complex relationships in the graph, beyond just pairwise distances. Here's how I propose to design the function:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Step 1: Calculate the average distance of neighboring nodes for each node
+    avg_neighbor_distance = np.apply_along_axis(lambda x: np.mean(x[x!= i]), axis=1, arr=distance_matrix, i=np.arange(distance_matrix.shape[0]))
+    
+    # Step 2: Calculate the difference in distance to each of its neighbors
+    distance_differences = distance_matrix - avg_neighbor_distance[:, np.newaxis]
+    
+    # Step 3: Normalize the differences by dividing by the average distance of all neighbors
+    normalization_factor = np.mean(distance_differences, axis=1)[:, np.newaxis]
+    normalized_differences = distance_differences / normalization_factor
+    
+    # Step 4: Combine the three factors into a single heuristic score
+    heuristic_scores = distance_matrix + normalized_differences + np.mean(distance_matrix, axis=1)[:, np.newaxis]
+    
+    return heuristic_scores
+```
+
+This heuristics() function works as follows:
+
+1. It computes the average distance of neighboring nodes for each node. This helps to understand the overall network structure around each node.
+2. It calculates the difference in distance to each neighbor. This factor captures local inefficiency, as nodes with significant deviations from their neighbors might impose higher cost in the path.
+3. It normalizes these differences using the average distance of all neighbors. This allows for a fair comparison of deviations across different nodes.
+4. Finally, it combines all these factors into a single heuristic score for each edge.
+
+These novel indicators of undesirability should lead to a higher performance score than the original simple distance matrix. However, the actual performance improvement will depend on the specific structure and characteristics of the input distance matrices.
+
+
+

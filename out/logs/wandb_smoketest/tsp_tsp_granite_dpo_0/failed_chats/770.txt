@@ -1,0 +1,65 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Based on your requirements, let's create a heuristics function that uses a variant of the "shortest path heuristic" in combination with a novel "distance impact factor" (DIF). This heuristic will estimate the difficulty of incorporating an edge into a solution by considering both the edge's weight and its position in the graph.
+
+```python
+def heuristics(distance_matrix):
+    import numpy as np
+
+    # Calculate the shortest path from each node to all others using Dijkstra's algorithm
+    def dijkstra(matrix):
+        n = matrix.shape[0]
+        distances = np.copy(matrix)
+        visited = np.zeros(n, dtype=bool)
+        for _ in range(n):
+            min_distance = np.inf
+            u = -1
+            for v in range(n):
+                if not visited[v] and distances[v] < min_distance:
+                    min_distance = distances[v]
+                    u = v
+            visited[u] = True
+            for v in range(n):
+                if visited[v] and distances[v] > distances[u] + matrix[u, v]:
+                    distances[v] = distances[u] + matrix[u, v]
+        return distances
+
+    # Calculate the distance impact factor (DIF) for each edge
+    DIF = np.zeros(distance_matrix.shape)
+    for i in range(distance_matrix.shape[0]):
+        for j in range(distance_matrix.shape[1]):
+            DIF[i, j] = distance_matrix[i, j] / np.sum(dijkstra(distance_matrix))
+
+    return DIF
+```
+
+This function calculates the DIF by dividing each edge's weight by the total shortest path distance from each node to all others. The shorter the total shortest path distance, the more critical an edge is to connecting different parts of the graph, and thus, it will have a larger impact factor.
+
+Please note that the score achieved with this new function might be different from the previous ones and cannot be predicted without testing it on different distance matrices. It's a novel approach that could potentially outperform the other two functions. The effectiveness of this heuristic will depend on the characteristics of the specific distance matrices it's applied to.
+
+
+

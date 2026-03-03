@@ -1,0 +1,67 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Given the requirement to create a novel heuristics function, I'll incorporate an element of graph theory and the concept of network flow to develop a new heuristic. This function, which I'll call 'weighted_path_count', will consider both the distance and the number of edges that pass through each node in a potential path between nodes.
+
+Here's the Python function:
+
+```python
+def weighted_path_count(distance_matrix):
+    num_nodes = len(distance_matrix)
+    edges = []
+
+    # Add edges with zero weight for every pair of nodes
+    for i in range(num_nodes):
+        for j in range(i+1, num_nodes):
+            edges.append((i, j, 1))
+            edges.append((j, i, 1))  # Consider bidirectional edges for path count
+
+    # Calculate the count of paths from each node
+    path_count = [[0 for _ in range(num_nodes)] for _ in range(num_nodes)]
+    for edge in edges:
+        u, v, weight = edge
+        for k in range(num_nodes):
+            if (u, k) in path_count[v] or (k, v) in path_count[u]:
+                path_count[u][k] += weight
+                path_count[v][k] += weight
+
+    # Create the heuristic matrix
+    heuristics = [[0 for _ in range(num_nodes)] for _ in range(num_nodes)]
+    for i in range(num_nodes):
+        for j in range(num_nodes):
+            if i!= j:  # Paths from node i to node j are not considered
+                heuristics[i][j] = distance_matrix[i][j] + path_count[i][j] / (distance_matrix[i][j] + 1)
+    return heuristics
+```
+
+This heuristic function considers the actual edge distances and the weighted count of paths between nodes (as an indirect measure of their connectivity). Nodes connected by paths are more attractive to include because they increase the overall connectivity in the solution. This should give it a higher score than the simple reiteration of the distance matrix, considering both the edge weights and the number of paths.
+
+Please note that the score will vary based on the specific characteristics of the input distance matrix. The scoring function (which wasn't provided in your initial request) should be adjusted to evaluate this new heuristic. This function assumes a perfect scoring function that simply adds up the values in the 'heuristics' matrix.
+
+This solution incorporates a novel aspect of graph theory and path counting, which should lead to better performance on complex, interconnected networks.
+
+
+

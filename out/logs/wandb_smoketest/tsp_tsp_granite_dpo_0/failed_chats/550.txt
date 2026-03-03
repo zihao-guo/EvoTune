@@ -1,0 +1,65 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more sophisticated heuristics function, we'll introduce a novel concept of edge importance based on both local and global context, which the previous functions didn't leverage. This heuristics function will consider not just the direct distance, but also the impact of excluding an edge on the overall connectivity and path efficiency.
+
+```python
+def heuristics(distance_matrix):
+    import numpy as np
+    
+    # Calculate edge importance based on local connectivity
+    local_importance = np.diag(distance_matrix)  # Diagonal elements represent each node's intrinsic importance
+    local_importance = 1 / local_importance  # Inverse to make importance higher for less connected nodes
+    
+    # Calculate global connectivity and path efficiency
+    connectivity = np.sum(distance_matrix, axis=1)  # Sum of distances from each node
+    path_efficiency = 1 - (distance_matrix / np.sum(distance_matrix, axis=1)[:, np.newaxis]).mean(axis=0)  # Path efficiency between all pairs of nodes
+    
+    # Combine local and global importance
+    total_importance = local_importance * path_efficiency
+    
+    # Normalize importance for edges
+    max_importance = np.max(total_importance)
+    heuristics_matrix = total_importance / max_importance
+    
+    return heuristics_matrix
+
+# Now, let's analyze how this function improves the score
+# Since we don't have a specific score to compare against, we'll assume this function performs better if it yields higher values
+
+# Here are some potential improvements over the previous functions:
+1. We consider the local structure of the graph (connectivity), in addition to the edge distances.
+2. The global connectivity and path efficiency are incorporated to reflect the overall network behavior.
+3. By combining local and global importance, the function captures a broader range of factors affecting edge desirability.
+4. The use of normalization ensures the importance scores are within a similar range, allowing better comparison across different matrices.
+
+Please note that, without a concrete score to optimize against, this is a theoretical improvement. In practice, the actual performance of this function would be evaluated against the specific problem and benchmark datasets.
+```
+
+This new heuristics function incorporates both local and global context to estimate edge importance, thereby potentially leading to better performance. The specific metrics (local connectivity, global connectivity, path efficiency) and weighting (local_importance and path_efficiency) can be fine-tuned based on the specific problem requirements.
+
+
+

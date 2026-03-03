@@ -1,0 +1,63 @@
+# Score: -278.853
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Given the nature of the task, we need to go beyond simple matrix re-representation. An intelligent heuristic function should incorporate problem-specific knowledge to make informed decisions about the undesirability of edges.
+
+One possible approach could be to incorporate a notion of 'centrality' or 'importance' into the calculation. For example, we can interpret the elements of the distance matrix as weights of edges in a graph, where lower values represent more 'important' edges.
+
+Here's a simple example using PageRank-inspired heuristics. The idea is to give more weight to 'important' edges (those with lower values in the distance matrix).
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Normalize the distance matrix to avoid numerical instability
+    normalized_matrix = np.power(distance_matrix, 2)  # Square to handle both smaller and larger values similarly
+    normalized_matrix /= np.sum(normalized_matrix, axis=0)  # Row normalization
+    normalized_matrix /= np.sum(normalized_matrix, axis=1)  # Column normalization
+
+    # Apply PageRank-like damping factor to prioritize important edges
+    damping_factor = 0.85  # A parameter that can be tuned
+    heuristic_matrix = damping_factor * normalized_matrix + (1 - damping_factor) * np.eye(normalized_matrix.shape[0])
+
+    return heuristic_matrix
+
+# Assuming we have a 5x5 distance matrix:
+distance_matrix = np.array([[0, 1, 2, 3, 4],
+                           [1, 0, 5, 6, 7],
+                           [2, 5, 0, 8, 9],
+                           [3, 6, 8, 0, 10],
+                           [4, 7, 9, 10, 0]])
+
+print(heuristics(distance_matrix))
+```
+
+This function gives more weight to 'important' edges (those closer in the distance matrix) while still considering the importance of all edges. This should theoretically lead to better performance than both the original functions, and it would be a significant departure from the simple re-representation approach.
+
+Please remember that this is just one possible approach, and the 'best' heuristic would depend on the specifics of your problem. You might need to tune parameters like the damping factor or even incorporate additional problem-specific information.
+
+
+

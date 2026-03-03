@@ -1,0 +1,73 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more effective heuristics function, let's incorporate the following novel aspects:
+
+1. **Edge Weights vs. Direct Distance**: Instead of directly using the distance matrix, we'll calculate a weighted version that considers edge importance or frequency.
+2. **Path Length**: The function will estimate the potential path length along a route that includes each edge.
+3. **Deviation from Optimal**: It will estimate how much each edge deviates from the shortest possible route, which typically represents higher connectivity in real-world networks.
+
+Here's a Python implementation of the new `heuristics()` function:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix, edge_weights):
+    num_nodes = len(distance_matrix)
+    heuristics_matrix = np.zeros((num_nodes, num_nodes))
+
+    # Calculate edge weights
+    edge_weights = np.array(edge_weights) / np.sum(edge_weights)
+
+    for i in range(num_nodes):
+        for j in range(num_nodes):
+            if i!= j:  # Avoid self-loops and duplicate edges
+                heuristics_matrix[i][j] = edge_weights[i][j] * np.sqrt(distance_matrix[i][j] ** 2 + distance_matrix[j][i] ** 2)
+
+    # Potential path length
+    potential_path_lengths = np.diag(distance_matrix) + np.sum(distance_matrix, axis=0) + np.sum(distance_matrix, axis=1) - 2 * distance_matrix
+    heuristics_matrix += potential_path_lengths
+
+    # Deviation from optimal
+    # This step is more complex and may require a specific model for the network.
+    # For this example, let's assume a simple random deviation:
+    deviation = np.random.rand(num_nodes, num_nodes) - 0.5  # -0.5 bias towards higher deviation
+    heuristics_matrix += deviation
+
+    return heuristics_matrix
+```
+
+In this function:
+
+- `distance_matrix`: A square matrix representing the known distances between nodes.
+- `edge_weights`: A square matrix indicating the importance or frequency of each edge (normalized to sum up to 1).
+
+The function first constructs a weighted version of the input distance matrix, then adds a potential path length component based on the simple sum of direct distances. It then adds a random deviation component, reflecting a model where each edge could lead to a route of higher average length.
+
+This approach should provide better indications for prioritizing edge inclusion in a solution, improving the score achieved. You might need to adjust the deviation model or add more sophisticated path length estimation based on your specific use case.
+
+
+

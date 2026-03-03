@@ -1,0 +1,66 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more advanced heuristics function, we can incorporate some graph-theoretic concepts such as vertex degrees, number of edges, and shortest paths to provide more nuanced edge undesirability scores. Here's an approach that might improve the function's performance:
+
+```python
+import numpy as np
+from scipy.sparse.csgraph import shortest_path
+
+def heuristics(distance_matrix):
+    # Calculate vertex degrees
+    degrees = np.sum(distance_matrix, axis=0)
+    
+    # Calculate the number of edges
+    num_edges = distance_matrix.size // 2
+    
+    # Calculate shortest path lengths from each node to all others
+    dist_matrix, _ = shortest_path(distance_matrix, directed=False)
+    
+    # Calculate a simple edge undesirability score based on degrees and shortest path length
+    heuristic_matrix = np.zeros_like(distance_matrix)
+    
+    for i in range(distance_matrix.shape[0]):
+        for j in range(i, distance_matrix.shape[1]):
+            # Exclude diagonal elements (self-loops)
+            if i!= j:
+                heuristic_matrix[i, j] = degrees[i] * (num_edges - degrees[i]) * dist_matrix[i, j]
+                heuristic_matrix[j, i] = heuristic_matrix[i, j]
+    
+    return heuristic_matrix
+```
+
+In this heuristics function:
+
+1. `degrees` represent the number of edges connected to a vertex, which could indicate the "importance" of a vertex in the graph.
+2. `num_edges` is a simple metric representing the overall connectivity of the graph.
+3. `dist_matrix` stores the shortest path lengths between all vertices, providing another indicator of the "centrality" of each vertex.
+4. The final heuristics score for each edge `(i, j)` is computed as the product of the degree of `i`, the number of edges minus the degree of `i`, and the shortest path length from `i` to `j`.
+
+This function incorporates graph theory, which can provide more insightful metrics than just the raw distance matrix, and should thus potentially lead to a higher score. Note that the actual optimal score will depend on the specific dataset and criteria you're using to evaluate performance.
+
+
+

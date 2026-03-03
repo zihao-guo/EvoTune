@@ -535,7 +535,13 @@ def initialize_models_server(cfg, load_finetuned, use_vllm=False):
             if not use_vllm:
                 pid = start_tgi_server(model_id, gpu_num, port)
             else:
-                pid = start_vllm_server(model_id, gpu_num, port)
+                pid = start_vllm_server(
+                    model_id,
+                    gpu_num,
+                    port,
+                    cfg.vllm_gpu_memory_utilization,
+                    cfg.vllm_max_model_len,
+                )
             server_pids.append(pid)
             model_ids.append(model_id)
             # wait to avoid crashing by initializing consecutive servers too quickly
@@ -557,7 +563,13 @@ def initialize_models_server(cfg, load_finetuned, use_vllm=False):
         if not use_vllm:
             pid = start_tgi_server(model_id, cfg.gpu_nums, ports[0])
         else:
-            pid = start_vllm_server(model_id, cfg.gpu_nums, ports[0])
+            pid = start_vllm_server(
+                model_id,
+                cfg.gpu_nums,
+                ports[0],
+                cfg.vllm_gpu_memory_utilization,
+                cfg.vllm_max_model_len,
+            )
 
         server_pids = [pid]
         model_ids = [model_id]
@@ -587,7 +599,7 @@ def start_tgi_server(model_id, gpu_num, port):
     return pid
 
 
-def start_vllm_server(model_id, gpu_num, port):
+def start_vllm_server(model_id, gpu_num, port, gpu_memory_utilization, max_model_len):
     """
     Starts a vLLM server with OpenAI-compatible API, assigning the specified GPU.
     Refer to vLLM docs for additional flags/options:
@@ -604,8 +616,13 @@ def start_vllm_server(model_id, gpu_num, port):
         "vllm",
         "serve",
         model_id,
-        "--port", str(port),
-        "--disable-log-requests"
+        "--port",
+        str(port),
+        "--gpu-memory-utilization",
+        str(gpu_memory_utilization),
+        "--max-model-len",
+        str(max_model_len),
+        "--disable-log-requests",
     ]
 
     # If you need additional arguments, append them here. For example:

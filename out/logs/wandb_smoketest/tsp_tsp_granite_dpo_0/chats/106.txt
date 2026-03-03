@@ -1,0 +1,67 @@
+# Score: -273.387
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Certainly, I understand that you're looking for a more sophisticated heuristics() function. Given that the reference function just returns the distance matrix, we can improve upon it by incorporating additional information about the network structure, like edge weights, to estimate the impact of each edge on the total cost.
+
+Let's use a simple approach where we assign a score to each edge based on its weight and the sum of weights of its adjacent edges. This way, we're rewarding edges that are both relatively cheap and integral to the network (i.e., connect many other edges).
+
+Here's the improved function:
+
+```python
+def heuristics(distance_matrix):
+    # Get matrix dimensions
+    num_nodes = distance_matrix.shape[0]
+    
+    # Initialize heuristic matrix with zeros
+    heuristic_matrix = np.zeros((num_nodes, num_nodes))
+    
+    # Calculate heuristic score for each edge
+    for i in range(num_nodes):
+        for j in range(i, num_nodes):  # Only consider upper triangle (i < j) to avoid double counting
+            # Weight of the edge (i, j)
+            edge_weight = distance_matrix[i, j]
+            
+            # Adjacent edges of edge (i, j)
+            adj_i = np.where(distance_matrix[i, :] < np.inf)[0]  # Find adjacent nodes for i
+            adj_j = np.where(distance_matrix[:, j] < np.inf)[0]  # Find adjacent nodes for j
+            
+            # Sum of weights of adjacent edges of (i, j)
+            adj_sum = np.sum(distance_matrix[adj_i, adj_j])
+            
+            # Calculate heuristic score
+            heuristic_matrix[i, j] = heuristic_matrix[j, i] = edge_weight + adj_sum
+    
+    return heuristic_matrix
+```
+
+This function calculates a heuristic score for each edge by considering both its weight and the total weight of its adjacent edges. This should lead to better performance because it takes into account the network's interconnectedness, in addition to individual edge costs.
+
+Please note that this heuristic might not be optimal or even meaningful for all types of problems. It's a simple example and can be adjusted according to the specific problem requirements.
+
+You can test this function with the same distance matrix as before and compare its score with the previous ones. The score will likely be better as it incorporates additional contextual information about the network.
+
+
+

@@ -1,0 +1,59 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To improve the heuristics() function, we should leverage the structure of the distance matrix and incorporate domain-specific knowledge or advanced heuristics for graph theory problems, like the "Floyd-Warshall algorithm" or "Dijkstra's algorithm". These algorithms can provide effective shortcuts for estimating the cost to reach all vertices from a given one, which can be transformed into a heuristic value for our edge.
+
+Here's an example implementation using Dijkstra's algorithm, where we will interpret shortest path to be a heuristic for undesirability:
+
+```python
+import heapq
+
+def heuristics(distance_matrix):
+    n = len(distance_matrix)
+    # Initialize distances to all vertices as infinite, except the source vertex which is 0
+    dist = [float('inf')] * n
+    dist[0] = 0
+    
+    # Dijkstra's algorithm to find shortest paths
+    for _ in range(n-1):
+        u = min(range(n), key=lambda i: dist[i])
+        dist[u] = float('inf')
+        for v, w in enumerate(distance_matrix[u]):
+            if dist[u] + w < dist[v]:
+                dist[v] = dist[u] + w
+    
+    # The heuristics matrix is the negative of the shortest path from each vertex
+    heuristics_matrix = [-d for d in dist]
+    
+    return heuristics_matrix
+```
+
+This function calculates the shortest path from every vertex to every other vertex, then uses these as heuristics. Lower values indicate potentially less undesirable edges, since they correspond to smaller shortest paths.
+
+Note: This function assumes that the distance matrix represents non-negative edge weights. The problem becomes more complex if negative weights are allowed, in which case more sophisticated approaches like Bellman-Ford or Johnson's algorithm are needed. Also, this heuristic is a simple one and might not always perfectly capture the notion of "undesirability" in all contexts. In real-world applications, you may need to adjust or combine this with other heuristics based on specific problem requirements.
+
+
+

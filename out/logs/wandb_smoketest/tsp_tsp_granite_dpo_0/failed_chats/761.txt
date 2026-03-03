@@ -1,0 +1,63 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Creating a new function, heuristics(), that significantly outperforms the existing functions requires a deeper dive into the nature of the input data and the specific characteristics of the higher-scoring function. Let's consider the following approach:
+
+The higher-scoring function likely considers both the distance itself and the density of the neighboring distances in the matrix. This indicates a richer, more informed heuristic. 
+
+The novel heuristics function, therefore, could incorporate additional context. Let's add a 'distance_importance' factor that gives more weight to larger distances. This factor could be determined by the average distance in the matrix.
+
+Furthermore, we'll introduce a 'neighbor_density' factor. This factor measures how frequently a certain distance occurs in the neighboring entries of the matrix. It provides insight into the local density of connections.
+
+Here's how we could implement this in Python:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Calculate average distance for importance weight
+    avg_distance = np.mean(distance_matrix)
+    distance_importance = avg_distance * 2  # heuristically doubling the importance of larger distances
+
+    heuristics_matrix = np.zeros_like(distance_matrix)
+
+    # Calculate neighbor density
+    neighbor_density = np.zeros_shape(distance_matrix)
+    for i in range(distance_matrix.shape[0]):
+        for j in range(distance_matrix.shape[1]):
+            neighbors = distance_matrix[i][max(0, i-1):i] + distance_matrix[i][max(0, i+1):i+2]
+            neighbor_density[i][j] = sum(neighbors < distance_matrix[i, j]) / (2*distance_matrix.shape[0] - 1)
+
+    # Apply importance and neighbor density to generate heuristics
+    heuristics_matrix = distance_matrix + distance_importance * neighbor_density
+
+    return heuristics_matrix
+```
+
+This new function is expected to provide a different scoring perspective by incorporating the 'distance_importance' and 'neighbor_density' factors. These additions aim to provide a more nuanced view of the data, potentially leading to a higher score compared to the previous functions. The parameters can be adjusted based on your specific use case and dataset.
+
+
+

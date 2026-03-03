@@ -1,0 +1,47 @@
+# Score: -328.059
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+I understand that you're looking for a more sophisticated heuristics function than the simple "return distance_matrix" approach. Here's a function that utilizes the concept of weighted edge importance based on the average distance of the vertices it connects. This approach considers the "centrality" of vertices in terms of their distance distribution, which can be an effective indicator of edge importance.
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Compute the average distance for each vertex
+    avg_distances = np.mean(distance_matrix, axis=0)
+    
+    # Create a new matrix where each element represents the weighted importance of the corresponding edge
+    heuristics_matrix = np.maximum(avg_distances[:, np.newaxis], avg_distances[np.newaxis, :]) - distance_matrix
+    
+    return heuristics_matrix
+```
+
+This function works by calculating the average distance of each vertex from all other vertices, then considering the higher of these two averages for each vertex pair as a measure of how central they are in the graph. The diagonal elements of the returned matrix will be higher than the corresponding elements in the input distance matrix because they represent the centrality of the vertices themselves, not their connections.
+
+Please note that this is still a heuristic and may not be optimal in all cases, especially for very large or complex graphs. More sophisticated algorithms or different heuristics might be needed for specific problems. The score achieved with this function could be higher than the simpler versions, depending on the characteristics of your specific distance matrix.
+
+
+

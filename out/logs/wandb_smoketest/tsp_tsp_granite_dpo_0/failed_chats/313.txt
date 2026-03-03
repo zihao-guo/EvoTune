@@ -1,0 +1,80 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more effective heuristics() function, we need to consider additional aspects of the problem and incorporate more complex rules that may better predict the desirability of an edge inclusion. Let's add a cost-based heuristic that factors in not only direct distances but also potential indirect costs (e.g., through intermediate nodes). We'll also introduce a novel concept of 'connectivity score' to account for edges that connect densely populated areas.
+
+Here's a possible implementation:
+
+```python
+def heuristics(distance_matrix, weight_matrix, population_map):
+    """
+    distance_matrix: A 2D matrix of pairwise distances.
+    weight_matrix: A 2D matrix indicating edge weights, typically inverse of distance.
+    population_map: A 2D matrix indicating population density at each node.
+    """
+    
+    n = distance_matrix.shape[0]
+    heuristics_matrix = np.zeros((n, n))
+
+    # Direct Distance Heuristic
+    for i in range(n):
+        for j in range(n):
+            heuristics_matrix[i, j] += distance_matrix[i, j]
+            # Add a small factor to account for inverse distance
+            heuristics_matrix[i, j] *= weight_matrix[i, j]
+
+    # Indirect Costs (Nearest Neighbor)
+    for k in range(n):
+        for i in range(n):
+            for j in range(n):
+                if i!= j and distance_matrix[i, j] < np.inf:
+                    heuristics_matrix[i, j] += distance_matrix[k, i] + distance_matrix[k, j]
+                    # Apply weights based on the edge's position on the shortest path
+                    heuristics_matrix[i, j] *= (1 / min(distance_matrix[k, i], distance_matrix[k, j]))
+
+    # Connectivity Score
+    connectivity_scores = np.zeros(n)
+    for i in range(n):
+        connectivity_scores[i] = np.mean(population_map[i])  # Simple average population of all neighboring nodes
+
+    for i in range(n):
+        for j in range(n):
+            if i!= j:
+                heuristics_matrix[i, j] += connectivity_scores[i] + connectivity_scores[j]
+                heuristics_matrix[i, j] *= 0.5  # Adjust factor for weighted connectivity
+
+    return heuristics_matrix
+```
+
+This function considers:
+1. Direct distance, with weights from the weight_matrix.
+2. Indirect costs (through the shortest path neighbor, estimated with nearest neighbor approximation).
+3. A connectivity score that reflects the population density of the surrounding nodes.
+
+The design of this heuristics() function aims to account for both the physical distance and connectivity of edges. However, the specific values for the factors (like the small factor in the direct distance heuristic, and the weighting factor for the connectivity score) should be adjusted based on the problem's requirements and the scale of the input data.
+
+
+

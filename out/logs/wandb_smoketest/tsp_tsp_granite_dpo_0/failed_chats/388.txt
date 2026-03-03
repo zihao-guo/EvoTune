@@ -1,0 +1,85 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more effective heuristics() function, we need to incorporate a strategy that considers the nature of the distance matrix and the goal of optimization (i.e., minimizing the total cost). The existing function simply returns the distance matrix, which doesn't contain any additional, discriminative information. 
+
+We can improve this function by incorporating a heuristic that reflects the concept of "shortest path" or "lowest cost" principle, reflecting that we prefer paths with smaller cumulative distances. We'll use Dijkstra's algorithm as a basis, which is a popular heuristic for shortest path problems. This function will estimate the cost to traverse an edge, based on the sum of distances to its neighboring nodes, and return a higher cost as the edge is less beneficial for the overall solution.
+
+Here's a Python implementation:
+
+```python
+import heapq
+
+def heuristics(distance_matrix):
+    # Get the shape of the input matrix
+    num_nodes = len(distance_matrix)
+    
+    # Initialize a dictionary to store tentative distances
+    tentative_distances = {node: (distance_matrix[node][node], node) for node in range(num_nodes)}
+    
+    # Set of unvisited nodes
+    unvisited = set(range(num_nodes))
+
+    # Priority queue to store (distance, node)
+    # Lower priority means a shorter path to this node
+    priority_queue = [(0, node) for node in unvisited]
+    heapq.heapify(priority_queue)
+
+    # Dijkstra's algorithm
+    while priority_queue:
+        # Get the node with the lowest tentative distance
+        current_distance, current_node = heapq.heappop(priority_queue)
+
+        # Skip if we've already computed a better path for this node
+        if current_distance > tentative_distances[current_node][0]:
+            continue
+
+        # Update tentative distances to neighboring nodes
+        for neighbor, weight in enumerate(distance_matrix[current_node]):
+            if neighbor not in unvisited:
+                continue
+
+            new_distance = current_distance + weight
+
+            # If a shorter path to this neighbor is found
+            if new_distance < tentative_distances[neighbor][0]:
+                tentative_distances[neighbor] = (new_distance, neighbor)
+                heapq.heappush(priority_queue, (new_distance, neighbor))
+
+    # Prepare the heuristic matrix
+    heuristic_matrix = [[0] * num_nodes for _ in range(num_nodes)]
+    for node1 in range(num_nodes):
+        for node2 in range(num_nodes):
+            if node1!= node2:
+                heuristic_matrix[node1][node2] = tentative_distances[node2][0]
+
+    return heuristic_matrix
+```
+
+This function uses Dijkstra's algorithm to compute the shortest path to each node from the starting node, and assigns a heuristic value to each edge based on this calculation. The higher the value, the less desirable the edge is for the overall solution due to its relatively long path. This should yield a better performance score than the initial approach.
+
+
+

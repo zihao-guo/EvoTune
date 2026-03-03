@@ -1,0 +1,49 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a novel heuristics function, I'll use a simple but effective approach that combines the density and the average distance. This function will assign lower values to edges in densely connected regions, aiming to avoid overcrowding, and higher values to edges with longer distances, aiming to minimize total travel distance.
+
+Here's the function:
+
+```python
+def heuristics(distance_matrix):
+    num_nodes, _ = distance_matrix.shape
+    avg_distance = np.mean(np.min(distance_matrix, axis=0))
+    density = (np.sum(distance_matrix, axis=1) / num_nodes) ** 2
+    heuristic_matrix = avg_distance + density * 100  # Adjust the multiplier as needed
+    return heuristic_matrix
+```
+
+This function first calculates the average distance (avg_distance) across all nodes using np.min(distance_matrix, axis=0). Then, it computes the density of each node by calculating the sum of minimum distances from itself (np.sum(distance_matrix, axis=1) / num_nodes) and squaring the result. Finally, it combines these two aspects by adding the average distance and multiplying the density component by a multiplier (100 in this case).
+
+This approach, by giving more weight to denser regions and longer distances, may outperform the previous functions, achieving a higher score. However, actual performance will depend on the specifics of the datasets it's applied to.
+
+Note: This function assumes that the input is a 2D numpy array. If your distance_matrix is in a different format (like a list of lists or a pandas DataFrame), you'll need to convert it to a numpy array before using this function.
+
+Also, you might need to fine-tune the multiplier (100 in this case) according to your specific problem's characteristics to achieve the best performance.
+
+
+

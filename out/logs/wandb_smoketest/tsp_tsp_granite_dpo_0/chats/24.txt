@@ -1,0 +1,50 @@
+# Score: -336.406
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+The heuristics function I'll design will be based on the concept of edge weights. It will assign lower values to less desirable edges and higher values to more desirable ones. This is a common strategy in optimization problems, where edges represent connections between nodes. The heuristic function will favor shorter paths, indicating edges closer to 0, and discourage longer paths, indicating edges closer to a higher value.
+
+Here's a Python function using this concept:
+
+```python
+def heuristics(distance_matrix):
+    # Normalize the distance matrix to [0, 1]
+    max_distance = distance_matrix.max()
+    normalized_matrix = distance_matrix / max_distance
+
+    # Calculate the heuristic score based on distance (inverse of distance)
+    heuristic_matrix = 1 / normalized_matrix
+
+    return heuristic_matrix
+```
+
+This function first normalizes the input distance matrix to the range [0, 1], which ensures all edges have equal representation. Then, it calculates the heuristic score for each edge by taking the reciprocal of the normalized distance.
+
+The reasoning behind this change is that the lower-scoring function might be penalizing longer distances excessively. By normalizing and inverting the distances, this heuristics function provides a more nuanced view, penalizing shorter distances less and longer distances more. 
+
+This should result in a higher score compared to both initial functions, as it better reflects the notion of "undesirability" of each edge based on distance.
+
+
+

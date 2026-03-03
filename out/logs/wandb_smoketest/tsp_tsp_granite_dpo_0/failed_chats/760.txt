@@ -1,0 +1,89 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more effective heuristics() function, we can utilize a combination of local and global optimization techniques, including the concept of "edge-weight importance" and "community structure" from graph theory. We'll also incorporate a form of "greedy approximation" to handle large-scale problems.
+
+Here's a Python implementation:
+
+```python
+import numpy as np
+from scipy.sparse.csgraph import csgraph_largest_component
+
+def heuristics(distance_matrix):
+    # Convert the 2D distance matrix to a sparse CSR (Compressed Sparse Row) format for efficient computations
+    distance_matrix = csr_matrix(distance_matrix)
+    
+    # Step 1: Local community detection
+    # Use Louvain method for modularity optimization
+    from community import community_louvain
+    modularity, communities = community_louvain.best_partition(distance_matrix)
+    
+    # Create a new distance matrix for communities, where edges within a community have smaller weight
+    community_matrix = np.zeros(distance_matrix.shape)
+    for i, comm in enumerate(communities):
+        community_matrix[np.ix_(comm, comm)] = 1 - distance_matrix[np.ix_(comm, comm)]
+    
+    # Step 2: Global community detection and removal
+    # Find the largest connected component in the community graph
+    largest_component = csgraph_largest_component(distance_matrix)
+    
+    # Create a new distance matrix for the largest component
+    largest_component_matrix = largest_component.toarray()
+    
+    # Step 3: Greedy approximation
+    # Assume that removing an edge has cost 'weight'
+    weight = 1.0  # You can adjust this to better fit your problem
+
+    # Initialize the heuristics matrix
+    heuristics_matrix = np.zeros(distance_matrix.shape)
+    
+    for i in range(distance_matrix.shape[0]):
+        for j in range(i + 1, distance_matrix.shape[0]):
+            # If the edge is in the largest component
+            if distance_matrix[i, j] in largest_component_matrix[largest_component_matrix == 1, largest_component_matrix == 1]:
+                # If the nodes belong to the same community
+                if comm_i == comm_j:
+                    heuristics_matrix[i, j] = weight
+                # If they belong to different communities, consider the cost of the community split
+                else:
+                    heuristics_matrix[i, j] = weight * (1 - community_matrix[i, comm_i] * community_matrix[j, comm_j])
+    
+    return heuristics_matrix
+```
+
+This new function works by first detecting communities in the graph using the Louvain method for modularity optimization. Then, it finds the largest connected component within these communities.
+
+In the greedy approximation step, it assigns a cost to removing an edge based on whether the nodes belong to the same or different communities. The weight of this cost is adjustable to better suit your specific optimization task.
+
+The main advantages of this approach are:
+1. It considers local and global structures of the graph, making it more resilient to large-scale problems.
+2. The community detection helps to reduce the'spread' of costs, focusing more on edges that significantly affect the overall graph structure.
+3. The greedy approximation method allows for a computationally efficient way to assign initial edge-weight importance.
+
+Please note that the `community` library is used here for community detection. You can install it via `pip install community`. The modularity value used for the Louvain method may need to be adjusted based on your specific problem.
+
+
+

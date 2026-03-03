@@ -1,0 +1,72 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+The requirement for an improved heuristics function involves a deeper understanding of the problem context. Let's assume the distance matrix represents a weighted graph, where higher values denote greater distances or costs. In this case, the heuristics function should estimate the expected total cost if a certain edge is included, considering it's likely to be part of a minimum spanning tree, which is a cost-efficient solution.
+
+Here's a simple yet innovative heuristics function that uses a prim's algorithm to estimate the cost of an edge inclusion. This function is based on the intuition that edges connecting parts of the graph that are already well-connected are less likely to be in a minimum spanning tree:
+
+```python
+import heapq
+
+def prim_mst_cost(distance_matrix, start_node):
+    n = len(distance_matrix)
+    visited = set()
+    heap = [(0, start_node)]  # (cost, node)
+    total_cost = 0
+    while heap:
+        cost, current = heapq.heappop(heap)
+        if current not in visited:
+            visited.add(current)
+            total_cost += cost
+            for neighbor, edge_cost in enumerate(distance_matrix[current]):
+                if neighbor not in visited and edge_cost!= float('inf'):  # assuming graph is undirected and no infinite cost edges
+                    heapq.heappush(heap, (edge_cost, neighbor))
+    return total_cost
+
+def heuristics(distance_matrix):
+    n = len(distance_matrix)
+    priority_queue = [(0, i) for i in range(n)]  # (cost, node)
+    visited = set()
+    total_cost = 0
+
+    while priority_queue:
+        cost, node = heapq.heappop(priority_queue)
+        if node not in visited:
+            visited.add(node)
+            total_cost += cost
+            for neighbor, edge_cost in enumerate(distance_matrix[node]):
+                if neighbor not in visited:  # avoid including edges within the same highly-connected components
+                    heapq.heappush(priority_queue, (edge_cost, neighbor))
+
+    return np.array([[total_cost + distance_matrix[i][j]] for i in range(n) for j in range(i)])
+```
+
+The `heuristics()` function uses Prim's algorithm to build a minimum spanning tree, and then estimates the additional cost to reach each node from the tree's roots. This approach reflects the intuition about the cost-inefficiency of connecting nodes within densely connected clusters. The result is a heuristic cost matrix that should outperform the simple distance matrix return in most scenarios.
+
+This function assumes the input distance matrix is non-negative and does not contain infinite costs. If your problem context is different, you may need to adjust this function accordingly. Also, it uses NumPy for concise array operations; if you don't have it installed, you can install it using `pip install numpy`.
+
+
+

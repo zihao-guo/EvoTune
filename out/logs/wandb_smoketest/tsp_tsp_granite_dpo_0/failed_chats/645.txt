@@ -1,0 +1,83 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a new heuristics() function that improves upon the existing ones, we should consider incorporating more advanced optimization concepts such as Dijkstra's or A* search algorithms, which are commonly used for finding the shortest path in weighted graphs. In this case, we'll treat the distance matrix as a graph where each element represents the weight (or distance) between nodes.
+
+Here's a Python function named heuristics() that employs Dijkstra's algorithm as a heuristic to estimate the cost to reach each node from a start node. We'll also include a variant of A* search to refine these estimates.
+
+```python
+import heapq
+
+def dijkstra(graph, start):
+    dist = {node: float('infinity') for node in graph}
+    dist[start] = 0
+    priority_queue = [(0, start)]
+    
+    while priority_queue:
+        current_dist, current_node = heapq.heappop(priority_queue)
+        
+        if current_dist > dist[current_node]:
+            continue
+        
+        for neighbor, weight in graph[current_node].items():
+            distance = current_dist + weight
+            
+            if distance < dist[neighbor]:
+                dist[neighbor] = distance
+                heapq.heappush(priority_queue, (distance, neighbor))
+    
+    return dist
+
+def heuristics(distance_matrix):
+    n = len(distance_matrix)
+    h = {i: 0 for i in range(n)}  # H values are initially 0
+    
+    # Apply Dijkstra's algorithm to get the estimated distance from each node
+    dist = dijkstra({i: {j: distance_matrix[i][j] for j in range(n)} for i in range(n)}, 0)
+    
+    # Use A* search to refine the heuristics, we use a heuristic function (e.g., Manhattan distance)
+    heuristic_function = lambda x, y: abs(x[0] - y[0]) + abs(x[1] - y[1])
+    
+    for node in range(n):
+        for neighbor, weight in distance_matrix[node].items():
+            tentative_dist = dist[node] + weight
+            actual_dist = dist[neighbor]
+            
+            # If A* path is better than Dijkstra path
+            if tentative_dist < actual_dist + heuristic_function((node, neighbor), (neighbor, neighbor)):
+                h[neighbor] = tentative_dist  # Update the heuristic value
+    
+    return h
+
+# Now the function returns a matrix of heuristics, where each element represents the estimated cost to reach that node from the start.
+```
+
+This new heuristics() function uses Dijkstra's algorithm to compute the shortest path (or estimated path) from each node to the start node. Then, it employs A* search (with a Manhattan distance heuristic function) to refine these estimates, giving higher values to paths that are likely to be more optimal than the initial Dijkstra's algorithm.
+
+This approach significantly deviates from the straightforward duplication of existing functions and should yield a superior score. The exact score improvement will depend on the specific characteristics of the given distance matrices.
+
+
+

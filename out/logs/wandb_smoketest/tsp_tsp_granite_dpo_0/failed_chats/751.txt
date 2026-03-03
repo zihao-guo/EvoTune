@@ -1,0 +1,72 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To enhance the performance of the `heuristics()` function, I'll introduce a novel approach that considers edge weights in relation to their positions in the distance matrix. This method, known as "weighted centrality", will take into account the average distance of each node (excluding the edge itself) to prioritize edges that connect nodes with high centrality.
+
+Here is the Python function for the `heuristics()`:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    n = distance_matrix.shape[0]
+    centrality = np.zeros((n, n))
+    
+    # Calculate average distances from each node to all other nodes
+    for i in range(n):
+        for j in range(n):
+            if i!= j:
+                centrality[i, j] = np.mean(distance_matrix[i, :j] + distance_matrix[j, :i])
+
+    # Calculate weighted centrality
+    weighted_centrality = np.zeros_like(distance_matrix)
+    for i in range(n):
+        for j in range(n):
+            if distance_matrix[i, j] > 0:  # Assuming zero distance means no connection
+                weighted_centrality[i, j] = centrality[i, j] / distance_matrix[i, j]
+
+    # The heuristics matrix is the negative of weighted centrality
+    heuristics_matrix = -weighted_centrality
+
+    return heuristics_matrix
+
+# Usage
+distance_matrix = np.array([[0, 5, 8, 11],  # Example 4x4 matrix
+                            [5, 0, 3, 12],
+                            [8, 3, 0, 6],
+                            [11, 12, 6, 0]])
+
+print(heuristics(distance_matrix))
+```
+
+This function calculates the average distance of each node to all other nodes, then calculates a "weighted centrality" by dividing this average distance by the actual edge distance. This weighted centrality is used to create a heuristics matrix that penalizes more the edges that connect highly central nodes (i.e., nodes that are well-connected in the graph). This approach should provide a better overall score than the basic distance matrix.
+
+As the `centrality` calculation involves two nested loops over a square matrix, its time complexity is O(n^2), the same as the original `distance_matrix` function. The space complexity is also O(n^2) due to the storage of `centrality` and `heuristics_matrix`. 
+
+Remember that the quality of the score achieved will depend on the specific nature and structure of your input distance matrix.
+
+
+

@@ -1,0 +1,61 @@
+# Score: -321.206
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create an improved heuristics() function that outperforms the previous ones, we can incorporate domain-specific knowledge into the score calculation. In this case, let's assume that the distance matrix represents a traveling salesman problem (TSP), where edges have associated costs (distances). A common heuristic for TSP is the "Nearest Neighbor" strategy, but we can enhance it.
+
+The "Nearest Neighbor" heuristic calculates the sum of the distances to the nearest unvisited vertices for each vertex. However, we can improve it by considering the remaining unvisited vertices' average distance from the current vertex. This approach is inspired by the Christofides algorithm, which is a near-optimal solution for TSP.
+
+Here's the Python function named `heuristics()`:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    n = len(distance_matrix)
+    # Initialize heuristic scores with maximum possible values
+    heuristic_scores = np.full_like(distance_matrix, np.inf)
+    
+    # Iterate through each vertex
+    for i in range(n):
+        # Calculate the sum of distances to the remaining unvisited vertices
+        remaining_unvisited_sum = 0
+        for j in range(n):
+            if j!= i:  # Skip the vertex itself
+                remaining_unvisited_sum += distance_matrix[i, j]
+        
+        # Calculate the average distance to the remaining vertices
+        avg_distance_to_remaining = remaining_unvisited_sum / (n - 1)
+        
+        # Assign the average distance to the current vertex's heuristic score
+        heuristic_scores[i] = avg_distance_to_remaining
+    
+    return heuristic_scores
+```
+
+This new heuristics() function calculates a score for each vertex based on the average distance to its remaining unvisited neighbors, providing a more informed indication of edge undesirability. This strategy should perform better than the previous functions because it takes into account more context when calculating edge scores, which could lead to a lower overall score for the distance matrix.
+
+
+

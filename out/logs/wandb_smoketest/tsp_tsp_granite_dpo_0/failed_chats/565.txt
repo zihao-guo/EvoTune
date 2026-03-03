@@ -1,0 +1,64 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+For this problem, I'll propose a new heuristics function that incorporates an edge's connection strength, its position in the matrix, and the average distance to its neighbors. This approach combines three key factors that could significantly impact the undesirability of an edge inclusion:
+
+1. Connection Strength: This is a measure of how essential the edge is in connecting different components of the graph. I'll use the inverse of the sum of the absolute differences of distances between the nodes.
+
+2. Position in the Matrix: The heuristic will consider the edge's position in the matrix. Edges in the center, which have many connections, are generally less desirable due to higher overall connectivity.
+
+3. Average Distance to Neighbors: This factor considers how well-connected the nodes the edge connects are. The average distance will be calculated for the neighbors of both nodes.
+
+Here's the Python function:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    m, n = distance_matrix.shape
+    # 1. Connection Strength: Sum of absolute differences of distances between nodes divided by the total distance.
+    connection_strength = np.sum(np.abs(distance_matrix), axis=0) / np.sum(distance_matrix)
+
+    # 2. Position in the Matrix: A simple function that assigns lower values for edges in the center and higher values for edges on the periphery.
+    position = np.sqrt((m - 1) / 3) - np.abs(m - 1) / (2 * np.sqrt(m)) + 1 / m
+
+    # 3. Average Distance to Neighbors: Calculate the average distance of neighbors for each node and then average those values.
+    avg_dist_to_neighbors = 0
+    for i in range(m):
+        neighbors_distances = distance_matrix[i, :][:, :].sum(axis=0)
+        avg_dist_to_neighbors += neighbors_distances.mean()
+    avg_dist_to_neighbors /= m
+
+    # Combine the three factors
+    heuristics_matrix = connection_strength + position + avg_dist_to_neighbors
+    
+    return heuristics_matrix
+```
+
+This function should provide a better heuristic compared to the initial functions, as it takes into account the individual and collective characteristics of edges, not just their raw distances. However, note that the performance improvement will depend on the specific nature of your distance matrix and the optimization problem you are trying to solve.
+
+
+

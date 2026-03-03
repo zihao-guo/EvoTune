@@ -1,0 +1,62 @@
+# Score: -278.511
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To achieve a better heuristic score, we can incorporate a heuristic factor that reflects the potential benefit of including each edge in the solution. Here, I'll introduce a concept of "benefit-to-cost ratio" for each edge. The idea is that edges closer to the start or end points will have a higher ratio, as they potentially reduce the total path length.
+
+Here's a Python function called `heuristics()` that accomplishes this:
+
+```python
+def heuristics(distance_matrix):
+    num_nodes = distance_matrix.shape[0]
+    heuristics_matrix = np.zeros_like(distance_matrix)
+
+    for i in range(num_nodes):
+        for j in range(i, num_nodes):  # Consider only unvisited nodes
+            # Benefit: Distance from i to j
+            benefit = distance_matrix[i, j]
+            
+            # Cost: Distance from i to start (assumed to be 0 for the start node)
+            cost_from_start = np.inf if i == 0 else distance_matrix[i, 0]
+
+            # Cost: Distance from j to end (assumed to be 0 for the end node)
+            cost_to_end = np.inf if j == num_nodes - 1 else distance_matrix[j, num_nodes - 1]
+            
+            # Benefit-to-cost ratio
+            ratio = benefit / (cost_from_start + cost_to_end)
+            
+            heuristics_matrix[i, j] = ratio
+
+    return heuristics_matrix
+```
+
+This function calculates a ratio of the potential benefit of an edge (shortest distance between two nodes) over the total potential cost (sum of distances from each endpoint to the start and end nodes, assuming these are the lowest costs). This approach considers the local structure of the problem and should lead to better performance in a graph traversal or optimization task.
+
+Please note that the function assumes the shortest distance to the start and end nodes are 0 (the start node's distance is 0 by definition, and the end node's distance is the maximum possible). If these distances are known differently, you'll need to adjust the code accordingly.
+
+As with the previous functions, the performance of this new heuristics() function can be evaluated by comparing its scores on a range of input distance matrices.
+
+
+

@@ -1,0 +1,73 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+In order to create a new heuristics() function that performs better than the existing ones, we need to take into account the underlying characteristics of the distance matrix that influence its undesirability.
+
+A common approach in graph optimization problems, like traveling salesman problem, involves the use of "relaxation" or "approximation" heuristics. These heuristics exploit some properties of the problem to estimate the quality of a solution more efficiently.
+
+One such heuristic is the "Nearest Neighbor" (NN) heuristic. It's simple and often outperforms other approaches, especially for dense matrices. The idea is to always connect to the nearest unvisited vertex.
+
+Here's a Python implementation for `heuristics()` using the NN heuristic:
+
+```python
+def heuristics(distance_matrix):
+    # Start with the same shape as the input distance matrix
+    num_nodes = len(distance_matrix)
+    heuristics_matrix = [[0] * num_nodes for _ in range(num_nodes)]
+    
+    # Iterate over each node
+    for node in range(num_nodes):
+        # Initialize the closest node with a large value
+        min_distance = float('inf')
+        closest_node = -1
+        
+        # Loop through unvisited nodes
+        for other_node in range(node+1, num_nodes):
+            if distance_matrix[node][other_node] < min_distance:
+                min_distance = distance_matrix[node][other_node]
+                closest_node = other_node
+        
+        # Set the heuristic for the current node as the distance to its nearest unvisited neighbor
+        heuristics_matrix[node][closest_node] = min_distance
+    
+    return heuristics_matrix
+```
+
+This heuristics() function follows these steps:
+
+1. It initializes a new matrix, `heuristics_matrix`, of the same shape as the input matrix, `distance_matrix`.
+2. It then iterates over each node.
+3. For each node, it finds the closest unvisited node (minimum distance to an unvisited node) and assigns this distance as the heuristic for the current node.
+4. Finally, it returns the `heuristics_matrix`.
+
+This heuristic tends to underestimate the actual distance of a path through all nodes (i.e., it's a relaxation of the actual problem). Such heuristics often deliver quick, though not necessarily optimal, results.
+
+Remember that without specific details about the nature of your problem (e.g., whether it's symmetric, positive, or has other properties), this is a general approach. You might need to adjust this function according to your specific problem requirements.
+
+The NN heuristic should generally outperform the other functions presented, as it's a known, well-behaved heuristic for many graph optimization problems, and it's computationally efficient. As such, it should yield a higher score.
+
+
+

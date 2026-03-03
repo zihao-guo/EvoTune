@@ -1,0 +1,69 @@
+# Score: -309.217
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Based on the requirements, I propose a novel heuristic method that incorporates both local and global information from the distance matrix, which is a significant factor in the superior performance of the optimal solution. This approach utilizes both the shortest distances (local information) and the overall connectivity (global information).
+
+Here is a possible Python function implementing this idea:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Global properties: total edges and total distance
+    n = distance_matrix.shape[0]
+    total_edges = n*(n-1)//2  # Assuming no self-loops
+    total_distance = distance_matrix.sum()
+
+    # Local properties: average distance of each vertex
+    local_averages = distance_matrix.mean(axis=1)
+
+    # Heuristic scores
+    heuristics_matrix = np.empty(distance_matrix.shape)
+
+    for i in range(n):
+        for j in range(i+1, n):
+            heuristics_matrix[i, j] = heuristics_matrix[j, i] = distance_matrix[i, j]
+
+            # Penalize if the current edge (i,j) or (j,i) is high
+            heuristics_matrix[i, j] += local_averages[i] + local_averages[j]
+
+            # Penalize if the edge is longer than the average edge length
+            if distance_matrix[i, j] > (total_distance / total_edges):
+                heuristics_matrix[i, j] += total_distance / total_edges
+                heuristics_matrix[j, i] += total_distance / total_edges
+
+    return heuristics_matrix
+```
+
+This function scores each edge based on two aspects:
+1. The average distance of its endpoints (local information).
+2. The global average distance (global information).
+3. The ratio of the current edge's length to the average edge length in the graph (a measure of how "dense" the graph is).
+
+The global aspect emphasizes edges that contribute to a high overall connectivity of the graph, while the local aspect penalizes edges to endpoints with high individual distances. The ratio term adds a bias against longer edges, favoring more balanced graphs.
+
+
+

@@ -1,0 +1,66 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more effective heuristics() function, I'll implement a simple yet efficient technique called "Minimum Spanning Tree (MST) Heuristic". This approach doesn't involve a full-fledged algorithm like Kruskal's or Prim's, but instead provides an approximate cost for each edge based on the shortest path from its endpoints to the tree root, which is a property of MSTs.
+
+Here is a Python function implementing this idea:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    n = distance_matrix.shape[0]
+    
+    # Create an adjacency matrix
+    adj_matrix = np.triu(distance_matrix, k=1)
+    
+    # Initialize minimum distances to the root for each node
+    dist_to_root = np.full(n, float('inf'))
+    
+    # Initialize the current path with the root node
+    current_path = np.zeros(n, dtype=int)
+    current_path[0] = 0
+    
+    # MST Heuristic
+    for _ in range(n - 1):
+        # Find the minimum cost edge from the current path to unvisited nodes
+        min_edge = np.min(adj_matrix[current_path])
+        min_edge_node = np.where(adj_matrix[current_path] == min_edge)[0][0]
+        
+        # Update the current path and minimum distance to the root
+        current_path[min_edge_node] = min_edge_node
+        dist_to_root[min_edge_node] = min_edge
+    
+    # Return the heuristic values
+    return dist_to_root
+```
+
+This function computes an approximate cost for each edge in the graph to be part of an MST. By finding the minimum edge in the current path, it considers the potential future expansion of the MST. This heuristic should generally give better results than simply reusing the original distance matrix.
+
+Note: This is a basic heuristic and doesn't guarantee a globally optimal solution. The MST Heuristic may not produce the best results for extremely skewed or irregular distance matrices. For more complex problems, consider using proper MST algorithms or more sophisticated heuristics.
+
+
+

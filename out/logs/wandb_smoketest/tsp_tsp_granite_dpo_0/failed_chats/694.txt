@@ -1,0 +1,65 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Based on the analysis, the existing 'distance_matrix' function simply returns the input without any modifications. Therefore, to create a better heuristics() function, we need to incorporate domain-specific knowledge or a more sophisticated heuristic algorithm.
+
+One such heuristic that is commonly used for solving the Traveling Salesman Problem (TSP), which is a related graph-based problem, is the Minimum Spanning Tree (MST) heuristic. This approach leverages a tree that spans all vertices in the graph while minimizing the total edge weight. 
+
+Let's implement the Minimum Spanning Tree (Prim's algorithm) heuristics function in Python. In the context of a TSP, we can use this to estimate the 'distance_matrix' and return it as the heuristics().
+
+```python
+import heapq
+
+def prim_mst(weight_matrix):
+    # Initialize MST with a random vertex
+    mst = set([0])
+    heap = [(0, 0)]  # (distance, vertex)
+
+    while mst!= set(range(len(weight_matrix))):
+        # Get the smallest edge in the MST
+        dist, u = heapq.heappop(heap)
+
+        for v, w in enumerate(weight_matrix[u]):
+            if v not in mst:
+                heapq.heappush(heap, (w, v))
+                mst.add(v)
+                break
+
+    return weight_matrix[u]
+
+def heuristics(distance_matrix):
+    mst = prim_mst(distance_matrix)
+    return [distance_matrix[u] if u not in mst else 0 for u in range(len(distance_matrix))]
+```
+
+This function first computes the Minimum Spanning Tree of the graph defined by the 'distance_matrix' using Prim's algorithm. Then it creates a new matrix where each edge not in the MST is replaced with a large value (0 in this case), indicating higher undesirability in the final TSP solution.
+
+Please note that the performance of this function may vary based on the characteristics of the input 'distance_matrix'.
+
+For a more tailored solution, specific knowledge about the problem domain (e.g., the specific characteristics of the distances, the presence of cycles, etc.) should be used to guide the development of a more accurate heuristic.
+
+
+

@@ -1,0 +1,52 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To improve upon the existing `heuristics()` function, we can introduce a heuristic that emphasizes the sum of diagonal elements in the distance matrix. This is because diagonal elements represent self-distances or "perfect connections", and often, minimizing these distances can significantly improve the overall solution.
+
+However, simply summing the diagonal elements might lead to over-optimistic results, as it doesn't account for the differences between non-diagonal elements. We can tackle this by normalizing the diagonal sum with the total sum of the distance matrix. This way, the normalized value will not exceed 1, providing a more robust measure of distance matrix quality.
+
+Here's an enhanced version of the `heuristics()` function:
+
+```python
+def heuristics(distance_matrix):
+    diagonal_sum = sum(distance_matrix[i][i] for i in range(len(distance_matrix)))
+    total_sum = sum(sum(distance_matrix[i]) for i in range(len(distance_matrix)))
+    
+    # Normalize the diagonal sum
+    normalized_diagonal_sum = diagonal_sum / total_sum if total_sum!= 0 else 0
+    
+    # Create an undesirability matrix with normalized diagonal values
+    undesirability_matrix = [
+        [normalized_diagonal_sum] * len(distance_matrix) for _ in range(len(distance_matrix))
+    ]
+    
+    return undesirability_matrix
+```
+
+This function computes a normalized sum of diagonal elements in the distance matrix and assigns this normalized value to all corresponding positions in the output matrix. This new heuristic should offer a different perspective on undesirable distances, potentially yielding a higher score. As always, actual results will depend on the specific scoring metric you're using.
+
+
+

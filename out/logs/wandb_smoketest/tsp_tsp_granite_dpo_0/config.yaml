@@ -1,0 +1,88 @@
+cluster:
+  scratch_path: /path/to/scratch
+  use_tgi: 0
+  use_vllm: 1
+task:
+  task_name: tsp
+  function_str_to_extract: heuristics
+  identity_heuristic: 1
+  failed_score: -20000
+  timeout_period: 90
+  mem_limit_gb: 10
+  programdatabaseConfig:
+    temp: 10.0
+  initial_percentile: 0.3
+model:
+  model_name: granite
+  temperature: 0.9
+  topk: 100
+  topp: 0.95
+  max_tokens: 2048
+train:
+  train_method_name: dpo
+  finetuning_frequency: 400
+  dpo_strategy: 2
+  dpo_config:
+    beta: 0.4
+    max_seq_length: 512
+    per_device_train_batch_size: 1
+    gradient_accumulation_steps: 16
+    gradient_checkpointing: 1
+    num_train_epochs: 2
+    learning_rate: 1.0e-05
+    lr_scheduler_type: cosine
+    weight_decay: 0.001
+    warmup_steps: 0
+    logging_steps: 1
+    f_divergence_type: alpha_divergence
+    f_alpha_divergence_coef: 1.0
+multiple_models: 0
+creative_prompt: 1
+descending_order: 1
+gpu_nums: 0
+flash_attn: 0
+programdatabaseConfig:
+  functions_per_prompt: 2
+  num_islands: 6
+  temp_sampling_flag: 1
+  temp: 10.0
+initial_percentile: 0.6
+final_percentile: 0.2
+num_cont_rounds: 100
+num_outputs_per_prompt: 8
+num_workers: 12
+num_rounds: 500
+finetuning_frequency: 10
+lr_annealing: 0
+one_tuning: 1
+percentile: 70
+max_loops: 1
+accelerate_config: 1gpu_0
+lora_config:
+  r: 64
+  lora_alpha: 32
+eval_frequency: 100
+evalset: trainperturbedset
+testset: testset
+top_k_functions_for_test: 50
+function_str_to_extract: heuristics
+wandb_name: wandb_smoketest/tsp_granite_dpo_0
+group_name: wandb_smoketest/tsp_granite_dpo
+logs_path: .
+logs_dir: out/logs/wandb_smoketest/tsp_tsp_granite_dpo_0
+wandb: 1
+project: EvoTune
+entity: zeio99guo-institut-polytechnique-de-paris
+seed: 0
+run_identifier_name: tsp_granite_dpo
+prefix: wandb_smoketest
+run_or_dev: dev
+use_tgi: 0
+use_vllm: 0
+vllm_gpu_memory_utilization: 0.8
+vllm_max_model_len: 8192
+full_accelerate_config: ./configs/accelerate_config/1gpu_0.yaml
+full_model_name: ibm-granite/granite-3.1-2b-instruct
+model_dtype: bfloat16
+model_adapter_dir: out/logs/wandb_smoketest/tsp_tsp_granite_dpo_0/model_adapter_granite
+default_wandb_name: irj4m6km

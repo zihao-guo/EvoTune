@@ -1,0 +1,61 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more effective heuristics() function, we'll introduce a weighted combination of two distinct strategies: Dijkstra's shortest path and Manhattan distance. We'll assign higher weights to the Dijkstra's shortest path for edges with lower values, indicating a direct connection, and use Manhattan distance for edges with higher values, reflecting their indirect nature.
+
+This approach will reflect the reality that, in a graph, closer nodes usually lead to shorter paths (Dijkstra's strategy), but far nodes can still be chosen if their connections provide better overall connectivity.
+
+Here's a Python implementation of the improved heuristics() function:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Convert distance matrix to adjacency list
+    adj_list = {(u, v): d for u, u_dists in enumerate(distance_matrix) for v, d in enumerate(u_dists)}
+
+    # Calculate weighted heuristic
+    weighted_heuristic = np.zeros_like(distance_matrix)
+    for u, v_dists in adj_list.items():
+        for v, d in v_dists.items():
+            # For direct connections (lower Dijkstra's score), use Dijkstra
+            if u < v:
+                weighted_heuristic[u, v] = d
+            # For indirect connections (higher Manhattan score), use Manhattan
+            else:
+                weighted_heuristic[u, v] = d  # Assuming Manhattan distance
+                for w, w_dist in adj_list.get((u, v), {}).items():
+                    weighted_heuristic[u, v] += abs(w - v)
+
+    return weighted_heuristic
+```
+
+This function should achieve a higher score than the initial two because it incorporates both the direct (shorter) and indirect (longer, but potentially more beneficial) connections, reflecting a more comprehensive graph structure. The choice of weights (Dijkstra vs. Manhattan) is based on the relative values in the input matrix.
+
+Remember, the actual performance will depend on the specifics of your use-case and the dataset it's applied to. This heuristics() function assumes a Euclidean space (Manhattan distance), but can be adapted for other spaces or distance metrics as needed.
+
+
+

@@ -1,0 +1,66 @@
+# Score: -342.402
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+The existing `heuristics()` function just returns the input distance matrix, which doesn't provide any heuristic values or imply undesirability of including edges. To create a more effective heuristics function, we can incorporate an ad-hoc approach that considers the size of the distances, the number of edges, and the potential for cycles in the graph.
+
+Here's a possible implementation:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Ensure the input is a square matrix
+    assert np.shape(distance_matrix)[0] == np.shape(distance_matrix)[1], "Matrix must be square."
+    
+    # Number of edges
+    num_edges = np.sum(distance_matrix!= 0)
+    
+    # Calculate ad-hoc undesirability scores
+    # Large distances imply more undesirable edges
+    heuristic_matrix = np.maximum(0, distance_matrix - 1) # Penalize large distances
+    
+    # Include a penalty for high number of edges to prevent overly complex solutions
+    heuristic_matrix += np.full((np.shape(distance_matrix)), (1 - num_edges / np.sum(distance_matrix)))
+    
+    # Incorporate a cycle detection heuristic - we'll assume large distances on closed paths
+    # are less desirable than on open paths. We'll use the sum of the row-wise minimum distances
+    # as a rough indicator, assuming shorter closed paths (minimum distances) are less likely.
+    cycle_heuristic = np.sum(np.min(distance_matrix, axis=1), axis=0)
+    heuristic_matrix += cycle_heuristic * 10  # Adjust the multiplier as necessary for your scale
+
+    return heuristic_matrix
+```
+
+This function assumes that:
+
+1. Larger distances imply more undesirable edges.
+2. A higher number of edges is less desirable to prevent overly complex solutions.
+3. Closed paths (which can represent potential cycles) are more undesirable than open paths.
+
+These heuristics are ad-hoc and might not perfectly reflect the ideal solution for all scenarios. You might need to adjust the factors or parameters based on the specific characteristics of your problem and desired outcomes. The scores will depend on the structure and scale of your input distance matrix.
+
+
+

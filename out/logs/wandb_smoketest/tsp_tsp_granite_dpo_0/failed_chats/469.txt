@@ -1,0 +1,70 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Given the requirements, I'll create a new heuristics() function that leverages a concept from the Traveling Salesman Problem (TSP), namely, the Christofides algorithm. This algorithm provides a guaranteed 2-approximation for the TSP, meaning it will never give a solution worse than twice the optimal solution. In this context, I'll interpret it as a heuristic that prioritizes edges based on their role in improving the solution's quality.
+
+Here's how this new function will work:
+
+1. Identify the shortest path (also known as the minimum spanning tree) among all edges in the graph.
+2. Add the remaining edges one by one, ensuring each additional edge forms a cycle with the minimum spanning tree, and that the total number of edges in the cycle is less than half of the total number of vertices (n). This is the Christofides's 2-approximation strategy.
+
+Here's the Python function:
+
+```python
+def heuristics(distance_matrix):
+    import networkx as nx
+    import numpy as np
+    
+    # Create a NetworkX graph
+    G = nx.from_numpy_array(distance_matrix)
+    
+    # Find the minimum spanning tree (MST)
+    MST = nx.minimum_spanning_tree(G)
+    
+    # Convert MST to a list of edges
+    MST_edges = list(MST.edges())
+    
+    n = len(distance_matrix)
+    
+    # Initialize a matrix to store heuristic values
+    heuristic_values = np.zeros((n, n))
+    
+    # Add edges to the heuristic matrix
+    for i in range(n):
+        for j in range(i+1, n):
+            # Check if adding an edge (i, j) to the MST would form a cycle of size < n/2
+            if nx.has_path(G, i, j) and nx.has_path(G, j, i) and sum(G.get_edge_attributes(i, j, 'weight')) + sum(G.get_edge_attributes(j, i, 'weight')) < n/2:
+                heuristic_values[i][j] = 0  # Edge (i, j) should be included
+            else:
+                heuristic_values[i][j] = np.inf  # Edge (i, j) should not be included
+    
+    return heuristic_values
+```
+
+This new function should provide a higher score than the previous ones. However, it's important to note that due to its 2-approximation nature, it may not always find the absolute optimal solution. It prioritizes edges that help build a more extensive minimum spanning tree. Please validate this function according to your specific scoring criteria.
+
+
+

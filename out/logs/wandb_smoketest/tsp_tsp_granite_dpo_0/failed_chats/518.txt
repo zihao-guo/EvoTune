@@ -1,0 +1,72 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To design a more sophisticated heuristics function, we can incorporate a concept known as the "Dijkstra's Algorithm with a Cost Factor". This approach considers not only the edge weights but also an additional cost factor. This extra cost factor can help to better capture the quality of the edges based on our specific problem domain.
+
+Here's how I propose to modify the function:
+
+```python
+import heapq
+
+def heuristics(distance_matrix):
+    n = len(distance_matrix)
+    # Priority queue to store (cost, edge) tuples. Cost = (weight + factor).
+    priority_queue = [(distance_matrix[i][j] + factor, (i, j)) for i in range(n) for j in range(i+1, n)]
+    heapq.heapify(priority_queue)  # Convert list to a heap for efficient extraction of minimum.
+
+    # To keep track of the best edge in terms of total cost
+    best_edge = (0, None)
+
+    # Process each edge
+    while priority_queue:
+        cost, (u, v) = heapq.heappop(priority_queue)
+
+        # If the current edge is better than the previously known best, update the best.
+        if cost < best_edge[0]:
+            best_edge = (cost, (u, v))
+
+        # Push the opposite edge onto the priority queue.
+        if u!= v:
+            cost = distance_matrix[u][v] + factor
+            heapq.heappush(priority_queue, (cost, (v, u)))
+
+    # The best_edge tuple contains the minimum total cost and the corresponding edge.
+    # To get the heuristic matrix, we divide this total cost by 2 (assuming each edge is bidirectional).
+    heuristic_matrix = [[best_edge[0] / 2] * n for _ in range(n)]
+    return heuristic_matrix
+```
+
+In this new function:
+
+1. We're adding a "factor" to each edge cost in the distance matrix. This factor can be tuned based on the problem's specifics.
+2. By employing Dijkstra's Algorithm with this factor, we're emphasizing lower-cost edges and also considering the bidirectional nature of edges.
+3. It processes both original and inverse edges, ensuring bidirectional edge consideration.
+4. The output is a heuristic matrix where each entry represents the estimated total cost (divided by 2, assuming bidirectional edges) for the corresponding edge.
+
+This function should perform better than the simple rewriting of the original heuristics function as it's not just considering the edge weights, but also incorporating a custom cost factor, thereby accounting for various aspects of edge quality.
+
+
+

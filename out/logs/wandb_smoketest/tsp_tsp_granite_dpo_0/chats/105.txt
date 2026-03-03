@@ -1,0 +1,63 @@
+# Score: -353.314
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more sophisticated heuristics function, we will utilize a combination of some common heuristic methods and innovative steps to reflect the density and structure of the graph represented by the distance matrix. This function will give higher values for less desirable edges, considering both the distance between nodes and the potential conflicts they may introduce in a graph. 
+
+Here's the new heuristics function:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    n = len(distance_matrix)
+    # Step 1: Include a basic distance penalty
+    heuristic = distance_matrix
+    
+    # Step 2: Add a node degree heuristic to discourage edges between high-degree nodes
+    degrees = np.sum(distance_matrix, axis=0)
+    for i in range(n):
+        heuristic[i, i] = 0  # Avoid self-loops
+        for j in range(n):
+            if i!= j:
+                heuristic[i, j] = np.abs(degrees[i] - degrees[j]) * 2
+    
+    # Step 3: Incorporate a 'conflict' heuristic based on edge-node degrees
+    for i in range(n):
+        for j in range(n):
+            if i!= j:
+                deg_i = np.sum(distance_matrix[i])
+                deg_j = np.sum(distance_matrix[j])
+                heuristic[i, j] += np.abs(deg_i - deg_j)
+    
+    return heuristic
+```
+
+This function firstly assigns the original distance as a basic heuristic. Then, it adds a degree-based penalty for edges connecting nodes with different degrees, assuming that higher-degree nodes might face more conflicts when connected. Lastly, it introduces a conflict heuristic by adding the absolute difference of the degrees of nodes connected by the edge.
+
+This approach will likely provide a more nuanced and accurate representation of edge desirability, leading to higher scores compared to the original simpler heuristics.
+
+
+

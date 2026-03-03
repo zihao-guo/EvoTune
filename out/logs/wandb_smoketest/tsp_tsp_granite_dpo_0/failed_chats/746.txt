@@ -1,0 +1,64 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To design a better heuristics() function, we'll incorporate a more sophisticated approach by leveraging the principles of traveling salesman problem (TSP) and minimum spanning tree (MST) algorithms, along with some intuitive assumptions. The goal is to minimize potential negative edge contributions.
+
+Here's a new heuristics() function that takes into account these aspects:
+
+```python
+import numpy as np
+from scipy.sparse.csgraph import minimum_spanning_tree
+
+def heuristics(distance_matrix):
+    n = len(distance_matrix)
+    # Calculate initial edge costs (distance_matrix)
+    edge_costs = np.triu(distance_matrix, k=1)
+    
+    # Compute Minimum Spanning Tree (MST)
+    MST_costs = minimum_spanning_tree(csgraph=edge_costs)
+    
+    # Compute distance from each node to MST (these are potential edge costs)
+    potential_edge_costs = edge_costs - MST_costs
+    
+    # Adjust potential costs based on similarity to MST edges
+    # In TSP, edges closer to MST tend to be less undesirable
+    adjusted_costs = potential_edge_costs / np.maximum(MST_costs, 1)
+    
+    return adjusted_costs
+```
+
+This function works by first computing the minimum spanning tree (MST) of the given edge costs, which represents the shortest possible tree connecting all vertices in the graph. By subtracting the MST costs from the original edge costs, we obtain a matrix where each entry represents a potential edge's undesirability.
+
+The function then scales down these potential costs by dividing each by the maximum MST cost. This scaling assumes that edges closer to the MST are less undesirable, which is a common heuristic in TSP.
+
+The higher the original edge cost compared to the corresponding MST cost, the lower the adjusted cost. This encourages inclusion of those edges in the final solution.
+
+This approach differs from the previous functions by leveraging a graph theory concept (MST) and introducing a scaling mechanism to prioritize edges closer to the MST. These changes could potentially lead to a better score.
+
+Note: The score you seek is not directly provided, so this function is designed based on TSP and MST heuristics. To test the function and evaluate its performance, you would need to implement a suitable TSP solver or comparator function.
+
+
+

@@ -1,0 +1,58 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Certainly, I will create a new heuristics function based on the analysis of the provided function. Let's analyze the characteristics of the higher-scoring function:
+
+1. It doesn't seem to use any specific properties or characteristics of the distance matrix to decide undesirability of edges.
+2. It simply returns the distance matrix itself, which may not be a good indicator of edge undesirability.
+
+To improve the function, we need to incorporate some insights about graph theory and edge weights (distances) that can make certain edges appear less desirable. Here is a potential heuristics() function that uses the principle of "shorter edges being less desirable" and "edges with lower distances having higher undesirability":
+
+```python
+def heuristics(distance_matrix):
+    # Get the number of nodes and the shape of the distance matrix
+    n = len(distance_matrix)
+    _, m = distance_matrix.shape  # m is the number of edges
+
+    # Create a new matrix to store undesirability scores
+    undesirability_scores = [[0] * m for _ in range(n)]
+
+    # Iterate through each edge
+    for i in range(n):
+        for j in range(i+1, n):  # Consider edges only between different nodes
+            # If the distance is shorter, the edge is considered more undesirable
+            if distance_matrix[i, j] < distance_matrix[i, k] and distance_matrix[i, j] < distance_matrix[j, k] for some k in range(n):
+                undesirability_scores[i][j] = distance_matrix[i, j] * 1.1  # Increase by a factor to make shorter edges more undesirable
+            else:
+                undesirability_scores[i][j] = distance_matrix[i, j]  # Undesirability score is the distance itself
+
+    return undesirability_scores
+```
+
+This function computes an undesirability score for each edge. Shorter edges are assigned higher scores (multiplied by a factor of 1.1), and edges connecting the same nodes are not considered. The aim is to reflect the intuition that shorter paths between nodes are generally less desirable due to increased travel distance.
+
+
+

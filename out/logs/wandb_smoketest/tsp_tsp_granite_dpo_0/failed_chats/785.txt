@@ -1,0 +1,61 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more effective heuristics() function, we'll leverage the properties of the input distance matrix to devise a novel score matrix. Instead of just mirroring the distance matrix, we'll consider the distribution of distances and the connectivity of the network. Our new heuristics() function will include the following novel elements:
+
+1. **Average Distance**: The average distance from each node to all other nodes. This captures the overall connectivity of the network.
+
+2. **Path Count**: For each node, calculate the total number of paths (edges) leading away from it. This helps capture the node's influence and importance.
+
+3. **Distant Neighbor Average Distance (DAND)**: For each node, calculate the average distance to its neighbors. A node with neighbors located far away suggests potential weaknesses or areas of the network that could be improved.
+
+4. **Weighted Degree**: Each edge's weight in the distance matrix will be used as a weight for its corresponding node. This reflects that the distance along edges is not uniform and should have a certain influence in the heuristic.
+
+Here's the new implementation:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    n = distance_matrix.shape[0]  # number of nodes
+    avg_dist = np.mean(distance_matrix, axis=0)  # average distance from each node
+    path_counts = np.sum(distance_matrix, axis=1)  # total number of paths from each node
+    dand = np.mean(distance_matrix[np.arange(n), :] * np.arange(n).reshape(-1, 1), axis=1)  # DAND
+    weighted_degree = np.sum(distance_matrix, axis=0)  # weighted degree for each node
+
+    # Combine these metrics into a single score matrix
+    heuristics_matrix = (1 - avg_dist) * path_counts + (avg_dist - dand) * weighted_degree
+
+    # Normalize the scores so they sum to 1
+    heuristics_matrix /= np.sum(heuristics_matrix, axis=0)
+
+    return heuristics_matrix
+```
+
+This heuristics() function should yield a higher score compared to the initial implementations. The use of multiple metrics and their unique contributions to the final score suggests more comprehensive evaluation of the input distance matrix. However, the actual score will depend on the specific characteristics of the distance matrices used for testing.
+
+
+

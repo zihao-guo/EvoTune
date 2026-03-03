@@ -1,0 +1,72 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a new heuristics() function that outperforms the existing ones, we can leverage the concept of the "K shortest paths" heuristic, which is more sophisticated and efficient than the simple reciprocal of distance approach. This method evaluates a vertex based on the sum of the shortest paths from that vertex to all other vertices. This strategy intuitively captures the importance of a vertex in the network, as it's less likely to be included in a sub-optimal solution.
+
+Here's an example implementation of the function using Dijkstra's algorithm for computing the shortest paths:
+
+```python
+import heapq
+
+def heuristics(distance_matrix):
+    n = len(distance_matrix)
+    # Initialize priority queue with all vertices and their distances
+    priority_queue = [(0, i) for i in range(n)]
+    heapq.heapify(priority_queue)
+
+    # Heuristics matrix
+    heuristics_matrix = [float('inf')] * n
+
+    # Compute shortest paths
+    while priority_queue:
+        current_distance, current_vertex = heapq.heappop(priority_queue)
+        if current_distance > heuristics_matrix[current_vertex]:
+            continue
+
+        for neighbor, weight in enumerate(distance_matrix[current_vertex]):
+            if weight > 0 and heuristics_matrix[neighbor] > current_distance + weight:
+                heuristics_matrix[neighbor] = current_distance + weight
+                heapq.heappush(priority_queue, (heuristics_matrix[neighbor], neighbor))
+
+    # Normalize heuristics
+    for i in range(n):
+        for j in range(n):
+            if i!= j:
+                heuristics_matrix[i] = heuristics_matrix[i] / (distance_matrix[i][j] + heuristics_matrix[j])
+
+    return heuristics_matrix
+```
+
+The main differences from the initial approach are:
+
+1. We use Dijkstra's algorithm for computing the shortest paths, which can efficiently find the K shortest paths, especially for sparse graphs.
+2. The heuristics_matrix is normalized by dividing by the actual edge weight and the heuristics_matrix value of the destination vertex. This step ensures the heuristics values are proportional to the inverse of the shortest path from the current vertex to the destination.
+3. This approach naturally considers the network structure and provides a more nuanced evaluation of each vertex's importance in a solution. 
+
+Note that this function assumes the input distance_matrix is a square matrix, and negative cycle detection is handled by Dijkstra's algorithm. If negative weights are allowed, a different approach would be necessary.
+
+
+

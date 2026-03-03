@@ -1,0 +1,57 @@
+# Score: -372.179
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Here's a novel heuristics function that leverages the concept of the "Hub-spoke" model, where hubs are high-degree vertices and spokes are connections to these hubs. This approach attempts to capture the centrality of high-value nodes in a network and the importance of connecting to them.
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Calculate degree of each node (hub)
+    hub_degrees = np.sum(distance_matrix, axis=0)
+
+    # Create a diagonal matrix to represent distances to a single hub
+    hub_distance_matrix = np.diag(hub_degrees)
+
+    # Calculate the "spoke length" for each node
+    spoke_lengths = np.minimum(distance_matrix, hub_distance_matrix)
+
+    # Assign a high heuristic score to the edges connecting to high-degree nodes
+    heuristic_matrix = spoke_lengths.copy()
+    heuristic_matrix[np.arange(len(heuristic_matrix)), np.argmin(hub_degrees)] = np.inf  # Edges to the lowest-degree hub
+    heuristic_matrix[np.arange(len(heuristic_matrix)), np.argmin(heuristic_matrix[np.arange(len(heuristic_matrix)), :])] = 0  # Edges to the lowest heuristic node
+
+    return heuristic_matrix
+```
+
+This function computes the degree of each node (a high-value node), and then considers the shortest distance to any of these high-degree nodes as a "spoke length". High "spokes" (i.e., edges connecting to high-degree nodes) are assigned a lower heuristic score, while connections to the lowest-degree nodes are given the highest score. This is expected to better reflect the importance of high-value nodes in the network. The improvement should come from better capturing the structural significance of key nodes in the network, which may not be adequately represented in the original distance matrix.
+
+Please note that the score of this function will depend on the specific structure of your distance_matrix. It might still be possible to further optimize or fine-tune this function based on specific characteristics of your problem.
+
+The score should improve based on the centrality of high-degree nodes in your network. However, it's hard to provide an exact score improvement without knowing the specific structure of your input matrix.
+
+
+

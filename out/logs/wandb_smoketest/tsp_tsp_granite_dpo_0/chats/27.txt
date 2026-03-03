@@ -1,0 +1,55 @@
+# Score: -342.402
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+In order to enhance the heuristics function, we should incorporate additional domain-specific knowledge about the problem context, such as the nature of the connections between nodes in a graph. For instance, in many real-world scenarios, edges with smaller values in a distance matrix often represent more desirable connections because they are closer or have lower potential costs. 
+
+We can leverage this by implementing a heuristic that assigns negative weights to more "desirable" edges (those with smaller values in the distance matrix) and positive weights to less desirable ones. This way, the resulting heuristic matrix will provide higher scores for undesirable edges and lower scores for desirable ones.
+
+Here's a possible implementation:
+
+```python
+def heuristics(distance_matrix):
+    # Calculate the reverse distance matrix
+    reverse_distance_matrix = 1 / distance_matrix  # Each element in reverse is 1/distance
+    
+    # Normalize the reverse distance matrix to sum up to 1 for each row
+    for row in reverse_distance_matrix:
+        row_sum = sum(row)
+        if row_sum!= 0:
+            row[:] = [x / row_sum for x in row]
+    
+    # Create a heuristic matrix where desirable edges have lower scores
+    heuristic_matrix = -reverse_distance_matrix
+    
+    return heuristic_matrix
+```
+
+This heuristics function converts distances into their reciprocals and normalizes each row to sum up to 1. This way, the highest values in the resulting matrix represent the most desirable edges (with smaller original distances), and the lowest values represent less desirable edges (with larger original distances).
+
+Keep in mind that this is just one possible approach; the optimal heuristic depends on the specific problem context and requirements. You may need to fine-tune or adapt this approach based on additional domain-specific knowledge or performance criteria.
+
+
+

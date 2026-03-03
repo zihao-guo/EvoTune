@@ -1,0 +1,69 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+The challenge here is to create a heuristic function that not only considers the distances between nodes (as given in the distance_matrix), but also takes into account additional factors to make more informed decisions about the edge undesirability. Here's a Python function that uses a combination of distance, a node degree heuristic, and a network centrality measure (betweenness centrality) to create a more robust indicator of edge undesirability.
+
+```python
+import numpy as np
+from scipy.sparse.csgraph import csgraph_from_dense
+from scipy.sparse.csgraph import depth_first_order
+from networkx.algorithms.centrality import betweenness_centrality
+
+def heuristics(distance_matrix):
+    # Create a graph from the distance_matrix
+    graph = csgraph_from_dense(distance_matrix)
+    
+    # Get the number of nodes
+    n = len(distance_matrix)
+    
+    # Calculate node degrees
+    node_degrees = np.sum(graph, axis=0)
+    
+    # Calculate betweenness centrality
+    betweenness_centrality_scores = betweenness_centrality(csgraph_from_dense(graph), n)
+    
+    # Create an undesirability matrix of the same shape as the input
+    undesirability = np.zeros_like(distance_matrix)
+    
+    # Fill in undesirability based on distance, node degree, and betweenness centrality
+    for i in range(n):
+        for j in range(n):
+            # Distance-based undesirability
+            undesirability[i, j] += distance_matrix[i, j]
+            
+            # Node degree-based undesirability
+            undesirability[i, j] += node_degrees[j]
+            
+            # Betweenness centrality-based undesirability
+            undesirability[i, j] -= betweenness_centrality_scores[i] * distance_matrix[i, j]
+    
+    return undesirability
+```
+
+This heuristics function combines distance, node degree, and betweenness centrality to create more nuanced and informed estimates of edge undesirability. This is achieved by adding each of these factors to the distance-based cost, which is a common approach in network optimization problems. The higher the values of these heuristics, the more undesirable an edge is considered to be. This should theoretically lead to a better performance compared to the baseline heuristic that simply returns the distance matrix.
+
+
+

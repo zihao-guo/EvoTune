@@ -1,0 +1,50 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To enhance the heuristics() function, we can introduce a more sophisticated approach based on the weighted average of edge weights, which better reflects the notion of "undesirability" in graph theory. This heuristic will assign higher weights to longer distances and lower weights to shorter ones, giving priority to paths with more distance. 
+
+Here's a possible implementation:
+
+```python
+def heuristics(distance_matrix):
+    # Calculate the sum of all edge weights
+    total_weight = sum(distance_matrix)
+
+    # Calculate the average weight per edge
+    average_weight = total_weight / len(distance_matrix)
+
+    # Create a new distance matrix where each element represents undesirability
+    undesirability = [1 / (weight / average_weight) for weight in distance_matrix]
+
+    return undesirability
+```
+
+This function uses the concept of weighted average to determine the "undesirability" of each edge. The undesirability for an edge (i,j) is the reciprocal of the ratio of its weight to the average weight of all edges. A higher average weight leads to a lower reciprocal, and thus a higher undesirability score. This will provide a more nuanced measure of undesirability, potentially yielding a better score.
+
+You can test this new heuristics() function with your distance matrix and compare its performance against the previous ones. The goal is to observe an improved score.
+
+
+

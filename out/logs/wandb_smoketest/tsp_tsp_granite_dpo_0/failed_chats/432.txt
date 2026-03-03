@@ -1,0 +1,62 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more innovative and efficient heuristics() function, we'll introduce a concept known as "Potential Heuristics" where we incorporate both local and global properties of the distance matrix. This method tries to predict the "cost" of including an edge by considering not just the edge's direct distance, but also how it influences other paths.
+
+Let's assume our distance matrix is symmetric (since it's a typical case in shortest path problems), and the diagonal elements are zero (self-distance).
+
+We'll introduce two potential heuristics:
+1. Local Potential (LP): This heuristic estimates the total distance to reach the neighboring vertices, but does not consider the impact on distant paths.
+2. Global Potential (GP): This heuristic estimates the total distance to reach the farthest reachable vertices from the endpoints, considering the influence of the edge on longer paths.
+
+Here's a Python implementation:
+
+```python
+def heuristics(distance_matrix):
+    import numpy as np
+
+    # Calculate Local Potential
+    local_potential = np.diag(distance_matrix) + np.minimum(distance_matrix, np.triu(distance_matrix, k=1)).sum(axis=1)
+    
+    # Calculate Global Potential
+    max_dist = np.max(distance_matrix, axis=0).reshape(-1, 1) + np.max(distance_matrix, axis=1)[np.newaxis, :]
+    global_potential = local_potential + (max_dist - distance_matrix).sum(axis=0) + (max_dist - distance_matrix).sum(axis=1)
+
+    # Normalize Global Potential to comparable scale as Local Potential
+    global_potential = global_potential / np.max(global_potential)
+
+    return np.concatenate([local_potential, global_potential], axis=1)
+```
+
+This function should yield better results because:
+
+1. Local Potential captures the immediate costs of including an edge.
+2. Global Potential gives a heuristic for considering the edge's impact on distant paths, hence more insight into the overall problem complexity.
+
+Please note that the effectiveness of this function may vary depending on the specific characteristics of the distance matrix you're working with. You might need to fine-tune the parameters or apply further adjustments based on the nature of your problem.
+
+
+

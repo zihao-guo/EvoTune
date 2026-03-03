@@ -1,0 +1,69 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more advanced heuristics() function, let's consider a few strategies that go beyond simple distance-based heuristics:
+
+1. Adaptive Edge Weights: Instead of using the raw distance, we can apply a decay function that reduces the weight of older edges in the matrix. This would reflect the notion that newer connections (in terms of distance updates) might be more reliable or relevant.
+
+2. Network Topology: Incorporate topological features such as clustering coefficient, degree centrality, or betweenness centrality of nodes. These metrics can help prioritize edges that connect high-degree nodes or are part of dense clusters, implying they might be crucial for maintaining connectivity.
+
+3. Shortest Path Length: Calculate the shortest path from every node to all other nodes in the graph (using algorithms like Dijkstra or Bellman-Ford). This can serve as a proxy for the importance of edges, as more central nodes usually have shorter average path lengths to other nodes.
+
+4. Edge betweenness: This measures the number of shortest paths that pass through an edge. Edges with high betweenness are crucial for connectivity, and can be considered as more desirable.
+
+Here's a Python function that incorporates some of these ideas. Note that this function requires a networkx library and an adjacency matrix representation of the graph:
+
+```python
+import networkx as nx
+
+def heuristics(distance_matrix):
+    # Convert distance_matrix to adjacency matrix
+    G = nx.from_numpy_array(distance_matrix)
+    
+    # Calculate shortest path lengths
+    shortest_paths = nx.all_pairs_shortest_path_length(G)
+    
+    # Calculate edge betweenness
+    edge_betweenness = nx.edge_betweenness_centrality(G, weight='weight')  # Assuming 'weight' is the original distance
+    
+    # Adaptive decay function
+    # Simplified version: exponentially decreases with distance
+    decay = 2 ** (G.number_of_nodes() - 1 - G.number_of_edges() / 2)
+    
+    # Combine all indicators
+    heuristics_matrix = (
+        (shortest_paths[u][v] + 1) * edge_betweenness[u, v] * decay
+        for u, v in G.edges()
+    )
+    
+    # Normalize heuristics values to a reasonable range
+    return [min(x) for x in heuristics_matrix]
+```
+
+This function should provide a more sophisticated ranking of edges. However, the actual performance will depend on the specifics of the use case, like the nature of the network and the optimization problem at hand. You may need to further tune the parameters and the combination of these indicators based on your specific requirements.
+
+
+

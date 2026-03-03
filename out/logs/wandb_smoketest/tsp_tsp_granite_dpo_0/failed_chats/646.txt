@@ -1,0 +1,73 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Given the goal is to improve upon the initial heuristics function, let's consider a novel approach that incorporates some key characteristics from a well-known graph optimization heuristic: the Minimum Spanning Tree (MST) method, specifically using the Kruskal's algorithm. The idea here is to use the edge weights as our indicators of undesirability, and by maintaining a disjoint set data structure, we can also incorporate some local graph properties to better predict the undesirability of including an edge.
+
+The Python function below implements this strategy:
+
+```python
+import heapq
+
+def heuristics(distance_matrix):
+    # Create a disjoint set data structure
+    parent = list(range(len(distance_matrix)))
+
+    def find(x):
+        if parent[x]!= x:
+            parent[x] = find(parent[x])
+        return parent[x]
+
+    def union(x, y):
+        root_x = find(x)
+        root_y = find(y)
+        if root_x!= root_y:
+            parent[root_x] = root_y
+
+    # Kruskal's algorithm to maintain a set of edges forming an MST
+    mst_edges = []
+    edges_heap = [(distance_matrix[i][j], i, j) for i in range(len(distance_matrix)) for j in range(i+1, len(distance_matrix))]
+    heapq.heapify(edges_heap)
+
+    while edges_heap:
+        cost, u, v = heapq.heappop(edges_heap)
+        if find(u)!= find(v):  # Ensure they are not already connected
+            union(u, v)
+            mst_edges.append((u, v, cost))
+
+    # Create the heuristics matrix
+    heuristics_matrix = [[0] * len(distance_matrix) for _ in range(len(distance_matrix))]
+    for u, v, _ in mst_edges:
+        heuristics_matrix[u][v] = heuristics_matrix[v][u] = -distance_matrix[u][v]  # Necessary for symmetry
+
+    return heuristics_matrix
+```
+
+This function works by constructing a Minimum Spanning Tree (MST) from the input distance matrix. The heuristic score for each edge is then the negative of its weight in the MST. The disjoint set data structure ensures that duplicate edges are not included in the MST, thus preventing over-counting of potential undesirable edges.
+
+The score improvement would depend on the specific characteristics of the input distance matrix, but this approach should generally yield better results than simply returning the distance matrix, as it incorporates graph-theoretic insights about connectivity and local structure.
+
+
+

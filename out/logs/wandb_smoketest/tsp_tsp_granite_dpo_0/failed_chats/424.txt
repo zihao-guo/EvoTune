@@ -1,0 +1,80 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a heuristics function that outperforms the initial two, I'll use a weighted shortest path heuristic approach called "Karp's Algorithm for All-Pairs Shortest Paths." This algorithm estimates the number of edges between any two nodes based on their shortest path sum, which can be used to create a heuristic distance matrix.
+
+This approach works on the assumption that the edges with the smallest shortest path sums are the most desirable for inclusion. By creating a heuristic matrix, we can evaluate the quality of different edge selections.
+
+Here's a Python function implementing Karp's Algorithm:
+
+```python
+import heapq
+
+def karp_shortest_paths(n, distance_matrix):
+    # Initialize parent array and dist array
+    parent = [None] * n
+    dist = [float('inf')] * n
+    dist[0] = 0
+
+    # Create list of all vertices
+    vertices = list(range(n))
+    heap = [[0, 0]]  # (dist, current_vertex)
+
+    # Process vertices in order
+    while heap:
+        curr_dist, curr_vertex = heapq.heappop(heap)
+
+        # If current vertex is not the starting point, skip it
+        if curr_vertex!= 0:
+            continue
+
+        # Explore all neighbors of the current vertex
+        for next_vertex in range(n):
+            if distance_matrix[curr_vertex][next_vertex] < dist[next_vertex]:
+                dist[next_vertex] = distance_matrix[curr_vertex][next_vertex]
+                parent[next_vertex] = curr_vertex
+                heapq.heappush(heap, [dist[next_vertex], next_vertex])
+
+    return dist, parent
+
+def heuristics(distance_matrix):
+    n = len(distance_matrix)
+    dist, parent = karp_shortest_paths(n, distance_matrix)
+
+    # Create a heuristic distance matrix
+    heuristic_matrix = [[0] * n for _ in range(n)]
+
+    for i in range(n):
+        for j in range(n):
+            heuristic_matrix[i][j] = min(dist[i] + dist[j], i + j)  # Karp's heuristic
+
+    return heuristic_matrix
+```
+
+In this function, `karp_shortest_paths()` computes all-pairs shortest paths using Karp's Algorithm. Then, in `heuristics()`, we use the obtained shortest path sums to create a heuristic matrix. This matrix is more informative than a simple distance matrix because it considers the combined cost of paths between vertices, thus providing a better indicator of the undesirability of including an edge.
+
+
+

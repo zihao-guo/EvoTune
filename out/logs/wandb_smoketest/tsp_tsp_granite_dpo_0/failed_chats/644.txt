@@ -1,0 +1,95 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To improve upon the existing heuristics function, I propose a scoring approach based on the concept of "centrality" in graph theory. Here, we'll use Node Degree Centrality and Betweenness Centrality to estimate the importance of each node (edge) in the graph. This method assumes that in a network, nodes with higher centrality are more desirable to include in a solution, as they serve as bridges between different parts of the network.
+
+The updated heuristics function will return a matrix of edge centrality scores, calculated as the sum of individual node centrality scores for the endpoints of each edge.
+
+```python
+import numpy as np
+
+def degree_centrality(distance_matrix):
+    n = distance_matrix.shape[0]
+    degree_centrality = np.zeros(distance_matrix.shape)
+    
+    for i in range(n):
+        for j in range(n):
+            if i!= j:
+                degree_centrality[i,j] = degree_of_node_i + degree_of_node_j
+                degree_of_node_i = np.sum(distance_matrix[i])
+                degree_of_node_j = np.sum(distance_matrix[j])
+    
+    return degree_centrality
+
+def betweenness_centrality(distance_matrix):
+    n = distance_matrix.shape[0]
+    betweenness = np.zeros(distance_matrix.shape)
+    
+    for i in range(n):
+        for j in range(n):
+            if i!= j:
+                shortest_paths = floyd_warshall(distance_matrix)
+                beta = 0
+                for k in range(n):
+                    path_length_with_j = shortest_paths[i][j] + shortest_paths[j][k] - shortest_paths[i][k]
+                    if path_length_with_j < shortest_paths[i][k]:
+                        beta += 1.0 / shortest_paths[i][k]
+                    betweenness[i,j] += beta / (n - 1)
+                betweenness[i,j] /= betweenness.sum()
+    
+    return betweenness
+
+def heuristics(distance_matrix):
+    degree = degree_centrality(distance_matrix)
+    betweenness = betweenness_centrality(distance_matrix)
+    
+    # Sum individual node centrality for each edge
+    heuristics_matrix = degree + betweenness
+    
+    # Normalize for better comparability
+    max_centrality = np.max(heuristics_matrix)
+    heuristics_matrix = heuristics_matrix / max_centrality
+    
+    return heuristics_matrix
+
+# Floyd-Warshall algorithm to compute shortest paths
+def floyd_warshall(distance_matrix):
+    n = distance_matrix.shape[0]
+    shortest_paths = np.copy(distance_matrix)
+    
+    for k in range(n):
+        for i in range(n):
+            for j in range(n):
+                if shortest_paths[i,j] > shortest_paths[i,k] + shortest_paths[k,j]:
+                    shortest_paths[i,j] = shortest_paths[i,k] + shortest_paths[k,j]
+    
+    return shortest_paths
+```
+
+This updated heuristics function uses degree centrality and betweenness centrality to estimate the importance of each edge, providing a more nuanced insight into the network structure. It's designed to consider both the number of connections a node has and how frequently it acts as a bridge between other nodes, which can lead to a more accurate estimation of the undesirability of including an edge in a solution.
+
+
+

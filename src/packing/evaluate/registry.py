@@ -1,4 +1,4 @@
-from packing.evaluate import import_all_tasks
+from packing.evaluate import import_all_tasks, import_task
 
 
 class TaskRegistry:
@@ -17,13 +17,14 @@ class TaskRegistry:
 
     def get(self, name):
         if name not in self._registry:
+            import_task(name)
+        if name not in self._registry and not self.is_initialized:
+            import_all_tasks()
+            self.is_initialized = True
+        if name not in self._registry:
             raise ValueError(f"Task '{name}' is not registered")
         return self._registry[name]
 
 
 # Global registry instance
 TASK_REGISTRY = TaskRegistry()
-
-if not TASK_REGISTRY.is_initialized:
-    import_all_tasks()
-    TASK_REGISTRY.is_initialized = True

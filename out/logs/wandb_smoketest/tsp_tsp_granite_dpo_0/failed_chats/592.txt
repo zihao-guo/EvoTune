@@ -1,0 +1,71 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a new heuristics function that performs better than the given one, we need to incorporate additional factors that could better indicate the undesirability of including edges in the solution. A possible approach could involve considering the density of connections and the centrality of nodes in the graph represented by the distance matrix. Here's a Python function that does this:
+
+```python
+import numpy as np
+from scipy.sparse.csgraph import connected_components
+from collections import defaultdict
+
+def heuristics(distance_matrix):
+    n = distance_matrix.shape[0]
+    # Calculate local density
+    local_densities = np.sum(distance_matrix, axis=1) / (n - 1)
+    
+    # Calculate global density
+    global_density = np.sum(distance_matrix) / (n * (n - 1))
+    
+    # Define a function to calculate node centrality
+    def node_centrality(row_indices, col_indices, distance_matrix):
+        comms = connected_components(csgraph=distance_matrix, directed=False)
+        num_nodes = distance_matrix.shape[0]
+        centrality = defaultdict(int)
+        for comm in range(comms):
+            node_in_component = np.where(np.arange(num_nodes) == row_indices)[0]
+            centrality[comm] += 1.0 / len(node_in_component)
+        return centrality
+    
+    # Calculate node centrality
+    node_centrality_values = {i: node_centrality(np.array([i]), np.array([i]), distance_matrix) for i in range(n)}
+    
+    # Combine metrics
+    heuristics_matrix = - (local_densities + global_density) * (1 - np.array(list(node_centrality_values.values())) ** 2)
+    
+    return heuristics_matrix
+```
+
+In this function, we first calculate the local and global density of the graph. Then we compute the centrality of each node using the connected components of the graph, which signifies how many nodes are interconnected with each node.
+
+We then combine these metrics into a heuristics matrix, where:
+
+1. Higher local and global densities contribute negatively (making the solution undesirable)
+2. Higher node centrality (a node is a bridge or a critical point in the network) also contributes negatively, more significantly as the centrality increases.
+
+This function should perform better than the original one, as it incorporates two critical factors affecting the undesirability of including edges in a solution: network density and node centrality. The -275.742 score achieved by the original function suggests a high undesirability, so we aim to make it higher by considering these additional factors.
+
+
+

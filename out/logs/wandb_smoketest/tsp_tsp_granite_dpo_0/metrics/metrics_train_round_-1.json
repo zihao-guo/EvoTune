@@ -1,0 +1,65 @@
+[
+  {
+    "round_num": -1,
+    "evalset": "train",
+    "all_scores": [
+      -275.742,
+      -275.742,
+      -275.742,
+      -275.742,
+      -275.742,
+      -275.742
+    ],
+    "best_overall_score": -275.742,
+    "best_10_scores_avg_overall": -275.742,
+    "best_50_scores_avg_overall": -275.742,
+    "num_unique_scores": 1,
+    "score_threshold_best_1_percent": -275.742,
+    "score_threshold_best_10_percent": -275.742,
+    "score_threshold_best_20_percent": -275.742,
+    "score_threshold_best_40_percent": -275.742,
+    "time_taken_to_evaluate": 0.0
+  },
+  {
+    "round_num": -1,
+    "evalset": "train",
+    "all_scores": [
+      -275.742,
+      -275.742,
+      -275.742,
+      -275.742,
+      -275.742,
+      -275.742
+    ],
+    "best_overall_score": -275.742,
+    "best_10_scores_avg_overall": -275.742,
+    "best_50_scores_avg_overall": -275.742,
+    "num_unique_scores": 1,
+    "score_threshold_best_1_percent": -275.742,
+    "score_threshold_best_10_percent": -275.742,
+    "score_threshold_best_20_percent": -275.742,
+    "score_threshold_best_40_percent": -275.742,
+    "time_taken_to_evaluate": 0.0
+  },
+  {
+    "round_num": -1,
+    "evalset": "train",
+    "all_scores": [
+      -275.742,
+      -275.742,
+      -275.742,
+      -275.742,
+      -275.742,
+      -275.742
+    ],
+    "best_overall_score": -275.742,
+    "best_10_scores_avg_overall": -275.742,
+    "best_50_scores_avg_overall": -275.742,
+    "num_unique_scores": 1,
+    "score_threshold_best_1_percent": -275.742,
+    "score_threshold_best_10_percent": -275.742,
+    "score_threshold_best_20_percent": -275.742,
+    "score_threshold_best_40_percent": -275.742,
+    "time_taken_to_evaluate": 0.0
+  }
+]

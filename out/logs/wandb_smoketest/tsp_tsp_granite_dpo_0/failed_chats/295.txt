@@ -1,0 +1,67 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Creating a new heuristics function that outperforms the previous ones requires a different approach. One method could be to incorporate concepts from approximation algorithms, like the prize-collecting Steiner tree (PCST) problem, which is a variant of the minimum spanning tree problem.
+
+Here's a Python function `heuristics(distance_matrix)` that uses the concept of minimum dominating set in a graph to estimate the desirability of including edges:
+
+```python
+def heuristics(distance_matrix):
+    import numpy as np
+
+    # Calculate the adjacency matrix from distance matrix
+    adj_matrix = np.abs(distance_matrix - np.diag(np.diag(distance_matrix)))
+    
+    # Compute the minimum dominating set for each node
+    dominating_sets = []
+    for i in range(adj_matrix.shape[0]):
+        # Compute the neighbors of node i
+        neighbors = np.where(adj_matrix[i]!= 0)[0]
+        # Compute the dominating set of node i
+        dominating_set = set(neighbors)
+        # Add the nodes that are not dominated by any other node in the set
+        for j in neighbors:
+            if not any(adj_matrix[j][k] for k in dominating_set):
+                dominating_set.add(j)
+        dominating_sets.append(dominating_set)
+    
+    # Construct the heuristics matrix
+    heuristics_matrix = np.zeros(adj_matrix.shape)
+    for i in range(adj_matrix.shape[0]):
+        for j in dominating_sets[i]:
+            heuristics_matrix[i][j] = 1 / adj_matrix[i][j]
+        for k in dominating_sets[i]:
+            heuristics_matrix[j][k] = 1 / adj_matrix[k][j]
+    
+    return heuristics_matrix
+```
+
+This function calculates the minimum dominating set for each node in the graph. In the context of a graph, the dominating set is the set of nodes where each node is connected to at least one node in the set. The idea here is that nodes in the dominating set are of higher importance and hence, edges connecting these nodes should have lower scores. This method essentially estimates the cost of including an edge based on how dominant the nodes at its ends are.
+
+Please note that this is a conceptual improvement over the previous heuristics function. The performance of this function depends on how well it represents the real-world situation it's trying to optimize, which is not quantifiable without a specific problem context. You might need to fine-tune or adjust this function based on your exact use-case and problem definition.
+
+
+

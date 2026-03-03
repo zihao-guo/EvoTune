@@ -1,0 +1,64 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more advanced heuristics function that significantly outperforms the previous ones, we can incorporate a combination of clustering and a probabilistic edge importance score. The idea is to identify groups of high-density connections (clusters) and assign higher importance scores to edges that connect these clusters.
+
+Here's a potential implementation:
+
+```python
+import numpy as np
+from scipy.cluster.hierarchy import linkage, dendrogram
+
+def heuristics(distance_matrix):
+    # Step 1: Perform hierarchical clustering on the distance matrix
+    z = linkage(distance_matrix, method='ward')
+    
+    # Step 2: Create a dendrogram to visualize the clusters
+    fig = plt.figure(figsize=(10, 7))
+    dn = dendrogram(z, labels=range(distance_matrix.shape[0]), truncate_mode='level', p=3)
+    
+    # Step 3: Assign cluster labels to each point (vertices)
+    cluster_labels = np.array(dn['leaves'])
+    
+    # Step 4: Calculate the average distance for each cluster
+    cluster_centroids = np.array([distance_matrix[cluster_labels == i].mean(axis=0) for i in range(len(np.unique(cluster_labels)))])
+    
+    # Step 5: Create a new distance matrix where each distance is increased by an edge weight to a cluster centroid
+    new_distances = distance_matrix + np.expand_dims(cluster_centroids, axis=0) - np.expand_dims(cluster_centroids, axis=1)
+    
+    # Step 6: Normalize the new distances (if needed, based on your problem-specific constraints)
+    normalized_distances = new_distances / new_distances.max()
+    
+    # Step 7: Return the normalized distances as the heuristics matrix
+    return normalized_distances
+```
+
+This function performs hierarchical clustering on the input distance matrix, identifies the clusters by examining the dendrogram, calculates the average distance for each cluster (centroid), and assigns a higher importance to the edges connecting these clusters in the resulting heuristics matrix.
+
+This new approach should outperform the previous functions by taking advantage of global connectivity patterns in the graph, providing more meaningful heuristics for an optimization problem. However, the specific score achieved will depend on the characteristics of your particular problem, such as the range of edge weights, the density of the graph, and the structure of the clusters.
+
+
+

@@ -1,0 +1,57 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To enhance the `heuristics()` function, we can incorporate a heuristic based on the principle of "clustering effect" where nearby edges are grouped together and given a lower penalty. This approach should improve the score by reducing the overall distance between connected nodes, thereby decreasing the penalty.
+
+Here's a Python function that implements this idea:
+
+```python
+def heuristics(distance_matrix):
+    # Calculate a diagonal distance matrix for each row
+    diagonals = [sum(distance_matrix[i]) for i in range(len(distance_matrix))]
+    
+    # Initialize the heuristic matrix with the same shape as distance_matrix
+    heuristics_matrix = [row.copy() for row in distance_matrix]
+    
+    # Apply the clustering effect by setting the diagonal elements to be the minimum of the diagonal and the sum of its nearest neighbors
+    for i in range(len(distance_matrix)):
+        sum_neighbors = diagonals[i]
+        for j in range(len(distance_matrix[0])):
+            if j!= i:  # Avoid self-comparison
+                sum_neighbors += distance_matrix[i][j]
+            heuristics_matrix[i][j] = min(distance_matrix[i][j], sum_neighbors)
+    
+    return heuristics_matrix
+```
+
+This new function calculates a diagonal distance for each row (which is the sum of all distances from the current node to all other nodes). It then sets the corresponding heuristic values to be the minimum of the original distance and the sum of the distances to the nearest neighbors. This clustering effect can often reduce the overall distance between nodes, which can lead to a better score.
+
+Please note that the actual score would depend on the specific problem instance and the evaluation metric used (e.g., total distance, penalty sum, etc.). It's also important to validate this function with your specific use case to ensure it performs as expected.
+
+The above function should score better than the simpler approach due to its consideration of local connectivity, which often leads to more efficient solutions in various optimization problems.
+
+
+

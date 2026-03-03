@@ -1,0 +1,60 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more effective heuristics() function, we can consider incorporating a path-based heuristic, such as the Floyd-Warshall algorithm, into our distance matrix. This will help us estimate the total cost (or desirability) of including a given edge in a solution by considering its role in the shortest paths between all pairs of vertices.
+
+Here's a Python function named heuristics() that calculates edge heuristics using Floyd-Warshall algorithm:
+
+```python
+import numpy as np
+
+def floyd_warshall(distance_matrix):
+    num_vertices = distance_matrix.shape[0]
+    for k in range(num_vertices):
+        for i in range(num_vertices):
+            for j in range(num_vertices):
+                distance_matrix[i][j] = min(distance_matrix[i][j], distance_matrix[i][k] + distance_matrix[k][j])
+    return distance_matrix
+
+def heuristics(distance_matrix):
+    # Apply Floyd-Warshall algorithm to enhance the distance matrix
+    enhanced_distance_matrix = floyd_warshall(distance_matrix.copy())
+    
+    # Return the original distance matrix with updated heuristics
+    return enhanced_distance_matrix
+
+# To test the new function, provide a distance matrix, like so:
+# distance_matrix = np.array([[0, 10, 20, 0], [10, 0, 35, 25], [20, 35, 0, 40], [0, 25, 40, 0]])
+# heuristics_matrix = heuristics(distance_matrix)
+# print(heuristics_matrix)
+```
+
+The Floyd-Warshall algorithm leverages information about all possible paths between vertices to compute new lower bounds on the shortest paths. The heuristics() function now not only retains the original distances but also provides updated heuristics based on these new paths. This should result in a higher score compared to the original heuristics() function.
+
+The score improvement will depend on the specific characteristics of the original distance matrix. The Floyd-Warshall algorithm is particularly useful when the graph has negative weights, as it can handle them. If your problem doesn't require such generalization, you might choose other path-based heuristics or optimization strategies.
+
+
+

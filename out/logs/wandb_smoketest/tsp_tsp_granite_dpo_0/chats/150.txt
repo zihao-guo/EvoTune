@@ -1,0 +1,64 @@
+# Score: -319.158
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+The heuristics() function I'm providing employs a novel approach based on the concept of a "centrality" score, which measures the importance of an edge in the context of a larger graph structure. It uses the PageRank concept to assign a score to each edge, prioritizing those that lead to more central or influential nodes. 
+
+To implement this, I'll use the NetworkX library in Python, which can help compute PageRank effectively.
+
+Here's the code:
+
+```python
+import networkx as nx
+
+def heuristics(distance_matrix):
+    # First, we need to convert the distance_matrix into a graph
+    G = nx.from_numpy_array(distance_matrix)
+    
+    # Calculate the PageRank for each node
+    pr = nx.pagerank(G)
+    
+    # Convert the PageRank scores back into a matrix
+    heuristic_matrix = nx.to_numpy_array(G)
+    for node in G.nodes():
+        for neighbor in G.neighbors(node):
+            heuristic_matrix[node][neighbor] = pr[node]
+            heuristic_matrix[neighbor][node] = pr[node]
+    
+    return heuristic_matrix
+```
+
+This function works as follows:
+
+1. Converts the input distance_matrix into a NetworkX graph.
+2. Computes the PageRank for each node in the graph.
+3. Updates the distance_matrix such that the scores between any two nodes are equal to the PageRank of the corresponding nodes.
+
+This method attempts to capture the relative importance of edges based on the connectivity and centrality of the nodes they connect, which may be more indicative of the 'undesirability' of an edge in a graph-theoretic context. This approach may perform better than the simple distance-based scoring due to its ability to account for the broader structural properties of the network.
+
+Please note that the actual improvement in the performance score (i.e., the difference in score) will depend on the specific nature of your data and the characteristics of the problem you're trying to solve. This solution is intentionally broad and should be fine-tuned as necessary based on your specific use case.
+
+
+

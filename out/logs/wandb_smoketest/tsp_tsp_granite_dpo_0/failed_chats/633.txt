@@ -1,0 +1,87 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To enhance the performance of the `heuristics()` function, we can incorporate additional factors that are often associated with the desirability or undesirability of an edge in a problem context such as network design, vehicle routing, or graph optimization. For this example, let's consider the following heuristics:
+
+1. Degree of the nodes: Edges connecting nodes with higher degrees (i.e., nodes with more connections) could be less desirable.
+2. Closeness centrality: Edges between nodes that are closer to a large number of other nodes might be considered less desirable, as they could increase the overall connectivity and reduce the problem's complexity.
+3. Betweenness centrality: Edges that act as bridges between high-degree node communities could be penalized more, as they could increase the problem's overall complexity and reduce its modularity.
+
+Here's a Python function named `heuristics()` that combines these three factors using the NetworkX library. Please make sure you have it installed before running this function.
+
+```python
+import networkx as nx
+
+def heuristics(distance_matrix):
+    # Create a graph from the distance matrix
+    G = nx.from_numpy_array(distance_matrix)
+
+    # Calculate node degrees
+    node_degrees = dict(G.degree())
+
+    # Calculate node closeness centrality
+    closeness = nx.closeness_centrality(G)
+
+    # Calculate node betweenness centrality
+    betweenness = nx.betweenness_centrality(G)
+
+    # Initialize the undesirability matrix
+    heuristics_matrix = np.full_like(distance_matrix, -np.inf)
+
+    # Define a threshold for modularity gain
+    modularity_threshold = 0.1  # Adjust this value based on your specific problem
+
+    for u, v in G.edges():
+        # Degree heuristic: -log(node_degrees[u]) - log(node_degrees[v])
+        heuristics_matrix[u, v] -= np.log(node_degrees[u])
+        heuristics_matrix[v, u] -= np.log(node_degrees[v])
+
+        # Closeness heuristic: inverse of average closeness
+        avg_closeness = np.mean(list(closeness.values()))
+        heuristics_matrix[u, v] += 1 / avg_closeness
+        heuristics_matrix[v, u] += 1 / avg_closeness
+
+        # Betweenness heuristic: -betweenness[u, v] * (1 - betweenness[u, v] / sum(betweenness.values()))
+        heuristics_matrix[u, v] -= betweenness[u, v] * (1 - betweenness[u, v] / sum(betweenness.values()))
+        heuristics_matrix[v, u] -= betweenness[v, u] * (1 - betweenness[v, u] / sum(betweenness.values()))
+
+    # Adjust heuristics based on modularity gain
+    for u, v in G.edges():
+        edge_weight = G[u][v]['weight']
+        avg_weight = np.mean([G[u][w]['weight'] for w in G.neighbors(u)])
+        avg_weight_between_communities = np.mean([G[u][w]['weight'] for w in G.neighbors(G.subgraph(list(nx.connected_components(G)[0])).nodes())])
+
+        if edge_weight / avg_weight > modularity_threshold:
+            heuristics_matrix[u, v] += 100
+            heuristics_matrix[v, u] += 100
+
+    return heuristics_matrix
+```
+
+This function is expected to give better results than the previous ones, as it incorporates additional network analysis metrics. However, keep in mind that the specific threshold values and the exact network analysis metrics might need further fine-tuning based on your problem's specifics.
+
+
+

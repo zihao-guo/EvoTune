@@ -1,0 +1,54 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To improve the heuristics() function, I will introduce a novel approach based on graph theory and the concept of edge betweenness centrality. Edge betweenness centrality measures the number of shortest paths that pass through a given edge. In the context of a problem seeking to optimize a path, edges with higher betweenness centrality are more critical to the overall structure.
+
+Here's the Python function implementing this idea:
+
+```python
+import networkx as nx
+
+def heuristics(distance_matrix):
+    G = nx.from_numpy_array(distance_matrix)
+    edge_betweenness = nx.edge_betweenness_centrality(G, normalized=False)
+    return nx.to_numpy_array(G, nodelist=G.nodes()) + edge_betweenness
+```
+
+This new function works by first converting the distance matrix into a NetworkX Graph object. Then, it computes the edge betweenness centrality using NetworkX's `edge_betweenness_centrality` function. Finally, it adds this centrality information back to the graph, creating a new distance matrix where each edge's value is the sum of the original distance and its betweenness centrality score.
+
+This approach can yield better results in cases where the shortest path structure in the graph significantly influences the optimality of a solution. Unlike the previous functions, this one takes into account the relative importance of each edge in the network, providing a more nuanced measure of edge undesirability.
+
+Note:
+
+1. This function requires the networkx package, which can be installed using `pip install networkx`.
+2. The 'normalized=False' argument in `nx.edge_betweenness_centrality` ensures that the results are not divided by the total number of shortest paths, making them directly comparable with the original distance matrix.
+3. This function modifies the input matrix in place, returning it instead of creating a new matrix.
+4. The performance improvement over the previous functions depends on the specific problem characteristics, including the nature of the shortest paths and the importance of edge utilization in the solution.
+
+As with the previous functions, please ensure that the input to `heuristics()` is a square distance matrix. If it's not, you'll need to preprocess it accordingly. The final performance score will largely depend on the characteristics of the input data.
+
+
+

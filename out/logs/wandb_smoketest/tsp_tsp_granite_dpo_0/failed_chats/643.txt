@@ -1,0 +1,70 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Creating a new heuristics function involves introducing a concept that goes beyond mere distance matrix replication. In order to outperform the previous functions, we'll introduce a heuristic that takes into account the distribution of distances, the edge weights, and some form of "connectivity" between nodes. A common technique in graph optimization problems is to incorporate "betweenness centrality," which measures how often an edge appears on the shortest paths between all pairs of nodes.
+
+Here's an example of how this could be implemented using the NetworkX library in Python. This function will not only return a distance-based heuristic matrix, but also compute the betweenness centrality scores.
+
+```python
+import numpy as np
+import networkx as nx
+
+def heuristics(distance_matrix):
+    # Ensure input is a valid distance matrix
+    distance_matrix = np.array(distance_matrix)
+    assert np.all(distance_matrix >= 0), "Distance matrix should be non-negative."
+    assert np.all(np.triu(distance_matrix, k=1) == np.zeros((len(distance_matrix), len(distance_matrix)-1))), "Distance matrix should be lower-triangular."
+
+    # Create a graph from the distance matrix
+    G = nx.from_numpy_array(distance_matrix)
+    
+    # Compute betweenness centrality
+    betweenness = nx.betweenness_centrality(G, normalized=False)
+    
+    # Scale betweenness values to the range of the distance matrix
+    min_distance = np.min(distance_matrix)
+    max_distance = np.max(distance_matrix)
+    betweenness_scaled = (betweenness - min(betweenness)) / (max(betweenness) - min(betweenness))
+    
+    # Adjust for the range of the original distance matrix
+    betweenness_scaled = np.clip(betweenness_scaled, 0, 1)
+
+    # Combine distance matrix and betweenness scores
+    heuristics_matrix = np.stack([distance_matrix, betweenness_scaled], axis=1)
+
+    return heuristics_matrix
+```
+
+This new function calculates the betweenness centrality for each node pair in the graph constructed from the distance matrix. It then scales these scores to be within the range of the distance matrix itself. This approach gives more weight to edges with high centrality and less to those with lower centrality. 
+
+The performance of this function should be better than the previous two, as it's providing more meaningful information about the network structure (e.g., the importance of certain edges based on how often they appear on shortest paths).
+
+Please, note that the performance score will heavily depend on the specific characteristics of the input data (distance matrix), the exact distribution of node connections, and the nature of the optimization problem being solved.
+
+To evaluate this new function, you would need to use your own test cases and compare the results with the scores achieved by the previous functions.
+
+
+

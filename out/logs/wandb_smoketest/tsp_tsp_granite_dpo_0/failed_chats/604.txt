@@ -1,0 +1,75 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+I understand the task. For a more innovative and effective solution, we need to incorporate some heuristic rules to prioritize edges based on their impact on the overall solution, rather than just reflecting the distance. Here's a Python function named `heuristics()` that incorporates the following considerations:
+
+1. **Distance**: As a fundamental factor, it still plays a significant role.
+2. **Travel Frequency**: More frequently traveled edges are considered less favorable.
+3. **Edge Weight**: Higher weight edges are penalized.
+4. **Alternative Edges**: Edges connected to other alternative paths are given a negative score to encourage breaking these ties.
+
+Let's implement this:
+
+```python
+def heuristics(distance_matrix, travel_frequency, edge_weights):
+    n = len(distance_matrix)
+    # Initialize the heuristic matrix with the same shape as the input
+    heuristic_matrix = [[0 for _ in range(n)] for _ in range(n)]
+    
+    # Compute the heuristic score for each edge
+    for i in range(n):
+        for j in range(n):
+            # Distance component
+            heuristic_matrix[i][j] += distance_matrix[i][j]
+            
+            # Frequency component
+            heuristic_matrix[i][j] -= travel_frequency[i][j]
+            
+            # Weight component
+            heuristic_matrix[i][j] += edge_weights[i][j]
+            
+            # Alternative edge component
+            for k in range(n):
+                if k!= j:
+                    heuristic_matrix[i][j] -= distance_matrix[i][k]
+            
+            # Normalize the heuristic score for better comparison
+            total_heuristic = sum(sum(row) for row in heuristic_matrix)
+            heuristic_matrix[i][j] /= total_heuristic
+    
+    return heuristic_matrix
+```
+
+In this function:
+
+- `distance_matrix` is the input, a 2D list representing the distances between nodes.
+- `travel_frequency` is a 2D list, where `travel_frequency[i][j]` denotes how often edge (i,j) is traveled.
+- `edge_weights` is a 2D list representing the weights of the edges.
+
+The function returns a heuristic matrix where the value at `heuristic_matrix[i][j]` signifies the undesirability of including edge (i,j) in a solution. This function should outperform the initial two due to its consideration of travel frequency and edge weights, which can significantly influence a solution's desirability.
+
+
+

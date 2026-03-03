@@ -1,0 +1,60 @@
+# Score: -342.402
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Given the problem statement, it's crucial to understand that creating a function with a higher score than a baseline or reference function often involves incorporating domain-specific knowledge, advanced heuristics, or novel approaches. In this case, the baseline function simply returns the distance matrix, which doesn't provide any additional insight or penalty for certain edges.
+
+A simple yet effective improvement could be to incorporate a "cost penalty" based on edge properties (like length, frequency, or direction in a routing scenario). For instance, let's suppose that some edges (represented as negative values in the distance_matrix) are undesirable due to their higher cost, like toll roads or congested routes.
+
+We can enhance our function `heuristics()` as follows:
+
+```python
+def heuristics(distance_matrix):
+    # Threshold for undesirable edges
+    UNDESIRABLE_THRESHOLD = 100
+
+    # Convert negative values (costly edges) to their absolute values
+    distance_matrix = np.abs(distance_matrix)
+
+    # Create an undesirable edge penalty matrix
+    undesirable_penalty = UNDESIRABLE_THRESHOLD * np.ones(distance_matrix.shape)
+
+    # Distribute penalty to costly edges
+    for i in range(distance_matrix.shape[0]):
+        for j in range(distance_matrix.shape[1]):
+            if distance_matrix[i, j] < UNDESIRABLE_THRESHOLD:
+                undesirable_penalty[i, j] = 0  # No penalty for low-cost edges
+
+    return undesirable_penalty
+```
+
+The new `heuristics()` function assigns a penalty to undesirable edges based on their actual cost, rather than just treating them as any other edge. This should yield better performance than the baseline function, as it rewards better routing decisions by penalizing poor choices more severely.
+
+Please note that the `numpy` package is required for this solution (`import numpy as np`). You can adjust the `UNDESIRABLE_THRESHOLD` and the condition for assigning penalty (`if distance_matrix[i, j] < UNDESIRABLE_THRESHOLD`) according to your specific problem.
+
+This new heuristics function should provide a better performance score because it takes into account the inherent properties of the edges and assigns a more tailored penalty accordingly.
+
+
+

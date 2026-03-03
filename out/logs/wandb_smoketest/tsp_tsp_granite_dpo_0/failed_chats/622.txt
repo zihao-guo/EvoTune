@@ -1,0 +1,63 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To improve the performance of the `heuristics()` function, let's introduce an approach based on the concept of "Cost-Complexity Principle" in graph theory. The idea is to balance the sum of the edge weights (costs) and a complexity term that encourages solutions with fewer edges.
+
+We'll define two heuristics:
+1. A simple heuristic that minimizes the total edge cost.
+2. An enhanced heuristic that also considers the number of edges as a negative penalty.
+
+```python
+import numpy as np
+
+def simple_heuristics(distance_matrix):
+    # Simple heuristic: Minimize the sum of distances
+    return distance_matrix.sum(axis=0)
+
+def enhanced_heuristics(distance_matrix):
+    # Enhanced heuristic: Minimize the sum of distances, but penalize it with a complexity term
+    num_nodes = distance_matrix.shape[0]
+    complexity_penalty = num_nodes * 10  # Adjust this value for desired trade-off
+
+    # Total heuristic score
+    heuristics_score = distance_matrix.sum(axis=0) + complexity_penalty
+
+    return heuristics_score
+
+# Now let's test both
+distance_matrix = np.array([[0, 10, 15, 20],
+                           [10, 0, 35, 25],
+                           [15, 35, 0, 30],
+                           [20, 25, 30, 0]])
+
+print("Simple Heuristics Score: ", simple_heuristics(distance_matrix).sum())
+print("Enhanced Heuristics Score: ", enhanced_heuristics(distance_matrix).sum())
+```
+
+This enhanced heuristics function introduces a 'complexity' penalty, which is calculated as a fraction of the total number of nodes. By doing so, it encourages solutions with fewer edges, which is a reasonable assumption in many real-world scenarios. The complexity penalty value (currently set to 10 in the `complexity_penalty` variable) can be adjusted to fine-tune the balance between minimizing total cost and minimizing the number of edges.
+
+
+

@@ -1,0 +1,59 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Based on your instructions, I will design a new heuristics() function that uses a combination of the following strategies:
+
+1. **Edge Density**: Include a factor that considers how dense the edges are in the distance matrix. High-density areas might be more costly to include, as they represent high interconnectivity.
+
+2. **Local Connectivity**: Introduce a measure for local connectivity. In a network, areas with lots of neighbors could be costly to include because they increase the overall network complexity.
+
+3. **Global Connectivity**: Consider the overall network structure. A function that looks at the connectivity between different parts of the network could provide valuable insights.
+
+4. **Cost of Inclusion**: Implement a cost function. Each edge's cost is determined by its length in the distance matrix. Longer edges should be less desirable to include.
+
+Below is a Python function that follows these guidelines:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    num_nodes = distance_matrix.shape[0]
+    edge_density = distance_matrix.sum() / (num_nodes * (num_nodes - 1))  # Edge density
+    local_connectivity = np.count_nonzero(distance_matrix < 1, axis=1) / (num_nodes - 1)  # Local connectivity
+    global_connectivity = np.mean(np.sum(distance_matrix, axis=1) == np.min(np.sum(distance_matrix, axis=1)))  # Global connectivity
+    cost_of_inclusion = distance_matrix.diagonal()  # Diagonal elements represent cost of including an edge between a node and itself
+
+    # Combine these metrics into a single heuristic score
+    heuristic_score = edge_density * 0.5 + local_connectivity * 0.3 + global_connectivity * 0.1 + cost_of_inclusion * 0.1
+
+    # Normalize the score to a 0-1 range
+    return (heuristic_score - min(heuristic_score)) / (max(heuristic_score) - min(heuristic_score))
+```
+
+This new heuristics() function should achieve a better score than the previous two due to its inclusion of more comprehensive network-level metrics. However, please note that the performance might still be subject to the specific characteristics of your input data. You might need to further fine-tune the weights of the metrics or add other factors depending on your application.
+
+
+

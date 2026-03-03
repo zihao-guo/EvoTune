@@ -1,0 +1,68 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more sophisticated heuristics function, we can incorporate both the proximity of each edge and the frequency of its occurrence in the distance matrix. Here, I'll design a function that uses the concept of "importance score" for each edge, which is a combination of the edge's distance value and a weighted frequency term. The function will return a matrix of importance scores.
+
+Here's how I propose we do this:
+
+1. Calculate the sum of the main diagonal of the input distance matrix. This is the total distance.
+2. Divide each element in the matrix by the total distance. This normalizes the distance values.
+3. We'll assign a frequency weight to each edge. For instance, let's set the weight to 2.
+4. Multiply each element by its corresponding frequency weight.
+5. Sum the results to get the importance score for each edge.
+
+Here's the Python function implementing these steps:
+
+```python
+def heuristics(distance_matrix):
+    n = len(distance_matrix)  # assuming square distance matrix
+
+    # Step 1: Calculate total distance
+    total_distance = sum(distance_matrix.diagonal())
+
+    # Step 2: Normalize distances
+    normalized_distances = [x / total_distance for x in distance_matrix.flatten()]
+
+    # Step 3: Assign frequency weight
+    frequency_weight = 2
+
+    # Step 4: Calculate importance scores
+    importance_scores = [norm * freq_weight for norm, freq in zip(normalized_distances, range(1, n*n+1))]
+
+    # Step 5: Reshape to match the original matrix shape
+    heuristics_matrix = np.reshape(importance_scores, (n, n))
+
+    return heuristics_matrix
+```
+
+This function combines the direct distance information with a frequency-based weighting, giving it the potential to outperform both previous functions by providing a more nuanced evaluation of the edges' desirability or undesirability. The higher the score, the less desirable the edge.
+
+Please note, however, that the actual performance will depend on the specific use-case, the scale and characteristics of the data. It's possible that different heuristics may yield better results depending on the nature of your problem.
+
+Score achieved with this function should be better than the original due to its combination of distance normalization and frequency weighting.
+
+
+

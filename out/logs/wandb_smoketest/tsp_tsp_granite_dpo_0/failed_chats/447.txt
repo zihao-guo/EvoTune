@@ -1,0 +1,54 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To enhance the heuristics() function, we can introduce a more sophisticated approach that leverages both the distance between nodes and the frequency of connections. This method encourages a solution that has both short-distance edges and high-frequency connections, aiming to balance between the two. 
+
+Here is an example of how the improved heuristics() function can be structured:
+
+```python
+def heuristics(distance_matrix):
+    # Calculate the average distance for each node
+    avg_distances = [sum(distance_matrix[i]) / (len(distance_matrix) - 1) for i in range(len(distance_matrix))]
+    
+    # Calculate the frequency of connections for each node (sum of distances to all other nodes)
+    connection_counts = [sum(distance_matrix[i]) for i in range(len(distance_matrix))]
+    
+    # Create a heuristic matrix with the above information
+    heuristic_matrix = [[avg_distances[i] / connection_counts[i] if connection_counts[i] > 0 else 0 for i in range(len(distance_matrix))] for _ in range(len(distance_matrix))]
+    
+    return heuristic_matrix
+```
+
+The new function first calculates the average distance for each node, and then computes the total number of connections for each node (sum of all its distances to other nodes). These two pieces of information are then combined to create a heuristic score for each edge, dividing the average distance by the connection count.
+
+In the case where a node has no connections (i.e., an isolated node), the heuristic for that node is set to 0, to avoid division by zero. 
+
+This method is intended to favor edges that are both short and highly connected, providing a more nuanced measure of edge undesirability than simply returning the distance matrix. 
+
+This approach could potentially achieve a higher score, but the exact score will depend on the specifics of the problem at hand, including the scale and distribution of the distance matrix.
+
+
+

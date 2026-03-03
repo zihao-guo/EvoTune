@@ -5,7 +5,7 @@ finetuning_frequency: 400
 dpo_strategy: 2
 dpo_config:
   beta: 0.4
-  max_seq_length: 6500
+  max_seq_length: 1024 # 6500
   per_device_train_batch_size: 2
   gradient_accumulation_steps: 16
   gradient_checkpointing: 1

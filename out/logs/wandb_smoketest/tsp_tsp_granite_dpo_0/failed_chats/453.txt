@@ -1,0 +1,86 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more sophisticated heuristics() function, I'll introduce a technique called the "Dijkstra's Algorithm with a Twist" to calculate edge weights based on the shortest path from a given starting node. This approach aims to capture the idea of 'cost' and 'desirability' of including an edge in the solution.
+
+Here's the new heuristics() function:
+
+```python
+import heapq
+
+def dijkstra(distance_matrix):
+    n = len(distance_matrix)
+    # Initialize distances from the source node (0) to all other nodes as infinite
+    distances = [float('inf')] * n
+    distances[0] = 0
+
+    # Priority queue to store (distance, node) tuples
+    queue = [(0, 0)]
+
+    while queue:
+        current_distance, current_node = heapq.heappop(queue)
+
+        if current_distance > distances[current_node]:
+            continue
+
+        for neighbor, edge_weight in enumerate(distance_matrix[current_node]):
+            if edge_weight > 0:
+                distance = current_distance + edge_weight
+
+                # If a shorter path to the neighbor is found, update the distance
+                if distance < distances[neighbor]:
+                    distances[neighbor] = distance
+                    heapq.heappush(queue, (distance, neighbor))
+
+    return distances
+
+def heuristics(distance_matrix):
+    # Calculate shortest path distances from each node to all others
+    shortest_paths = dijkstra(distance_matrix)
+
+    # Create a new matrix to store heuristic values
+    heuristic_values = [[0] * len(distance_matrix[0]) for _ in range(len(distance_matrix))]
+
+    # Populate the new matrix
+    for i in range(len(distance_matrix)):
+        for j in range(len(distance_matrix[0])):
+            if i!= j:
+                # The cost of including edge (i, j) is the sum of the shortest distances from both nodes to the other node
+                cost = shortest_paths[i] + shortest_paths[j] - distance_matrix[i][j]
+                heuristic_values[i][j] = cost
+
+    return heuristic_values
+```
+
+This heuristics() function improves upon the simpler version in several ways:
+1. It considers the overall cost of including an edge in a solution by incorporating shortest path distances.
+2. It uses Dijkstra's algorithm to compute these distances efficiently.
+3. It takes into account the edge weights as part of the 'cost', rather than treating them as arbitrary numbers.
+
+These changes should yield a better score than the simpler function you provided.
+
+
+

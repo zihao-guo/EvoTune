@@ -1,0 +1,63 @@
+# Score: -259.302
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To design a heuristics function that significantly outperforms the initial one, we'll introduce a novel approach based on edge importance scores derived from both the distance and the adjacency structure of the graph. We'll use a combination of the shortest path length and the frequency of connections for each edge.
+
+Here's a Python function named `heuristics()` that implements this idea:
+
+```python
+import numpy as np
+from scipy.sparse.csgraph import dijkstra
+
+def heuristics(distance_matrix):
+    # Create a (n x n) adjacency matrix based on the given distance matrix
+    n = distance_matrix.shape[0]
+    adj_matrix = np.zeros((n, n))
+    np.fill_diagonal(adj_matrix, 1)  # Each node is connected to itself with a weight of 1
+    for i in range(n):
+        for j in range(i+1, n):
+            if distance_matrix[i, j]!= float('inf'):  # Skip edges with infinite distance
+                adj_matrix[i, j] = distance_matrix[i, j]
+                adj_matrix[j, i] = distance_matrix[i, j]  # Make it a bidirectional edge
+
+    # Calculate shortest path from each node to all others using Dijkstra's algorithm
+    shortest_paths = dijkstra(csgraph=adj_matrix, directed=True, return_predecessors=False)
+    
+    # Normalize by the number of shortest paths for each edge
+    normalized_heuristics = shortest_paths / np.sum(shortest_paths, axis=1)[:, np.newaxis]
+    
+    # Combine distance and importance by multiplying them together
+    heuristics_matrix = distance_matrix * normalized_heuristics
+    
+    return heuristics_matrix
+```
+
+This function first creates an adjacency matrix from the given distance matrix. Then, it applies Dijkstra's algorithm to calculate the shortest path between every pair of nodes in this adjacency matrix. The shortest paths are normalized by the total number of possible paths, which gives a more accurate reflection of the edge importance. Finally, it combines these importance scores with the original distance values by element-wise multiplication.
+
+The key innovation here is that we're explicitly modeling both the direct distance (using the given matrix) and the indirect importance (through the shortest paths), allowing our function to capture more subtle but potentially crucial aspects of the network structure. This should result in a significantly better score than the simpler version. However, the actual performance will depend on the specific nature of your problem and datasets.
+
+
+

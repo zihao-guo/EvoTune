@@ -4,13 +4,13 @@ import os
 import hydra
 import numpy as np
 
-from packing.evaluate.registry import TASK_REGISTRY
-
 os.environ["JAX_PLATFORM_NAME"] = "cpu"  # We can't use GPU with multiprocessing for evaluation very well yet
 os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 os.environ["WANDB_SILENT"] = "true"
+
+from packing.evaluate.registry import TASK_REGISTRY
 
 import wandb
 from pathlib import Path

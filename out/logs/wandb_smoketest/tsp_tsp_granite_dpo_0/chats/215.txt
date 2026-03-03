@@ -1,0 +1,63 @@
+# Score: -309.366
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To improve the performance of the heuristics() function, we'll apply the concept of the Traveling Salesman Problem (TSP) heuristic known as the Nearest Neighbor (NN) heuristic. This method prioritizes choosing the closest unvisited vertex at each step, thereby reducing the total edge weight in the initial tour.
+
+Here's the Python function for the Nearest Neighbor heuristic:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Get the shape of the distance matrix
+    n = distance_matrix.shape[0]
+
+    # Initialize an array of zeros with the same shape as the distance matrix
+    heuristics_matrix = np.zeros(distance_matrix.shape)
+
+    # Iterate through each vertex
+    for i in range(n):
+        # Calculate the sum of the unvisited distances (current and its closest unvisited vertex)
+        min_distance = float('inf')
+        min_index = -1
+        for j in range(n):
+            if distance_matrix[i, j]!= 0:  # Avoid dividing by zero
+                if j!= i:  # Ignore the edge between i and itself
+                    if distance_matrix[i, j] < min_distance:
+                        min_distance = distance_matrix[i, j]
+                        min_index = j
+
+        # If the vertex has unvisited neighbors, assign the minimum distance
+        if min_index!= -1:
+            heuristics_matrix[i, min_index] = min_distance
+
+    return heuristics_matrix
+```
+
+This heuristic assigns a lower value (closer to zero) to the unvisited neighbors of each vertex, thereby providing a better initial estimate of edge quality. This should improve its performance compared to the initial heuristics functions.
+
+
+

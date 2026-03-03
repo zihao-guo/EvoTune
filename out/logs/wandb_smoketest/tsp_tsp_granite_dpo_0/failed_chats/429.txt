@@ -1,0 +1,78 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a heuristics() function that outperforms the other two, we need to introduce a mechanism that captures the essence of the minimum spanning tree (MST) problem – balancing between the number of edges included and their total weight, without just copying the input distance matrix. The aim is to find edges that contribute more significantly to the overall structure of the MST, rather than simply reflecting the input graph.
+
+Here is a possible implementation of the `heuristics()` function using Kruskal's algorithm:
+
+```python
+def heuristics(distance_matrix):
+    """
+    Calculate edge heuristics for a given distance matrix,
+    using Kruskal's algorithm to find a subset of edges.
+    """
+    n = len(distance_matrix)
+    # Kruskal's algorithm: sort edges by weight and add to the MST
+    # if it doesn't form a cycle.
+    mst = []
+    parent = list(range(n))
+    rank = [0] * n
+    def find(x):
+        if parent[x]!= x:
+            parent[x] = find(parent[x])
+        return parent[x]
+
+    def union(x, y):
+        rootX = find(x)
+        rootY = find(y)
+        if rootX == rootY:
+            return False
+        if rank[rootX] > rank[rootY]:
+            parent[rootY] = rootX
+        elif rank[rootX] < rank[rootY]:
+            parent[rootX] = rootY
+        else:
+            parent[rootY] = rootX
+            rank[rootX] += 1
+        return True
+
+    for i in range(n):
+        for j in range(i + 1, n):
+            if distance_matrix[i][j] < 0:  # Assume negative edge weights
+                if union(i, j):
+                    mst.append((i, j, distance_matrix[i][j]))
+
+    return mst
+```
+
+This `heuristics()` function utilizes Kruskal's algorithm to build the minimum spanning tree (MST) from the input distance matrix. During the construction of the MST, it adds edges to a subset based on their weights. This subset represents the heuristics for including or excluding edges in the optimal MST solution. 
+
+The heuristics are not simply the input distances, but how they contribute to the MST structure. Edges with lower weights contribute more to the MST, making them better candidates for inclusion. 
+
+This approach should provide a higher score than the original functions because it captures the essence of MST, considering the relationship and importance of each edge to the overall structure. The score would depend on how well this subset of edges approximates the actual optimal MST.
+
+
+

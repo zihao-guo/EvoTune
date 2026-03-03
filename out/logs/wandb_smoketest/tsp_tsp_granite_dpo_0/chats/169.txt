@@ -1,0 +1,60 @@
+# Score: -342.402
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create an improved heuristics() function, we'll leverage the concept of graph theoretical properties to suggest potential edge priorities. Specifically, we'll incorporate the concept of degree centrality, which measures the importance of a node based on the number of its connections.
+
+Here's the Python function:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Convert the distance matrix into a weighted graph
+    graph = np.zeros((distance_matrix.shape[0], distance_matrix.shape[0]))
+    for i in range(distance_matrix.shape[0]):
+        for j in range(i, distance_matrix.shape[0]):
+            graph[i][j] = distance_matrix[i][j]
+            graph[j][i] = distance_matrix[i][j]  # Undirected graph
+
+    # Calculate the degree centrality for each node
+    degrees = np.sum(graph, axis=0)
+    heuristic_matrix = np.diag(degrees)  # Diagonal matrix to ensure no self-loops
+
+    return heuristic_matrix
+```
+
+The score of this heuristics() function should be higher than the given functions due to the following reasons:
+
+1. **Structural Information**: By constructing a weighted graph from the distance matrix and then calculating degree centralities, we're capturing important structural properties of the problem. Edges with higher degrees have more impact on the overall structure of the graph.
+
+2. **Node Importance**: The degree centrality for each node signifies its importance in the network. Nodes with higher degrees are potentially more desirable to include in the solution, as they connect more to other parts of the network.
+
+3. **Novelty**: This method is novel because it directly incorporates graph-theoretic ideas to provide a heuristic, unlike the previous functions which were essentially a direct copy of the distance matrix.
+
+Please note that the actual performance may vary based on the specific characteristics of your data. Adjustments might be necessary for different types of problems or data distributions. The above function assumes the graph is undirected. If your problem can be directed, you would need to adjust the graph construction accordingly.
+
+
+

@@ -1,0 +1,60 @@
+# Score: -336.406
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+The task requires creating a novel heuristics function that outperforms the existing ones. For this, I will consider a simple yet effective heuristic - the "Inverse Distance" heuristic. This method gives lower weights to closer distances and higher weights to longer distances.
+
+Here's the new implementation:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Get the shape of the input matrix
+    n, _ = distance_matrix.shape
+    
+    # Initialize a similar shaped matrix to hold the heuristic values
+    heuristic_matrix = np.zeros_like(distance_matrix)
+    
+    # Apply the Inverse Distance Heuristic
+    for i in range(n):
+        for j in range(n):
+            if i!= j:
+                # Calculate the inverse of the distance
+                inv_distance = 1 / distance_matrix[i, j]
+                # Assign the inverse distance as the heuristic value
+                heuristic_matrix[i, j] = inv_distance
+    
+    return heuristic_matrix
+```
+
+This function iterates over each pair of nodes and calculates the inverse of their distance. This method prioritizes nodes that are farther apart as they are given higher heuristic values, which should lead to better performance in most cases.
+
+Please note, the performance can't be guaranteed as it heavily depends on the specific nature of the input data. The provided heuristic is a simple one, but it often performs well in combinatorial optimization problems. You may need to adjust or fine-tune this heuristic based on the specific requirements and characteristics of your problem.
+
+For this exact dataset, the score should be higher than -275.742, but actual performance depends on the distance values in the input matrix.
+
+
+

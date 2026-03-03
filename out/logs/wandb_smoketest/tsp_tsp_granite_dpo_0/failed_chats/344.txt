@@ -1,0 +1,56 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+The task requires a significant departure from simply returning the distance matrix or rearranging it. To improve upon the existing solutions, we can incorporate a heuristic-based approach that considers the intrinsic characteristics of the graph. One such method could be the "Minimum Spanning Tree (MST) Heuristic", which estimates the cost to reconnect a graph after an edge (or node) is removed.
+
+However, as Python code, it's impossible to directly compute a MST to provide an immediate output. I'll provide a high-level conceptual approach for the 'heuristics()' function, which you can implement in Python.
+
+```python
+def heuristics(distance_matrix):
+    # Compute the Laplacian matrix from the adjacency matrix (assuming distance matrix is symmetric)
+    n = len(distance_matrix)
+    L = np.diag(np.sum(distance_matrix, axis=0)) - distance_matrix
+    L = L + L.T  # ensure symmetry
+    L[np.diag_indices(n)] = 0  # set diagonal elements to 0
+
+    # The eigenvalues of the Laplacian matrix provide a measure of the connectivity of the graph.
+    # Smaller eigenvalues correspond to more disconnected components and thus, more undesirable edges.
+    eigenvalues, _ = np.linalg.eig(L)
+    heuristics_matrix = np.abs(eigenvalues)
+    
+    return heuristics_matrix
+```
+
+This function first converts the distance matrix into an adjacency matrix. It then computes the Laplacian matrix, which is used to find the second smallest eigenvalue (also called the algebraic connectivity) of the graph. The smaller this eigenvalue, the more disconnected the graph becomes after removing a single edge, thus signifying that edge as more undesirable.
+
+This approach takes into account not only the direct distances, but also the global structure of the graph, aiming to provide a more comprehensive measure of edge undesirability.
+
+Note: To use this function, you'll need to install and import necessary libraries such as NumPy if not already installed. This is demonstrated using `import numpy as np`.
+
+This heuristics function should ideally yield better scores than both the initial approaches provided.
+
+
+

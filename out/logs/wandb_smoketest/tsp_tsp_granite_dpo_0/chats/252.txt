@@ -1,0 +1,60 @@
+# Score: -342.402
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+In this new heuristics() function, I propose a strategy that incorporates the concept of edge betweenness centrality, a well-known measure in network analysis. This method will highlight the importance of an edge based on its role in connecting other most critical paths or nodes in the graph, which could be analogous to the "undesirability" of including an edge in our problem.
+
+Here's the Python function:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # First, find the total number of nodes in the graph
+    num_nodes = np.size(distance_matrix, 0)
+    
+    # Create a zeros matrix of the same shape as distance_matrix
+    edge_importance = np.zeros_like(distance_matrix)
+    
+    # Calculate edge betweenness centrality using the formula:
+    # Betweenness = (σst - (as * at)) / (as * at * (as * at - s))
+    # Where σst is the number of shortest paths from s to t,
+    # as is the number of shortest paths from s to any node,
+    # at is the number of shortest paths from t to any node,
+    # and s, t are nodes connected by an edge in the matrix.
+    
+    for i in range(num_nodes):
+        for j in range(num_nodes):
+            if i!= j:  # Skip the diagonal
+                path_counts = np.sum((distance_matrix[:, i] <= distance_matrix[:, j]) & (distance_matrix[j, :] <= distance_matrix[i, :]))
+                edge_importance[i, j] = path_counts / (path_counts + (distance_matrix[i, :] * distance_matrix[j, :]).sum() - path_counts * distance_matrix[i, :].sum() * distance_matrix[j, :].sum())
+    
+    return edge_importance
+```
+
+This function calculates the edge betweenness centrality, which should provide a higher score than the previous approaches. It's a significant departure from the initial functions, as it incorporates a graph theory concept to measure "undesirability." The higher the centrality score, the more critical the edge is to the overall connectivity of the network, making it a strong heuristic indicator. Please note that this function assumes the input is a distance matrix and is suitable for a weighted graph. For unweighted graphs, you might need to modify the path count calculation to consider only unique shortest paths (i.e., paths with distinct edge weights).
+
+
+

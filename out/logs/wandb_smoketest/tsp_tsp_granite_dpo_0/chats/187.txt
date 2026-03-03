@@ -1,0 +1,53 @@
+# Score: -320.726
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+The heuristics() function should aim to provide a measure of undesirability for including each edge in a solution based on more complex and contextually relevant factors. Unlike the previous functions which simply return the distance matrix, this new function will take into account the geometry of the problem, the structure of the network, and possibly some form of estimated cost associated with the edges.
+
+We'll define a simple rule-based heuristic where the diagonal elements will be the sum of the row, and the off-diagonal elements will be the minimum of the two corresponding row sum minus the edge weight.
+
+Here's the new heuristics() function:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Calculate the sum of each row
+    row_sum = np.sum(distance_matrix, axis=1)
+
+    # Calculate the heuristic value for each edge
+    heuristic = np.minimum(row_sum[:, np.newaxis], row_sum[np.newaxis, :]) - distance_matrix
+
+    return heuristic
+```
+
+This function aims to assign lower values to edges that connect nodes with similar total costs (row sums), which could be a proxy for the desirability of these edges.
+
+Please note that this is a simple example and the actual heuristic function will heavily depend on the specific problem context and additional constraints. For example, if there's a correlation between edge weights and the distance between nodes, or if certain nodes have a significant impact on overall network cost, you would need to incorporate these insights into the heuristic calculation.
+
+The score of this function can be evaluated using a cross-validation approach, testing it on a large dataset and comparing the results against a baseline or a state-of-the-art heuristic. The exact scoring system will depend on the specific problem at hand and could consider factors like edge density, centrality, or total network cost.
+
+
+

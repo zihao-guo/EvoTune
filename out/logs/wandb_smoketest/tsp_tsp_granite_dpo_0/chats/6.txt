@@ -1,0 +1,52 @@
+# Score: -275.742
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a new, innovative heuristics() function that performs better than the given one, we'll incorporate a concept often used in traveling salesman problem (TSP) and vehicle routing problems, known as "pessimistic heuristics" or "adversarial approach". In this method, instead of being optimistic about the next closest node, we make it as difficult as possible for the algorithm to choose it. This approach tends to overestimate the cost of paths, making it less likely to select suboptimal solutions.
+
+Here's a basic implementation of the 'heuristics()' function using this idea:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Compute the total cost of paths by considering the pessimistic view
+    # For each node, make it harder to reach by adding a penalty term.
+    penalty_factor = 1.2  # Adjust this factor to control how pessimistic we are
+    n = len(distance_matrix)
+    
+    heuristics_matrix = distance_matrix + penalty_factor * np.diag(np.abs(np.min(distance_matrix, axis=0) - np.max(distance_matrix, axis=0)))
+    
+    return heuristics_matrix
+```
+
+This function works by taking the maximum distance from each node to every other node in the matrix and multiplying it by a penalty factor. This new value is then added to the corresponding entry in the input distance matrix, making each path cost appear artificially high.
+
+Note: The penalty factor is a parameter that you can tune according to your specific use-case. It's currently set to 1.2, meaning it doubles the maximum distance. The larger this factor, the more pessimistic our heuristics, and the higher the scores will be.
+
+Remember, the effectiveness of this heuristic can vary based on the nature of your problem. It might perform well for certain scenarios but not others. To ensure it works best for your case, you might need to perform some experimentation or hyperparameter tuning.
+
+
+

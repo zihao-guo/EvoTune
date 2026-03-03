@@ -1,0 +1,65 @@
+# Score: -275.742
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Sure, based on the analysis of the lower-scoring function, we can derive a new heuristic approach using the concept of edge density. This method tries to capture the "crowdedness" of the network by calculating the average density of the distance matrix, and then penalizes the edges in denser regions.
+
+Here's an improved Python function, heuristics(), that uses edge density to determine the priority of edges:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Calculate the total number of edges in the graph
+    num_edges = np.prod(distance_matrix.shape[:-1])
+
+    # Calculate the total distance of all edges
+    total_distance = np.sum(distance_matrix)
+
+    # Calculate the average distance per edge
+    avg_distance = total_distance / num_edges
+
+    # Create an edge density matrix
+    edge_density = distance_matrix / avg_distance
+
+    # Create a new matrix of the same shape as the input, with each element as the edge density
+    heuristic_matrix = edge_density
+
+    return heuristic_matrix
+```
+
+This new function calculates the average distance per edge and uses it to normalize the distance matrix. This approach gives higher weights to less crowded areas (lower density) and vice versa. As a result, it should perform better than the simpler heuristics() functions that just returned the distance matrix.
+
+You can test the new function with a distance matrix to see if it provides a more optimal score:
+
+```python
+distance_matrix = np.array([[0, 1, 2, 3], [1, 0, 4, 5], [2, 4, 0, 6], [3, 5, 6, 0]])
+print(heuristics(distance_matrix))
+```
+
+Remember, the goal is to get a higher score, so you might need to fine-tune the calculations or use different normalization methods based on the specific requirements of your problem.
+
+
+

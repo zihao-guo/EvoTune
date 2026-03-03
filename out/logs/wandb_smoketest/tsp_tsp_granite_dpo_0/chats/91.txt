@@ -1,0 +1,56 @@
+# Score: -277.537
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Sure, to create a more advanced heuristics function, I will introduce a concept of 'edge importance' based on a weighted combination of the input's distance values. This method will give higher importance to closer edges and lower importance to farther ones. 
+
+Here's a Python function based on this concept:
+
+```python
+def heuristics(distance_matrix):
+    num_nodes = distance_matrix.shape[0]
+    # We define weights for each node based on their distance from the first node (node 0)
+    # Larger distances are given smaller weights, therefore, closer nodes get higher importance
+    weights = 1 / (distance_matrix[0, :] + 1)
+    # Compute a weighted distance for each edge
+    weighted_distances = distance_matrix.copy()
+    weighted_distances[1:, :] = weighted_distances[1:, :] * weights[1:, np.newaxis]
+    # Normalize to sum to 1 per row (to act as a probability of being selected)
+    weighted_distances /= weighted_distances.sum(axis=1)[:, np.newaxis]
+    return weighted_distances
+```
+
+This heuristics function calculates a normalized importance for each edge based on its distance from the first node. Closer edges get higher weights, reflecting the idea that these edges are generally more desirable or feasible to include.
+
+To compare the performance of this new function, you can re-run the evaluation and observe the score improvement. 
+
+Remember to ensure your test cases cover diverse scenarios to thoroughly evaluate the function's performance.
+
+Please note that the actual score will depend on the specific metrics used for evaluation, as the provided score (-275.742) is a placeholder.
+
+The weights in the function could be tuned further for specific problem types, achieving a better balance between edge importance and overall solution fitness. For instance, if there's a tradeoff between proximity and some other relevant factor, you could assign different weights to reflect this balance.
+
+
+

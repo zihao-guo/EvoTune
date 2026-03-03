@@ -1,0 +1,59 @@
+# Score: -307.975
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create an improved heuristics() function, we can employ a more sophisticated scoring approach that incorporates additional criteria and considers the structural characteristics of the distance matrix. We'll use the Hungarian Algorithm (also known as Munkres' Algorithm) to find the minimum cost, total weighted edge-connectivity, and to identify a perfect matching – all of which can provide valuable insights into edge importance in the context of a network.
+
+Here's a Python function that uses the Scipy's implementation of the Hungarian algorithm to compute edge heuristics:
+
+```python
+import numpy as np
+from scipy.optimize import linear_sum_assignment
+
+def heuristics(distance_matrix):
+    # Use the Hungarian Algorithm to find the minimum cost, total weighted edge-connectivity
+    cost, permutation = linear_sum_assignment(distance_matrix)
+    
+    # Create a heuristics matrix
+    heuristics_matrix = np.zeros(distance_matrix.shape)
+    
+    # Assign minimum cost to each corresponding edge in the heuristics matrix
+    heuristics_matrix[permutation, :] = cost
+    heuristics_matrix[:, permutation] = cost
+    
+    return heuristics_matrix
+```
+
+This new function `heuristics()` first uses the Hungarian Algorithm to find the minimum total cost of connecting all nodes in the network, represented by the given distance matrix. Then it creates a new heuristics matrix where each edge is assigned the value of its corresponding minimum cost.
+
+This approach offers several advantages over the previous simple scoring methods:
+1. It captures a notion of cost (distance) in a more comprehensive way, not just raw value.
+2. It provides a direct connection to the problem's underlying structure (network or graph).
+3. It captures the idea of a "cheapest" or "minimum cost" connection, which can serve as a good heuristic for many optimization problems.
+
+Incorporating the Hungarian Algorithm into this function should result in significantly improved performance, provided that the distance matrix accurately reflects the cost of connecting different elements in the network. The exact score will depend on the specific nature of the input distance matrix, but this approach should provide a stronger indicator of edge importance than the previous methods.
+
+
+

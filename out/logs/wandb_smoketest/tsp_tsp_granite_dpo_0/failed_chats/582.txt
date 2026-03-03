@@ -1,0 +1,64 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+The task at hand is to develop a novel heuristics() function that can better assess the desirability of edges in a graph by considering additional factors, different techniques or improved weighting of existing ones. A common approach in such problems is to incorporate some form of "cost" or "benefit" for including an edge, based on factors like edge weight, connectivity, or centrality.
+
+Here, we'll attempt to improve upon the given function by incorporating a concept from network analysis called "betweenness centrality". This measures the number of shortest paths that pass through a given edge in the graph. Edges with higher betweenness centrality are considered more critical and potentially less desirable for inclusion in a solution.
+
+```python
+import numpy as np
+from scipy.sparse.csgraph import csgraph_ shortest_paths
+
+def betweenness_centrality(graph):
+    return np.squeeze(csgraph_shortest_paths(graph, directed=True).sum(axis=1))
+
+def heuristics(distance_matrix):
+    # First, compute the shortest path distances between all nodes using the provided distance_matrix
+    distances = distance_matrix
+    
+    # Then, calculate the betweenness centrality for each edge
+    betweenness = betweenness_centrality(csgraph_from_sparse(distances))
+    
+    # Normalize the betweenness centrality values between 0 and 1
+    max_betweenness = np.max(betweenness)
+    betweenness_normalized = (betweenness - np.min(betweenness)) / (max_betweenness - np.min(betweenness))
+    
+    # Now, reflect the normalized betweenness values back into the distance matrix
+    heuristics_matrix = np.array(distance_matrix)
+    heuristics_matrix[np.triu_indices(heuristics_matrix.shape[0], k=1)] = betweenness_normalized[np.triu_indices(heuristics_matrix.shape[0], k=1)]
+    
+    return heuristics_matrix
+
+# Note: This heuristics() function assumes that the input distance_matrix is a square symmetric matrix representing a graph.
+#       The function uses the'scipy.sparse.csgraph' module for efficient computation of shortest paths.
+```
+
+This heuristics() function first calculates the shortest path distances from the given distance matrix. It then computes the betweenness centrality for each edge using a custom function. The betweenness values are normalized to values between 0 and 1, and this normalized value is assigned back to the corresponding edges in the distance matrix. This approach reflects the idea that higher-betweenness edges are less desirable, thereby altering the input matrix to reflect this prioritization.
+
+The performance of this function can be further optimized by fine-tuning the normalization scale or by incorporating other edge metrics based on the specific problem requirements.
+
+
+

@@ -1,0 +1,51 @@
+# Score: -324.685
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To improve the heuristics() function, we'll use a simple yet effective method - calculating an inverse distance matrix and then summing the inverse values across rows. This approach is inspired by the concept of the "reciprocal distance matrix" used in some graph theory algorithms, such as the one found in the Minimum Spanning Tree problem. This method should better capture the variability in distance values and potentially lead to a higher score.
+
+Here's the new implementation:
+
+```python
+def heuristics(distance_matrix):
+    # Calculate the inverse distance matrix
+    inverse_distance = 1 / distance_matrix
+    
+    # Sum the inverse values across each row to obtain the heuristics matrix
+    heuristics_matrix = inverse_distance.sum(axis=1).reshape(-1, 1)
+    
+    return heuristics_matrix
+```
+
+This new function calculates the inverse of each distance and sums these values for each row, effectively rewarding shorter distances and penalizing longer ones. This method is novel because it directly incorporates distance variability into the heuristics calculation.
+
+To validate the performance of this function, we should compare it to the original functions using a suitable evaluation metric, possibly a weighted sum of edge weights based on the heuristics scores, followed by minimization of this total cost.
+
+Please note that the actual score improvement can vary depending on the specific use case, as the quality of the heuristics is highly dependent on the characteristics of the input data. This function aims to provide a more sophisticated method than the basic re-use of the input matrix, which is what the original functions do.
+
+Remember to test this function with a variety of input distance matrices to ensure it is robust and effective under diverse conditions.
+
+
+

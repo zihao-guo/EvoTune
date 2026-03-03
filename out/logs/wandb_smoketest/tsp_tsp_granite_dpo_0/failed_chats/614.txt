@@ -1,0 +1,78 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a new heuristics() function that outperforms the existing ones, we can introduce an element of randomness and a higher level of sophistication by incorporating a more complex heuristic. A popular choice for traveling salesman problem heuristics is the "Nearest Neighbor" algorithm with some improvements. Here, we'll call this function "Heuristic_NN".
+
+We will modify the "Nearest Neighbor" algorithm as follows:
+
+1. For each vertex in the distance matrix, we will not only choose the nearest unvisited neighbor but also consider the vertex's proximity to the current partial tour's endpoints. This will favor edges that bring the partial tour closer to its endpoints, potentially reducing the total tour length.
+2. To add randomness, we'll introduce a small perturbation to the nearest neighbor choice. This perturbation will be a small random number, which, if large enough, might lead us to a better solution by avoiding local minima.
+
+Here's the Python function:
+
+```python
+import numpy as np
+import random
+
+def heuristics_NN(distance_matrix):
+    num_vertices = distance_matrix.shape[0]
+    # Initialize tour with a random vertex
+    tour = np.random.choice(num_vertices)
+    # Initialize total heuristic value
+    total_heuristic = 0
+    # Initialize a queue for neighbors
+    neighbors_queue = []
+    
+    for _ in range(num_vertices):
+        # Calculate potential neighbors
+        potential_neighbors = [v for v in range(num_vertices) if v!= tour and distance_matrix[tour, v] < distance_matrix[tour, tour]]
+        
+        if len(potential_neighbors) == 0:
+            # If no neighbors, perturb and choose a random vertex
+            heuristic_perturbation = random.uniform(0, 1)
+            if heuristic_perturbation < 0.1:  # Arbitrary threshold for perturbation
+                potential_neighbors = [v for v in range(num_vertices) if v!= tour]
+        
+        # Choose the next vertex using nearest neighbor with perturbation
+        next_vertex = potential_neighbors[np.argmin([distance_matrix[tour, v] + distance_matrix[v, np.random.randint(num_vertices)] for v in potential_neighbors])]
+        
+        # Add the chosen vertex to the tour and update total heuristic
+        tour = next_vertex
+        total_heuristic += distance_matrix[tour, next_vertex]
+        
+        # Add the new edge to the neighbors queue
+        neighbors_queue.append((tour, next_vertex))
+        
+        # Move the current vertex to the end of the queue to consider its effect on the partial tour's endpoints
+        neighbors_queue.append((next_vertex, tour))
+    
+    return total_heuristic
+```
+
+This function is designed to be more flexible and better at escaping local minima by introducing randomness and considering the overall tour layout, unlike the previous functions. The performance will depend on the specific data and problem instance, but this heuristic aims to be a significant improvement.
+
+
+

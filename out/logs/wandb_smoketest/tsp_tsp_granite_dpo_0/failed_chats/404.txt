@@ -1,0 +1,72 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Sure, to create a more effective heuristics function, we'll use a combination of two strategies:
+
+1. **Weighted Shortest Path**: This approach will give a lower cost to shorter paths. It's a common heuristic in graph algorithms like Dijkstra's or A*.
+
+2. **Conflict Matrix**: In addition, I'll introduce a conflict matrix that will penalize pairs of nodes with a high number of common paths, assuming such pairs are undesirable for our use case.
+
+Here's the Python function implementing these heuristics:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Step 1: Weighted Shortest Path
+    n = distance_matrix.shape[0]
+    weighted_distances = np.zeros((n, n))
+    for i in range(n):
+        for j in range(n):
+            if i == j:
+                weighted_distances[i][j] = 0
+            else:
+                weighted_distances[i][j] = distance_matrix[i][j]
+                for k in range(n):
+                    if i!= k and j!= k:
+                        weighted_distances[i][j] += distance_matrix[i][k] * distance_matrix[k][j]  # Assuming equal weights for edges
+
+    # Step 2: Conflict Matrix
+    conflict_matrix = np.zeros((n, n))
+    for i in range(n):
+        for j in range(n):
+            if i == j:
+                conflict_matrix[i][j] = 0
+            else:
+                count = sum(weighted_distances[i] >= weighted_distances[j])
+                conflict_matrix[i][j] = count / (n - 1)  # Adjust the denominator according to your context
+
+    # Combine both heuristics
+    result = weighted_distances + conflict_matrix
+    return result
+```
+
+This function should achieve a higher score than the initial two. It balances the direct distance with a conflict-based penalty, considering pairs of nodes that share many paths, which should be undesirable in most graph-based optimization problems.
+
+Remember, the performance of this function can also depend on the specific characteristics of your data (like the density of the graph, the distribution of distances, etc.). You might need to further fine-tune the parameters or incorporate additional factors for optimal results.
+
+
+

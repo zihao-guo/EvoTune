@@ -1,0 +1,61 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To design a more efficient heuristics function, I will employ a heuristic called the "Shortest Path Approximation" approach. It estimates the undesirability of including an edge by considering the potential gain in minimizing total path length if that edge were removed.
+
+Here's the Python function:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Calculate the shortest path for each vertex (excluding itself)
+    shortest_path = np.min(distance_matrix[:, 1:], axis=0) - distance_matrix[:, 0]
+    
+    # Create a heuristics matrix
+    heuristics_matrix = np.full(distance_matrix.shape, np.inf)
+    
+    # Assign heuristic values for each edge
+    for i in range(distance_matrix.shape[0]):
+        for j in range(distance_matrix.shape[1]):
+            if i == j:
+                # For edges within the same vertex, no impact
+                heuristics_matrix[i, j] = 0
+            else:
+                # For edges (i, j) between two different vertices
+                heuristics_matrix[i, j] = distance_matrix[i, j] + shortest_path[j]
+    
+    return heuristics_matrix
+```
+
+This new heuristics function, "Shortest Path Approximation," calculates the shortest path from each vertex to all other vertices (excluding itself). It then uses these shortest paths to estimate the potential reduction in total path length if the edge from one vertex to another were removed. This approach effectively captures the idea of reducing the total path length, which is a desirable property in many optimization problems.
+
+By replacing the simple distance matrix, the heuristics function now provides more realistic estimates of edge undesirability, leading to a higher score. 
+
+Please note that the exact score for this function will depend on the specifics of the problem, such as the size and characteristics of the distance matrix, and the scoring metric used.
+
+
+

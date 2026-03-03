@@ -1,0 +1,55 @@
+# Score: -310.321
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Given the constraints, I'll propose a new heuristics function based on the concept of "degree of connectivity" for each node. This method assumes that nodes with higher degrees are more important in connecting to other nodes. We'll assign a higher "undesirability score" to edges connecting to nodes with lower degrees.
+
+Here's a Python function that calculates this:
+
+```python
+def heuristics(distance_matrix):
+    num_nodes = distance_matrix.shape[0]
+    degree_matrix = np.sum(distance_matrix, axis=0)  # Degree of each node
+    
+    # Assign higher undesirability scores for edges connecting to nodes with lower degrees
+    undesirability_scores = np.where(degree_matrix > np.max(degree_matrix)/2, 1 - (degree_matrix - np.max(degree_matrix)/2) / np.max(degree_matrix), 0)
+    
+    # Adjust for distance (making longer edges less undesirable)
+    adjusted_scores = 1 / (distance_matrix + 1)  # We add 1 to avoid division by zero
+    
+    # Combine degree and distance heuristics
+    final_scores = undesirability_scores * adjusted_scores
+    
+    return final_scores
+```
+
+This function first computes the degree of each node, then applies a heuristic that increases the "undesirability" of edges connecting to nodes with lower degrees. It also incorporates the distance in the edge, making longer edges less undesirable.
+
+Remember to install the NumPy library if you haven't already, using `pip install numpy`.
+
+Note: The specific parameters (1 in the division and 1/ (distance + 1)) are arbitrary and can be adjusted based on experimentation to better fit your problem's characteristics. The aim here is to balance the effect of degree and distance, and ensure edges connecting to less connected nodes are penalized more.
+
+
+

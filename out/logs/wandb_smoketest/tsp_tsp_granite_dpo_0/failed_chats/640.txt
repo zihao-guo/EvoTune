@@ -1,0 +1,90 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Given the nature of the problem, we are dealing with graph optimization, specifically, the Traveling Salesman Problem (TSP), where the goal is to find the shortest possible route that visits each city (node) and returns to the origin city. The heuristics() function should return a distance matrix where each entry represents an "undesirability score" for including an edge (connection between two cities) in the optimal solution.
+
+A potential novel approach is to use a combination of the Reverse-Find method (also known as Nearest Neighbor or Greedy algorithm) and a Mixed-Integer Linear Programming (MILP) solver. This combination will leverage the speed of heuristics (Reverse-Find) while incorporating the precision of MILP to refine the "undesirability scores".
+
+The idea is as follows:
+
+1. Run the Reverse-Find (Greedy algorithm) on the given distance matrix to obtain a preliminary tour.
+2. Create a MILP model with variables x[i,j] for each city i and j, where x[i,j] = 1 means edge (i,j) is included in the optimal tour.
+3. Add constraints to ensure the tour visits each city exactly once and returns to the starting city.
+4. Add a cost function that aims to minimize the sum of edge weights (representing distances).
+5. Solve the MILP model to get the optimal tour (sequence of cities) and calculate the total distance.
+6. For each edge (i,j) not in the optimal tour, set the corresponding 'undesirability score' in the heuristics() matrix to the distance between i and j in the optimal tour.
+
+Here is the proposed function:
+
+```python
+import pulp
+
+def heuristics(distance_matrix):
+    n = len(distance_matrix)
+    milp = pulp.LpProblem("TravelingSalesman", pulp.LpMinimize)
+
+    # Variables for each pair of cities (i,j)
+    x = {(i, j): milp.variable(vtype=pulp.LpContinuous, cat='Continuous') for i in range(n) for j in range(i+1, n)}
+
+    # Objective function
+    milp += pulp.lpSum([distance_matrix[i][j] * x[(i, j)] for i in range(n) for j in range(i+1, n)])
+
+    # Constraints
+    for i in range(n):
+        milp += pulp.lpSum([x[(i, j)] for j in range(n)]) == 1  # Each city is visited exactly once
+    milp += pulp.lpSum([x[(i, j)] for i in range(n) for j in range(i+1, n)]) == 1  # The tour ends at the starting city
+
+    # Solve the MILP
+    milp.solve()
+
+    # Optimal tour
+    tour = [None] * n
+    for i in range(n):
+        tour[i] = 0
+        for j in range(n):
+            if tour[j] is not None and x[(j, i)].value() > 0.5:
+                tour[i] = j
+                break
+
+    # Undesirability score matrix
+    undesirability_matrix = np.zeros((n, n))
+    for i in range(n):
+        for j in range(i+1, n):
+            if tour[i]!= j and tour[j]!= i:
+                undesirability_matrix[i, j] = distance_matrix[tour[i]][tour[j]]
+                undesirability_matrix[j, i] = undesirability_matrix[i, j]  # Reverse the score for edge (j,i)
+
+    return undesirability_matrix
+```
+
+This function uses MILP to determine the optimal tour, which is then used to calculate the undesirability scores for each edge. The Reverse-Find approach is indirectly incorporated into the MILP model by setting up the constraints to ensure each city is visited exactly once.
+
+Please note that this solution assumes a MILP solver is available, such as `pulp` in Python, and that the distance matrix is symmetric (distance from i to j is the same as distance from j to i). Also, the threshold (0.5 in this example) for deciding whether an edge is in the tour is somewhat arbitrary and may need tuning based on specific use cases or performance.
+
+This approach is expected to provide better performance compared to both the initial heuristics() and Reverse-Find functions, as it combines the speed of the greedy heuristic with the precision of MILP. However, computational efficiency and scalability should still be considered, especially for large-scale TSP instances.
+
+
+

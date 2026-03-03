@@ -1,0 +1,79 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more sophisticated heuristics() function, let's incorporate the following techniques that aim to capture more nuanced aspects of the input distance matrix:
+
+1. **Centrality Measures**: Compute betweenness centrality or closeness centrality of each node. These measures can help prioritize connections that are crucial for network efficiency or shortest path selection.
+
+2. **Spectral Graph Theory**: Utilize the eigenvectors of the graph Laplacian to capture the structure of the graph. The eigenvalues and eigenvectors can provide insights into the distribution of 'important' edges.
+
+3. **Weighted Edge Connectivity**: Assign higher values to edges that are connected to a large number of important nodes.
+
+4. **Degree-based Weighting**: Assign higher weights to edges that connect nodes with higher degrees. This might be useful if high-degree nodes are more valuable.
+
+Here's a Python function that implements these ideas using NetworkX library:
+
+```python
+import numpy as np
+import networkx as nx
+
+def heuristics(distance_matrix):
+    G = nx.from_numpy_array(distance_matrix)
+    
+    # Betweenness Centrality
+    betweenness = nx.betweenness_centrality(G)
+    
+    # Closeness Centrality
+    closeness = nx.closeness_centrality(G)
+    
+    # Eigenvector Centrality (graph Laplacian)
+    laplacian_eigenvector = np.linalg.eigvalsh(nx.laplacian_matrix(G))
+    
+    # Degree of each node
+    degrees = np.array(list(G.degree()))
+    
+    # Combine into a single matrix
+    result_matrix = np.zeros((distance_matrix.shape[0], distance_matrix.shape[0]))
+    
+    for i in range(distance_matrix.shape[0]):
+        for j in range(i+1, distance_matrix.shape[0]):
+            # Edge (i, j)
+            result_matrix[i, j] = -distance_matrix[i, j] * (betweenness[i] + betweenness[j])
+            result_matrix[j, i] = result_matrix[i, j]
+
+            result_matrix[i, j] += closeness[i] + closeness[j] / degrees[i] / degrees[j]
+            result_matrix[j, i] += result_matrix[i, j]
+
+            result_matrix[i, j] += laplacian_eigenvector[0] * (1 / degrees[i]) * (1 / degrees[j])
+            result_matrix[j, i] += result_matrix[i, j]
+
+    return result_matrix
+```
+
+This heuristics() function incorporates centrality measures and spectral properties of the graph. It's important to note that the optimal weights for these measures would vary based on the specific problem and should be fine-tuned according to your needs. The score achieved by this function will depend on the specific dataset and the weights assigned to each factor.
+
+
+

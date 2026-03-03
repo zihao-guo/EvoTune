@@ -1,0 +1,63 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To design a more sophisticated heuristics function, we will incorporate a form of "neighborhood score" that considers not only the distance to the neighboring nodes, but also the density of neighboring nodes. This approach aims to capture the idea that edges connecting densely populated nodes might have more potential for reducing the overall distance.
+
+Here is the proposed `heuristics` function:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Step 1: Compute the average distance to neighboring nodes
+    avg_neighbor_distance = np.mean(distance_matrix, axis=1)
+    
+    # Step 2: Compute the density of neighboring nodes for each node
+    node_densities = np.sum(distance_matrix > 0, axis=1) / (distance_matrix.shape[1] - 1)
+    
+    # Step 3: Combine these two factors into a heuristic score
+    heuristic_scores = -avg_neighbor_distance + node_densities  # Lower scores are better
+    
+    # Ensure the heuristic scores are non-negative
+    heuristic_scores = np.clip(heuristic_scores, 0, np.inf)
+    
+    return heuristic_scores
+```
+
+This function works as follows:
+
+1. `avg_neighbor_distance`: For each node, it computes the average distance to its neighboring nodes. This metric is designed to encourage connections that are relatively close to the node.
+
+2. `node_densities`: It calculates the density of neighboring nodes for each node. The density is the ratio of the number of connected nodes (excluding the node itself) to the total number of possible neighboring nodes (minus one, to exclude the node from itself).
+
+3. `heuristic_scores`: It creates the final heuristic scores by adding the negative of `avg_neighbor_distance` and `node_densities`. The negative sign ensures that lower scores (i.e., smaller, better heuristic values) are favored.
+
+This approach should outperform both the initial heuristics and the distance_matrix function, as it integrates two critical aspects of network topology – node connectivity and neighboring density – to estimate the undesirability of including each edge in the solution. 
+
+Please note that the actual performance will depend on the specific characteristics of your distance matrices. You may need to fine-tune the coefficients or adjust the calculation to better fit your use case.
+
+
+

@@ -1,0 +1,63 @@
+# Score: -278.723
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To enhance the heuristics() function, we need to incorporate domain knowledge and create a more sophisticated scoring mechanism that considers multiple factors. Here, I propose a function that uses a combination of distance values, edge count, and a simple proximity-based heuristic, which is a common approach in graph theory and network optimization.
+
+```python
+def heuristics(distance_matrix):
+    num_nodes, num_edges = distance_matrix.shape
+    total_distance = sum(sum(distance_matrix))
+    num_edges_per_node = [sum(row) for row in distance_matrix]
+    proximity_score = 1 / (1 + np.exp(-np.array(num_edges_per_node) / total_distance))
+
+    heuristic_matrix = np.zeros((num_nodes, num_nodes))
+
+    for i in range(num_nodes):
+        for j in range(i, num_nodes):  # Consider symmetrical edges
+            heuristic_matrix[i][j] = distance_matrix[i][j]
+            heuristic_matrix[j][i] = distance_matrix[i][j]  # Ensure matrix is symmetric
+
+    # Add a simple proximity-based heuristic
+    for i in range(num_nodes):
+        for j in range(i + 1, num_nodes):
+            heuristic_matrix[i][j] += heuristic_matrix[j][i]  # Symmetrical edge weight
+            heuristic_matrix[i][j] *= proximity_score[i] / proximity_score[j]  # Bias towards lower-numbered nodes
+
+    return heuristic_matrix
+```
+
+This function does the following:
+
+1. Calculates the total distance across all edges.
+2. Calculates the edge count per node.
+3. Computes a proximity score, indicating how "central" each node is in the graph, with higher values for more central nodes.
+4. Creates a heuristic matrix that mirrors the distance matrix, ensuring symmetry.
+5. Introduces a proximity-based edge weight, where the score of an edge between two nodes is influenced by the proximity of the two nodes.
+
+This function should score better because it takes into account multiple aspects of the graph (distance, edge count, and proximity), and it handles symmetrical edges by ensuring the heuristic matrix is symmetric. This should lead to a more balanced and informed heuristic.
+
+
+

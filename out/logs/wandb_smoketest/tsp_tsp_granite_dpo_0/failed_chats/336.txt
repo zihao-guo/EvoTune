@@ -1,0 +1,55 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+The given `heuristics()` function only returns the input distance matrix, which is not a heuristic. A heuristic function is a simplified solution to a problem that aims to find a good enough solution quickly, rather than the optimal solution. Here's an attempt to create a heuristic function for the Traveling Salesman Problem (TSP), using the concept of a "stress matrix" or "additive edge weight."
+
+In this heuristic, we assign an "undesirability" score to each edge, which is a combination of the physical distance between two cities (from the input matrix) and a penalty term for cycling back to the starting city.
+
+```python
+def heuristics(distance_matrix):
+    n = len(distance_matrix)  # number of cities
+    stress_matrix = [[0] * n for _ in range(n)]
+
+    # Additive penalty for cycling back to the starting city
+    for i in range(n):
+        for j in range(n):
+            stress_matrix[i][j] = distance_matrix[i][j]  # physical distance
+            if i!= j:  # not cycling back to the same city
+                stress_matrix[i][j] += 1000  # large penalty for cycling
+
+    return stress_matrix
+```
+
+In this heuristics function, we've added a penalty term to each edge's score. The penalty is 1000 for every edge that isn't the edge connecting a city to itself (i.e., it's not cycling back to the same city).
+
+This function improves on the simpler version because it takes into account the cyclic nature of the TSP, creating a more accurate representation of the problem's undesirability. The penalty is chosen arbitrarily in this example, but its value can be adjusted to better fit specific problem constraints.
+
+The score for this new heuristics function should be higher than the original, as it accounts for a more significant aspect of TSP - avoiding cycles.
+
+The evaluation of this function would depend on the specific optimization algorithm used to calculate the final TSP solution. Typically, lower-scoring heuristics lead to better solution quality in terms of the sum of edge weights.
+
+
+

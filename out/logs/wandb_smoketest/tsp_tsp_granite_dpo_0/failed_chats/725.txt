@@ -1,0 +1,62 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Here's a novel approach to the problem that introduces a heuristic based on edge density and its impact on the overall shortest path. The function, `density_heuristics()`, calculates an edge-based score based on these factors.
+
+```python
+import numpy as np
+
+def density_heuristics(distance_matrix):
+    # Calculate the number of edges for each node
+    num_edges_per_node = np.sum(distance_matrix, axis=1)
+
+    # Density of each node: edges per node / total edges
+    density_per_node = num_edges_per_node / distance_matrix.shape[0]
+
+    # Density of the entire network: average node density
+    avg_density = np.mean(density_per_node)
+
+    # Heuristic score: penalize edges for nodes with high density
+    heuristics = distance_matrix * (avg_density - density_per_node)
+    
+    return heuristics
+
+# Test the function
+distance_matrix = np.array([[0, 1, 2],
+                            [1, 0, 3, 4],
+                            [2, 3, 0, 5]])
+
+print(density_heuristics(distance_matrix))
+```
+
+In this function, each edge's score is weighted by the difference between its node's density and the average node density. This way, edges emanating from densely connected nodes are penalized more, indicating they may contribute less to the overall shortest path.
+
+This approach differs from the previous ones by incorporating a network-wide perspective and considering the overall density structure, thereby leveraging collective structural information to guide the selection of edges.
+
+Note: The specific score (i.e., the output of `density_heuristics()`) may need tuning based on the characteristics of your particular distance matrices, as it is a flexible, data-driven approach that might not always align with human intuition or specific problem constraints.
+
+
+

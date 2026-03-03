@@ -1,0 +1,58 @@
+# Score: -369.592
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more advanced heuristics() function that performs better than the provided one, we can incorporate a concept of "weighted connectivity" based on graph theory. This approach will give higher penalty values to less connected vertices or edges, assuming that paths between them are more desirable in the context of this problem.
+
+Here's a Python function that implements the weighted connectivity heuristic:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Calculate the sum of distances for each vertex, representing its overall connectivity
+    vertex_weights = np.sum(distance_matrix, axis=0)
+    
+    # Create a new distance matrix to store the heuristic values
+    heuristic_matrix = distance_matrix.copy()
+    
+    # For each vertex, calculate a penalty based on its connectivity
+    for i in range(distance_matrix.shape[0]):
+        # Penalize heavily the vertex with the highest sum of distances
+        if vertex_weights[i] == np.max(vertex_weights):
+            heuristic_matrix[i, :] = np.inf
+        else:
+            # Calculate the penalty as a function of the difference in connectivity from the most connected vertex
+            heuristic_matrix[i, :] = vertex_weights[i] - np.min(vertex_weights)
+    
+    return heuristic_matrix
+```
+
+This function calculates a 'connectivity' score for each vertex and uses this as a heuristic to guide the selection of edges. The assumption here is that paths involving vertices with higher connectivity are more desirable, thereby increasing the heuristic value for those edges. This is a more sophisticated approach than the original function, and it should yield a higher score.
+
+However, please note that the actual performance will depend on the characteristics of your specific input data. You may need to fine-tune the function or adjust the heuristic calculation according to your particular use case and problem constraints.
+
+
+

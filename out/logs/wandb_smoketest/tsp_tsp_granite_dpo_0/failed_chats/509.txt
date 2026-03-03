@@ -1,0 +1,54 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create an improved heuristics() function, we'll introduce a novel approach based on a concept called "Weighted All-Pairs Shortest Paths" (WAPSP). This technique will assign a heuristic score to each edge by considering the cost of the shortest path that includes that edge. This is a significant departure from the original distance_matrix-based heuristics and should lead to improved performance.
+
+Here's the Python code for the new heuristics() function:
+
+```python
+import numpy as np
+from scipy.sparse.csgraph import csgraph_from_dense
+
+def heuristics(distance_matrix):
+    n = distance_matrix.shape[0]
+    # Create a sparse matrix representation of the graph
+    graph = csgraph_from_dense(distance_matrix)
+    
+    # Compute the WAPSP (Weighted All-Pairs Shortest Paths)
+    dist_matrix = np.min(csgraph_shortest_path_length(graph), axis=0)
+    
+    # Create a heuristic matrix with the WAPSP distances
+    heuristic_matrix = np.minimum(dist_matrix, distance_matrix)
+    
+    return heuristic_matrix
+```
+
+This function first converts the input distance matrix into a sparse graph representation using `scipy.sparse.csgraph.csgraph_from_dense()`. It then computes the WAPSP using `scipy.sparse.csgraph.csgraph_shortest_path_length()`. The resulting `heuristic_matrix` contains the smallest distance to reach each node from all other nodes, which serves as a heuristic for how desirable (or undesirable) it is to include each edge in a solution.
+
+The score achieved with this new function should improve significantly over the previous functions, based on the analysis of the WAPSP approach, which considers the most efficient paths and their related costs to provide more accurate heuristic scores. However, please note that the actual performance will depend on the specific characteristics of your data, such as the scale of the distances, the graph density, and the computational resources available.
+
+
+

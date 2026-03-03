@@ -1,0 +1,76 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+The function I propose is called `quality_heuristics()`. It incorporates an additional dimension by estimating the "quality" of connections in the graph, beyond just the direct distance between nodes. Here, we use a simple heuristic: the ratio of the shortest path length between nodes to their direct distance. A lower ratio signifies a better connection.
+
+```python
+import numpy as np
+from scipy.sparse.csgraph import minimum_spanning_tree
+
+def quality_heuristics(distance_matrix):
+    """
+    This function calculates a heuristic score for each edge in a graph,
+    based on both the direct distance and the quality of the connection.
+
+    Parameters:
+    distance_matrix (numpy.ndarray): A 2D square matrix where each element represents the distance between two nodes.
+
+    Returns:
+    numpy.ndarray: A 2D square matrix of the same shape as the input, indicating the heuristic score for each edge.
+    """
+
+    # Calculate the adjacency matrix from the distance matrix
+    adj_matrix = (distance_matrix == np.inf).astype(int)
+    np.fill_diagonal(adj_matrix, 0)
+    
+    # Compute the minimum spanning tree (MST) of the graph
+    mst_indices = minimum_spanning_tree(csgraph=adj_matrix).indices
+    mst_distances = minimum_spanning_tree(csgraph=adj_matrix).data
+    
+    # Create a new matrix of the same shape as the input
+    heuristics_matrix = np.empty_like(distance_matrix)
+    
+    # Compute the quality heuristic for each edge
+    for i in range(distance_matrix.shape[0]):
+        for j in range(distance_matrix.shape[1]):
+            # If the edge is in the MST, use the MST distance
+            if i in mst_indices and j in mst_indices:
+                heuristics_matrix[i, j] = mst_distances[mst_indices.tolist().index((i, j))]
+            # If the edge is not in the MST, use the direct distance
+            else:
+                heuristics_matrix[i, j] = distance_matrix[i, j]
+    
+    # Compute the quality ratio and normalize it
+    quality_ratios = distance_matrix / heuristics_matrix
+    heuristics_matrix *= quality_ratios
+    
+    return heuristics_matrix
+```
+
+This function should provide a better score than the initial ones. It evaluates both the direct distance and the "quality" of each connection (as determined by the MST), giving more weight to connections that are also part of the minimum spanning tree, which are typically more desirable in many practical scenarios. The score is then normalized, with smaller values indicating more desirable connections.
+
+
+

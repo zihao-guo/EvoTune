@@ -1,0 +1,58 @@
+# Score: -276.495
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more efficient heuristics function, we can leverage the concept of graph theory, particularly the notion of edge weights in a graph. The idea is to incorporate a heuristic score that considers both the direct distance and the distance to the nearest unvisited node for each edge. This approach aims to balance exploration and exploitation, making it more likely to select edges that lead to unexplored territory.
+
+Here's an implementation of such an approach:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    m, n = distance_matrix.shape
+    # Initialize the heuristic matrix with zeros
+    heuristic_matrix = np.zeros((m, n))
+
+    # Iterate through each node (i)
+    for i in range(m):
+        for j in range(n):
+            if i!= j:
+                # Calculate the shortest path from i to j
+                min_path = np.min(distance_matrix[i, np.arange(m)] + distance_matrix[np.arange(m), j])
+                # The heuristic for this edge is the sum of its distance and the distance to the nearest unvisited node
+                heuristic_matrix[i, j] = distance_matrix[i, j] + min_path - distance_matrix[i, j]
+            else:  # If i == j, there's no edge, so set the heuristic to 0
+                heuristic_matrix[i, j] = 0
+
+    return heuristic_matrix
+```
+
+This function calculates the total distance (direct distance) and the shortest path from each node to every other node. By adding these values, it provides a better estimate of the edge undesirability. This function incorporates the concept of branch and bound in a simplified manner, focusing on the unvisited nodes, which can lead to a more optimal solution.
+
+Please note that the actual improvement in score will depend on the nature and scale of your specific problem, as well as the properties of your distance matrix. You might need to further fine-tune this function or try other heuristic strategies based on your requirements and constraints.
+
+
+

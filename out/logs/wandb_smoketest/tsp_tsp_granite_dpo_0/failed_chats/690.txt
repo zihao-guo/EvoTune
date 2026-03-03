@@ -1,0 +1,54 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+In order to design a more sophisticated heuristics() function, we'll leverage information about the structure and properties of the input distance matrix, along with incorporating some graph-theoretical principles. 
+
+The approach below uses a simple yet effective heuristic: "Density Heuristic". We assume that denser parts of the graph (higher number of edges per node) are typically less desirable. We will calculate a density for each node and incorporate this value into our heuristics.
+
+Here's a Python function following these principles:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    n = distance_matrix.shape[0]
+    degrees = np.sum(distance_matrix!= 0, axis=1)  # Count of edges for each node
+    # Density calculation
+    density = 2 * np.sum(degrees) / (n * (n - 1))  # Density is the expected number of edges per node
+    # Normalize the density to fit within the range of the original distance matrix
+    density = density / np.max(density_matrix)
+    
+    return density_matrix * (1 - density)  # Adjust the edge values inversely proportional to their density
+```
+
+This function calculates a 'density' score for each node in the graph, which is the expected number of edges per node. If the density is high, the adjusted distance for that edge will be low (i.e., undesirable). If the density is low, the adjusted distance will be high (i.e., desirable). The 'density_matrix' is used to scale the density values, ensuring they're comparable with the original distance matrix values.
+
+Keep in mind that the performance of this function largely depends on the nature of your distance matrix, and this is just a starting point for a potentially more sophisticated heuristic. For instance, more complex graph properties, like the clustering coefficient, or other domain-specific knowledge could be incorporated for further improvements.
+
+Also, this function is designed for numerical distance matrices. If your input is a binary adjacency matrix (1 for connected nodes, 0 otherwise), you would need to adapt the code accordingly.
+
+
+

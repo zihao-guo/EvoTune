@@ -1,0 +1,55 @@
+# Score: -316.683
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+As you've asked for an innovative solution, I'll design a new function called `heuristics()` that incorporates a combination of the original heuristics and a novel approach. This function will not only maintain the shape of the input distance matrix but also produce a matrix indicating the undesirability of including each edge in the optimal solution. 
+
+This new function will apply a "risk-based" heuristic. It considers the average pairwise distance between nodes as a risk factor. Nodes connected by shorter paths have higher average risks. The function will return a matrix where each entry represents the risk of including a specific edge.
+
+Here is the Python function:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    n = distance_matrix.shape[0]
+    heuristic_matrix = np.zeros((n, n))
+    
+    for i in range(n):
+        for j in range(n):
+            if i == j:  # Avoid self-loops
+                continue
+            avg_distance = np.mean(distance_matrix[i, :]) + np.mean(distance_matrix[:, j])
+            heuristic_matrix[i, j] = avg_distance  # Higher risk indicates less desirable edge
+    
+    return heuristic_matrix
+```
+
+This function works by calculating the average of the distances from each node to all other nodes (including itself, as it's not desirable to have self-loops). This average provides a measure of risk for the connection between the two nodes. The higher this average, the more risky (and thus, undesirable) the connection is considered to be.
+
+The new function should outperform both the original ones, as it provides a more nuanced assessment of edge desirability by factoring in average distances and, therefore, potential risks. As a result, it's expected to achieve a higher score.
+
+
+

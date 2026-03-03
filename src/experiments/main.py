@@ -1,13 +1,22 @@
+# -------------------------------------
+# Bootstrap Imports
+# -------------------------------------
 import os
 
-from packing.evaluate.registry import TASK_REGISTRY
-
+# -------------------------------------
+# Environment Variables
+# -------------------------------------
 os.environ["JAX_PLATFORM_NAME"] = "cpu"  # We can't use GPU with multiprocessing for evaluation very well yet
 os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 os.environ["WANDB_SILENT"] = "true"
 
+from packing.evaluate.registry import TASK_REGISTRY
+
+# -------------------------------------
+# Standard And Third-Party Imports
+# -------------------------------------
 import torch
 import numpy as np
 import wandb
@@ -18,6 +27,9 @@ import copy
 import threading
 import multiprocessing
 
+# -------------------------------------
+# Project Imports
+# -------------------------------------
 from packing.utils.seeding import seed_everything, generate_random_seed
 from packing.utils.functions import function_to_string
 
@@ -56,17 +68,29 @@ from packing.parallel.continuous_execution import (
     Consumer,
     consumers_finish_and_cleanup,
 )
+
+# -------------------------------------
+# Utility Imports
+# -------------------------------------
 import time
 
-OmegaConf.register_new_resolver("generate_random_seed", generate_random_seed, use_cache=True)
-OmegaConf.register_new_resolver("eval", eval, use_cache=True)
 import pickle
 import subprocess
 import getpass
 
 
+# -------------------------------------
+# Resolver Registration
+# -------------------------------------
+OmegaConf.register_new_resolver("generate_random_seed", generate_random_seed, use_cache=True)
+OmegaConf.register_new_resolver("eval", eval, use_cache=True)
+
+
 @hydra_main(config_path="../../configs", config_name="config", version_base="1.3")
 def main(cfg: DictConfig):
+    # -------------------------------------
+    # Config Preparation
+    # -------------------------------------
     OmegaConf.set_struct(cfg, False)  # So we can assign new fields
 
     # Needed since we always store DPO chats
@@ -79,12 +103,18 @@ def main(cfg: DictConfig):
         # so we need to spawn the processes instead
         multiprocessing.set_start_method('spawn')
 
+    # -------------------------------------
+    # Config Validation
+    # -------------------------------------
     # Perform checks on the config to ensure it is valid
     if not cfg.one_tuning:
         assert cfg.max_loops > 1, "If not one_tuning, max_loops must be greater than 1"
     if cfg.task.task_name == 'bin':
         assert not (cfg.task.Weibull and cfg.task.OR), "Only one bin packing dataset can be selected"
 
+    # -------------------------------------
+    # Derived Run Paths
+    # -------------------------------------
     # Overwrite "overwrite" variables in the config
     cfg.logs_dir = (
         f"out/logs/{cfg.prefix}/{cfg.task.task_name}_{cfg.run_identifier_name}_{cfg.seed}"
@@ -103,6 +133,9 @@ def main(cfg: DictConfig):
     cfg.full_accelerate_config = f"./configs/accelerate_config/{cfg.accelerate_config}.yaml"
     assert cfg.use_tgi + cfg.use_vllm < 2, "Only up to one inference server can be selected"
 
+    # -------------------------------------
+    # Model Configuration
+    # -------------------------------------
     # Model specific cfg
     cfg.full_model_name = get_full_model_name(cfg)
     if torch.cuda.get_device_properties(0).major < 8:
@@ -117,6 +150,9 @@ def main(cfg: DictConfig):
     else:
         cfg.model_adapter_dir = f"{cfg.logs_dir}/model_adapter_{cfg.model.model_name}"
 
+    # -------------------------------------
+    # Logging Setup
+    # -------------------------------------
     # Create logs directory if it doesn't exist
     os.makedirs(cfg.logs_dir, exist_ok=True)
 
@@ -133,6 +169,9 @@ def main(cfg: DictConfig):
     logger.addHandler(file_handler)
     logger.addHandler(console_handler)
 
+    # -------------------------------------
+    # Task Initialization
+    # -------------------------------------
     # Task specific imports
     try:
         task = TASK_REGISTRY.get(cfg.task.task_name)
@@ -147,6 +186,9 @@ def main(cfg: DictConfig):
     initial_function, function_str_to_extract = get_initial_func(cfg.task)
     cfg.function_str_to_extract = function_str_to_extract
 
+    # -------------------------------------
+    # Run Metadata Setup
+    # -------------------------------------
     # Save the config and set up wandb
     logging.info(f"Working directory: {Path.cwd()}")
     if cfg.wandb:
@@ -159,10 +201,23 @@ def main(cfg: DictConfig):
             entity=cfg.entity,
         )
         cfg.default_wandb_name = wandb.run.id
+        run_url = None
+        if hasattr(default_run, "url"):
+            run_url = default_run.url
+        elif hasattr(default_run, "get_url"):
+            try:
+                run_url = default_run.get_url()
+            except Exception:
+                run_url = None
+        if run_url:
+            logging.info(f"W&B run URL: {run_url}")
     with open(f"{cfg.logs_dir}/config.yaml", "w") as f:
         f.write(OmegaConf.to_yaml(cfg, resolve=True))
     logging.info(f"Running with config: \n{OmegaConf.to_yaml(cfg, resolve=True)}")
 
+    # -------------------------------------
+    # Seeding
+    # -------------------------------------
     # DO NOT SEED IF USING MULTIPLE COPY OF THE MODEL ON MULTIPLE GPUS, AS ALL GENERATORS WILL BE THE SAME
     seed_everything(cfg.seed)
     if cfg.multiple_models:
@@ -170,6 +225,9 @@ def main(cfg: DictConfig):
             cfg.model.model_name
         ), "Model names must be unique if using seeding, otherwise we are generating same outputs"
 
+    # -------------------------------------
+    # Resume Or Bootstrap State
+    # -------------------------------------
     # Are we resuming from a previous checkpoint or starting from scratch?
     if os.path.exists(f"{cfg.logs_dir}/flag_resume.txt"):
         logging.info("Resuming from logs directory")
@@ -212,6 +270,9 @@ def main(cfg: DictConfig):
     if cfg.wandb:
         wandb_log_running_dict(running_dict)
 
+    # -------------------------------------
+    # Inference Backend Setup
+    # -------------------------------------
     if running_dict["flag_load_finetuned"] == 1:
         flag_load_finetuned = True
     else:
@@ -229,6 +290,9 @@ def main(cfg: DictConfig):
         model_initialized = False
         logging.info("====================== Inference Engine: Transformers ======================")
 
+    # -------------------------------------
+    # Main Round Loop
+    # -------------------------------------
     logging.info(f"Starting with round number {starting_round}")
     for round_num in range(starting_round, cfg.num_rounds, cfg.num_cont_rounds):
 
@@ -249,6 +313,9 @@ def main(cfg: DictConfig):
         )
         running_dict["round_num"] = copy.deepcopy(round_num)
 
+        # -------------------------------------
+        # Sampling Backend Startup
+        # -------------------------------------
         if cfg.use_tgi:
             if model_server_alive:
                 logging.info(f"TGI Model server is still alive, continuing...")
@@ -271,6 +338,9 @@ def main(cfg: DictConfig):
                 logging.info("Model(s) initialized")
                 model_initialized = True
 
+        # -------------------------------------
+        # Prompt Generation
+        # -------------------------------------
         # GENERATE FUNCTIONS
         logging.info("-" * 10)
         logging.info("GENERATING PROMPTS")
@@ -284,6 +354,9 @@ def main(cfg: DictConfig):
             running_dict,
         ) = generate_batch_prompts(cfg, programdatabase, running_dict, round_num)
 
+        # -------------------------------------
+        # Evaluation Worker Setup
+        # -------------------------------------
         # Create a queue for functions, lists for failed and passed functions and a dict for running stats
         function_classes_to_eval = multiprocessing.Queue()
         manager = multiprocessing.Manager()
@@ -298,6 +371,9 @@ def main(cfg: DictConfig):
         # Create a termination event, if set we know there was an error and the run should stop
         termination_event = multiprocessing.Event()
 
+        # -------------------------------------
+        # Consumer Launch
+        # -------------------------------------
         # Start the consumer processes
         logging.info("-" * 10)
         logging.info("STARTING CONSUMERS")
@@ -321,6 +397,9 @@ def main(cfg: DictConfig):
             consumers.append(p)
             p.start()
 
+        # -------------------------------------
+        # Producer Launch
+        # -------------------------------------
         # Start the producer thread
         logging.info("-" * 10)
         logging.info("STARTING THE PRODUCER")
@@ -367,6 +446,9 @@ def main(cfg: DictConfig):
             )
         producer_thread.start()
 
+        # -------------------------------------
+        # Result Collection
+        # -------------------------------------
         # Wait for the producer to finish
         producer_thread.join()
 
@@ -408,6 +490,9 @@ def main(cfg: DictConfig):
             f"Finished with continuous sampling and evaluation for {cfg.num_cont_rounds} rounds"
         )
 
+        # -------------------------------------
+        # Finetuning Stage
+        # -------------------------------------
         # Are we finetuning the model in this round?
         if round_num % cfg.finetuning_frequency == 0 and round_num != 0:
             if cfg.use_tgi or cfg.use_vllm:
@@ -436,6 +521,9 @@ def main(cfg: DictConfig):
             if cfg.wandb:
                 default_run.finish()
 
+            # -------------------------------------
+            # Accelerate Training Helper
+            # -------------------------------------
             def launch_accelerate(
                     cfg,
                     running_dict,
@@ -500,6 +588,9 @@ def main(cfg: DictConfig):
 
                 return running_dict
 
+            # -------------------------------------
+            # Training Execution
+            # -------------------------------------
             if cfg.multiple_models:
                 # In case the same model is used multiple times on multiple gpus, we only want to train it once
                 # Deduplicate models names and adapter dirs
@@ -568,6 +659,9 @@ def main(cfg: DictConfig):
         else:
             running_dict["training_flag_round"] = 0
 
+        # -------------------------------------
+        # Program Registration
+        # -------------------------------------
         logging.info("-" * 10)
         logging.info("REGISTERING PROGRAMS")
 
@@ -615,6 +709,9 @@ def main(cfg: DictConfig):
         if cfg.wandb:
             wandb_log_running_dict(running_dict)
 
+        # -------------------------------------
+        # Round Finalization
+        # -------------------------------------
         # Save a flag_resume that indicates to preempted jobs that it should resume from the last round
         with open(f"{cfg.logs_dir}/flag_resume.txt", "w") as f:
             pass
@@ -631,8 +728,14 @@ def main(cfg: DictConfig):
         logging.info("\n\n")
         logging.info(f"ROUND {round_num} FINISHED")
 
+    # -------------------------------------
+    # Run Completion
+    # -------------------------------------
     logging.info("FINISHED ALL ROUNDS")
 
 
+# -------------------------------------
+# Entrypoint
+# -------------------------------------
 if __name__ == "__main__":
     main()

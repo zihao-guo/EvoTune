@@ -1,0 +1,52 @@
+{
+  "os":  "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "python":  "CPython 3.11.14",
+  "startedAt":  "2026-03-03T10:15:44.169811Z",
+  "args":  [
+    "task=bin",
+    "model=phi",
+    "train=dpo",
+    "cluster=example",
+    "gpu_nums=0",
+    "prefix=wandb_smoketest",
+    "seed=0",
+    "wandb=1",
+    "project=EvoTune",
+    "entity=zeio99guo-institut-polytechnique-de-paris",
+    "num_rounds=500",
+    "num_cont_rounds=100"
+  ],
+  "program":  "/mnt/e/currentWORK/AAA_LCM/EvoTune/src/experiments/main.py",
+  "codePath":  "src/experiments/main.py",
+  "codePathLocal":  "src/experiments/main.py",
+  "git":  {
+    "remote":  "https://github.com/zihao-guo/EvoTune.git",
+    "commit":  "7ca349d1ec8b788e4fcc7d29d6be00251ac71750"
+  },
+  "root":  "/mnt/e/currentWORK/AAA_LCM/EvoTune",
+  "host":  "ZihaoPC",
+  "executable":  "/mnt/e/currentWORK/AAA_LCM/EvoTune/.venv/bin/python",
+  "cpu_count":  8,
+  "cpu_count_logical":  16,
+  "gpu":  "NVIDIA GeForce RTX 4070",
+  "gpu_count":  1,
+  "disk":  {
+    "/":  {
+      "total":  "1081101176832",
+      "used":  "169939488768"
+    }
+  },
+  "memory":  {
+    "total":  "16670449664"
+  },
+  "gpu_nvidia":  [
+    {
+      "name":  "NVIDIA GeForce RTX 4070",
+      "memoryTotal":  "12878610432",
+      "architecture":  "Ada",
+      "uuid":  "GPU-f05e3b25-a13e-c5d4-c7e5-bcd2c5f25c4a"
+    }
+  ],
+  "cudaVersion":  "12.6",
+  "writerId":  "jc04gms4e13c6d4fcc3cmq0n96xuuvxy"
+}

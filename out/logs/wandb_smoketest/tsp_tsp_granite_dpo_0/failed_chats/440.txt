@@ -1,0 +1,90 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+The heuristics function we will create will be based on the concept of calculating a lower bound for the minimum spanning tree (MST) of the graph represented by the input distance matrix. This is an important concept in graph theory and can often lead to a more accurate heuristic for the Traveling Salesman Problem (TSP).
+
+We'll use Kruskal's algorithm to calculate the MST, which will provide us with a lower bound for the optimal TSP solution. The idea is that if an edge is not included in the MST, it must be part of a cycle in the TSP solution, which is always more costly than being part of the MST.
+
+Here's how we can implement this in Python:
+
+```python
+import heapq
+
+def kruskal(n, edges):
+    result = []
+    edges.sort(key=lambda x: x[2]) # sort by edge weight
+    visited = [False] * n
+    parent = list(range(n))
+    rank = [0] * n
+
+    def find(x):
+        if parent[x]!= x:
+            parent[x] = find(parent[x])
+        return parent[x]
+
+    def union(x, y):
+        rootX = find(x)
+        rootY = find(y)
+        if rootX == rootY:
+            return
+
+        if rank[rootX] > rank[rootY]:
+            parent[rootY] = rootX
+        elif rank[rootX] < rank[rootY]:
+            parent[rootX] = rootY
+        else:
+            parent[rootY] = rootX
+            rank[rootX] += 1
+
+    for u, v, w in edges:
+        if find(u)!= find(v):
+            result.append((u, v, w))
+            union(u, v)
+
+    return result
+
+def heuristics(distance_matrix):
+    n = len(distance_matrix)
+    edges = [(u, v, w) for u in range(n) for v in range(u+1, n) for w in distance_matrix[u][v]] # all edges, including self-loops
+    mst_edges = kruskal(n, edges)
+    mst_weight = sum(w for _, _, w in mst_edges)
+    
+    # Each edge not in MST contributes at least the weight of MST - its own weight to the total cost
+    heuristics_matrix = [[max(0, distance_matrix[u][v] - w) for v in range(n)] for u in range(n)]
+    for u, v, w in mst_edges:
+        heuristics_matrix[u][v] = heuristics_matrix[v][u] = -w # if edge is in MST, add its negative weight to both ends
+    for u in range(n):
+        for v in range(u+1, n):
+            heuristics_matrix[u][v] += distance_matrix[u][v]
+            heuristics_matrix[v][u] += distance_matrix[u][v] # add remaining distance to both ends
+
+    return heuristics_matrix
+```
+
+This function calculates the MST weight and then constructs a heuristic matrix where each edge's score is the difference between the edge's weight and the MST edge's weight (if it's in the MST), or just the edge's weight if it's not in the MST. This approach should better reflect the additional cost of including an edge in the solution beyond what's already necessary to form an MST.
+
+
+

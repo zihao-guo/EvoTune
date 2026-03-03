@@ -1,0 +1,55 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Given your requirements, I'll introduce a novel heuristic method named "Frequency-Based Heuristic" (FHH). This method will leverage the frequency of edges in the input distance matrix to estimate their desirability in a solution.
+
+Here's a possible implementation:
+
+```python
+def frequency_based_heuristics(distance_matrix):
+    total_sum = sum(distance_matrix)  # Sum of all edge weights
+    edge_frequencies = {(i, j): count for i, row in enumerate(distance_matrix) for j, count in enumerate(row) if i < j}  # Frequency of each edge
+    
+    # Normalize frequencies
+    total_frequency = sum(edge_frequencies.values())
+    normalized_frequencies = {k: v / total_frequency for k, v in edge_frequencies.items()}
+    
+    # Assign heuristic scores
+    heuristic_matrix = [[1 - (v / total_sum) for v in normalized_frequencies.values()] for _ in range(len(distance_matrix))]
+    
+    return heuristic_matrix
+```
+
+This function works by first calculating the total sum of the edge weights (which acts as a baseline to compare individual edge weights). It then counts the frequency of each unique edge (pair of vertices) in the matrix and normalizes these counts by dividing by the total frequency. These normalized frequencies are used as the basis for assigning scores to each edge.
+
+The higher the frequency of an edge, the lower the corresponding heuristic score, which suggests it's more undesirable to include it in a solution. Inversely, edges that appear less frequently in the distance matrix will be assigned higher scores, indicating they might be more desirable to include.
+
+This approach introduces a novel element of considering edge frequencies, which might provide a more nuanced understanding of the structure compared to simply summing the weights or counting non-diagonal elements. As such, it could potentially improve the score compared to the simpler functions.
+
+Please note: The performance of this heuristic function depends heavily on the specific structure and characteristics of your distance matrices. You may need to fine-tune it based on your specific use case.
+
+
+

@@ -1,0 +1,80 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Based on your requirements, I propose a heuristic function that leverages a combination of the Floyd-Warshall algorithm for all-pairs shortest paths and a priority queue to determine the undesirability of edges. This approach takes into account the potential impact of each edge on the total distance.
+
+Here is the new heuristics function:
+
+```python
+import heapq
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Step 1: Floyd-Warshall algorithm to compute shortest paths between all pairs of nodes
+    n = distance_matrix.shape[0]
+    shortest_paths = distance_matrix.copy()
+    for k in range(n):
+        for i in range(n):
+            for j in range(n):
+                shortest_paths[i, j] = min(shortest_paths[i, j], shortest_paths[i, k] + shortest_paths[k, j])
+    
+    # Step 2: Create a priority queue (min-heap) to store edges, where priority is determined by the potential cost to reach the last node
+    # Each edge (i, j) is represented as a tuple (i, j, current_cost + shortest_path from i to j)
+    edge_costs = []
+    for i in range(n):
+        for j in range(i+1, n):  # Only consider edges between different nodes
+            current_cost = shortest_paths[i, j]
+            shortest_path_from_i = shortest_paths[i, n-1]  # Assume the last node is 'n-1'
+            total_cost = current_cost + shortest_path_from_i
+            edge_costs.append((i, j, total_cost))
+    
+    # Step 3: Use heapq to sort the edges by their total cost
+    heapq.heapify(edge_costs)
+
+    # Step 4: Create a matrix to store the undesirability of each edge
+    undesirability = np.zeros_like(distance_matrix)
+    
+    # Pop elements from the priority queue and assign their costs to the corresponding edges in the undesirability matrix
+    for _ in range(n):
+        _, _, current_cost = heapq.heappop(edge_costs)
+        for i in range(n):
+            for j in range(i+1, n):
+                undesirability[i, j] = current_cost
+                undesirability[j, i] = current_cost
+
+    return undesirability
+```
+
+This approach has several advantages over the previous methods:
+
+1. It considers the potential impact of each edge on the total distance, not just the direct cost between nodes.
+2. It uses a priority queue to efficiently process and evaluate edges, which is more time-efficient than the brute-force approach taken by the original function.
+3. By considering the overall impact of each edge on the shortest path to the last node, it provides a more nuanced indicator of edge desirability.
+
+These changes should improve the score and performance of the function. However, the actual improvement will depend on the specific characteristics of the input data and the optimization problem at hand.
+
+
+

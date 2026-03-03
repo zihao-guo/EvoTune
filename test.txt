@@ -1,0 +1,63 @@
+本次调试记录（2026-03-03）
+
+目标命令：
+PYTHONPATH=src python src/experiments/main.py task=tsp model=granite train=dpo cluster=example gpu_nums=0 prefix=wandb_smoketest seed=0 wandb=1 project=EvoTune entity=zeio99guo-institut-polytechnique-de-paris num_rounds=500 num_cont_rounds=100 use_vllm=0 use_tgi=0
+
+实际修改：
+1. 未修改任何 Python 源代码。
+2. 新建本文件 test.txt，用于中文记录本次调试和改动。
+3. 发现 TSP 代码运行时读取的是仓库根目录下的 ./dataset，但仓库实际数据目录是 ./data/dataset。
+4. 为了尽量不改代码，在仓库根目录创建了软链接：
+   dataset -> /tmp/evotune_dataset
+5. 为了避开 WSL 挂载盘 /mnt/e 的 I/O 阻塞，把 ./data/dataset/ 同步复制到了 /tmp/evotune_dataset/。
+
+定位到的问题：
+1. 初始失败/卡顿的核心原因不是 vLLM，而是 TSP 数据路径与仓库目录结构不一致。
+2. 原始进程一度卡在 WSL 的 p9_client_rpc，说明直接从 /mnt/e 读数据时存在明显 I/O 阻塞。
+3. 在补齐 dataset 软链接并把数据放到 /tmp 后，程序可继续执行。
+
+当前结果：
+1. 命令已成功启动。
+2. use_vllm=0、use_tgi=0 覆盖生效，当前走的是 Transformers 推理路径。
+3. 日志已进入主循环，已经完成 prompt 生成和部分 worker 评估，不再停留在最初的数据加载阶段。
+
+相关运行产物：
+1. 日志目录：out/logs/wandb_smoketest/tsp_tsp_granite_dpo_0/
+2. W&B 运行 ID：33m3zxdr
+
+% ---------------------------------------------
+
+按当前 workflow，顺序是：
+
+1. 先从程序库里挑历史函数，拼成 prompt
+   见 prompt.py:70
+2. 用模型采样出新的候选函数
+   如果开了 vllm/tgi 就走 server；否则直接走本地 transformers
+   见 main.py:316 和 continuous_execution.py:64
+3. 从模型输出里提取代码函数
+   提取 function_str 和 imports_str，包装成 FunctionClass
+   见 model.py:349 和 continuous_execution.py:97
+4. 把这些候选函数放进评估队列
+   Producer 生成，Consumer 消费
+   见 main.py:374
+5. 每个候选函数都在子进程里跑任务评测
+   比如你现在 task=bin，就会评估生成的 priority() 在 bin packing 数据上的效果
+   见 continuous_execution.py:283
+6. 评估后按分数分成 passed / failed
+   成功的保留分数，失败的标成 failed_score
+7. 把结果写回程序库和 DPO 数据池
+   也就是：
+   - 好坏函数都进入 dpo_chats
+   - 成功函数注册进 ProgramsDatabase
+      见 main.py:661
+8. 到指定轮次才开始训练
+   不是每轮都训，只有满足
+   main.py:498
+   里的：
+
+   if round_num % cfg.finetuning_frequency == 0 and round_num != 0:
+
+所以一句话讲清楚就是：
+
+先采样新函数，然后马上评估这些函数在目标任务上的表现，把评估结果存进程序库和 DPO 训
+练数据，积累到一定轮次后才触发训练。

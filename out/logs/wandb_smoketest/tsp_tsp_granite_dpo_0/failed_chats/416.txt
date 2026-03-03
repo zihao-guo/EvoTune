@@ -1,0 +1,73 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more sophisticated heuristics function that outperforms the previous ones, we can incorporate the following ideas:
+
+1. **Graph Properties**: Utilize graph properties like clustering coefficient, average path length, or connectivity to estimate the difficulty of including each edge. Edges connecting nodes with high local connectivity (low clustering coefficient) or long average path lengths should be considered more challenging.
+
+2. **Degree Distribution**: Incorporate the degree distribution of nodes to highlight the importance of connecting highly connected nodes.
+
+3. **Centrality Measures**: Use measures like degree centrality, betweenness centrality, or closeness centrality to prioritize edges connecting nodes with high influence or proximity.
+
+4. **Distance-based Heuristics**: Modify the distance matrix by adding a normalized version of itself to account for the distances between nodes. Edges with higher weighted distances should be considered less desirable.
+
+Here's a Python function that implements these ideas:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    n = distance_matrix.shape[0]
+    clustering = np.mean(np.power(np.abs(np.eye(n) - np.outer(np.ones(n), np.ones(n))), 2))
+    
+    # Degree distribution
+    degree_distribution = np.sum(np.abs(distance_matrix), axis=1)
+    degree_distribution /= np.sum(distance_matrix, axis=1)
+    
+    # Centrality measures
+    betweenness = np.zeros(n)
+    for _ in range(100):  # 100 iterations, can be adjusted
+        bet = np.zeros(n)
+        for i in range(n):
+            bet[i] = np.mean(np.abs(np.linalg.matrix_power(distance_matrix + np.eye(n), np.linalg.matrix_rank(distance_matrix) - 1) - distance_matrix))
+        betweenness = np.sum(bet, axis=0)
+
+    closeness = 1 / np.sum(np.abs(np.linalg.inv(distance_matrix)), axis=1)
+    
+    # Weighted distance heuristics
+    weighted_distance = np.matmul(distance_matrix, np.ones(n))
+    
+    # Combine heuristics
+    result = (1 - clustering) * (1 - degree_distribution) * (1 - closeness) + weighted_distance
+    result = 1 / result  # Normalize to make it a heuristic matrix
+    
+    return result
+```
+
+This new heuristics function considers graph properties like clustering coefficient, degree distribution, and centrality measures (betweenness and closeness), along with a weighted distance heuristic. The result is normalized to give a high value to desirable edges. The exact parameters (like the number of betweenness iterations) can be adjusted to better suit your needs.
+
+
+

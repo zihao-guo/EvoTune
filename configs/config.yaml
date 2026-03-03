@@ -66,6 +66,7 @@ logs_path: .
 logs_dir: out/logs/${prefix}/${task.task_name}_${run_identifier_name}_${seed}
 
 # Wandb settings
+wandb: 0
 project: "project_name"
 entity: project_entity
 
@@ -76,3 +77,5 @@ prefix: example
 run_or_dev: dev
 use_tgi: ${cluster.use_tgi}
 use_vllm: ${cluster.use_vllm}
+vllm_gpu_memory_utilization: 0.8
+vllm_max_model_len: 8192

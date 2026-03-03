@@ -1,0 +1,63 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more sophisticated heuristics function, we'll introduce an element of spatial locality and stochasticity. This new heuristic, named "Spatial Heuristic with Stochasticity", will consider the connectivity of neighboring nodes and introduce a probability of ignoring less desirable edges.
+
+Here's the Python function implementing this strategy:
+
+```python
+import numpy as np
+from random import random
+
+def spatial_heuristic_with_stochasticity(distance_matrix):
+    # Identify the indices of non-zero elements in the distance matrix (potential edges)
+    edge_indices = np.nonzero(distance_matrix)
+    
+    # Initialize the heuristic matrix with the same shape as the input
+    heuristic_matrix = np.zeros_like(distance_matrix)
+    
+    # Loop over each non-zero element
+    for i, j in zip(*edge_indices):
+        # Considering local connectivity, ignore edges connected to an already connected node
+        if distance_matrix[i, j] < distance_matrix[i, i] + distance_matrix[j, j]:
+            # Add a random factor for stochasticity, between 0 and 1, where 1 means always ignore
+            heuristic_matrix[i, j] = (random() * 2 - 1) * (distance_matrix[i, j] - distance_matrix[i, i] - distance_matrix[j, j])
+            # Also consider the possibility of ignoring a connection based on the global connectivity
+            heuristic_matrix[i, j] = max(0, heuristic_matrix[i, j])
+    
+    return heuristic_matrix
+```
+
+This function introduces two key improvements over the previous ones:
+
+1. **Spatial Locality**: It only considers edges where the connecting nodes have not yet established connections with each other (i.e., they are farther apart). This leverages spatial proximity, which often reflects the ease of reaching a node.
+
+2. **Stochasticity**: A random factor is introduced into the heuristic value, making the function less deterministic. This introduces a degree of unpredictability which can help in escaping local optima.
+
+The heuristic matrix returned is filled with positive and negative values, indicating which edges might (or might not) be valuable based on the given spatial and probabilistic rules. The specific scoring mechanism will depend on how these heuristic values are combined in the larger optimization framework.
+
+
+

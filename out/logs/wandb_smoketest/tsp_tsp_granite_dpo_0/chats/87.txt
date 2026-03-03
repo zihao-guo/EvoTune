@@ -1,0 +1,71 @@
+# Score: -319.02
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Sure, to create a more sophisticated heuristics function, we can incorporate a combination of proximity-based, connectivity, and some randomness to reflect the "desirability" of including each edge in a solution.
+
+The function `heuristics()` will calculate three values for each edge:
+
+1. Proximity Score: The smaller the distance between two points, the higher the proximity score. This encourages including edges that represent nearby points.
+2. Connectivity Score: This score measures the number of other edges in the matrix that connect to an edge's endpoints. Higher connectivity implies the presence of an edge could enhance network coverage.
+3. Randomness Factor: This is a random number between 0 and 1, providing some unpredictability and preventing over-reliance on calculated scores.
+
+Here's the Python function:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Number of nodes
+    num_nodes = distance_matrix.shape[0]
+    proximity_scores = np.zeros((num_nodes, num_nodes))
+
+    # Calculate proximity scores
+    for i in range(num_nodes):
+        for j in range(i + 1, num_nodes):
+            proximity_scores[i, j] = distance_matrix[i, j]
+            proximity_scores[j, i] = proximity_scores[i, j]
+
+    # Calculate connectivity scores
+    connectivity_scores = np.sum(distance_matrix > 0, axis=0)
+    connectivity_scores = np.sum(distance_matrix > 0, axis=1).reshape(num_nodes, 1)
+
+    # Randomness factor
+    random_factors = np.random.rand(num_nodes, num_nodes)
+
+    # Combine proximity, connectivity, and randomness into a single score
+    combined_scores = proximity_scores + connectivity_scores + random_factors
+
+    # Normalize the scores
+    normalized_scores = np.minimum(combined_scores, 1)
+    return normalized_scores
+```
+
+This function uses proximity, connectivity, and randomness to create more nuanced heuristics, potentially leading to a higher score compared to the simpler approaches.
+
+Please note that the score achieved will depend on the specific characteristics of your distance matrix. You might need to fine-tune parameters such as the weighting of each score component or the range of random factors.
+
+
+

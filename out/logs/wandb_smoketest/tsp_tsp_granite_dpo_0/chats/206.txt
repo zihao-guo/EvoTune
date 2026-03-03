@@ -1,0 +1,64 @@
+# Score: -342.402
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Creating a new heuristics function that outperforms the existing ones requires a more sophisticated approach. Let's consider using a combination of techniques such as a "distance-based penalty" and a "connectivity-aware factor". Here's a Python function that might accomplish this:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    num_nodes = distance_matrix.shape[0]
+
+    # Distance-based penalty
+    distance_penalty = np.diag(distance_matrix)  # Diagonal matrix filled with distances from each node to itself
+    
+    # Connectivity-aware factor
+    connectivity = np.minimum(distance_matrix, np.eye(num_nodes))  # Minimum distance to all other nodes
+    
+    # Combining penalties
+    heuristic_matrix = distance_penalty + connectivity
+    
+    # Normalize to make it a good heuristic value (between 0 and 1)
+    min_value = np.min(heuristic_matrix)
+    max_value = np.max(heuristic_matrix)
+    heuristic_matrix = (heuristic_matrix - min_value) / (max_value - min_value)
+    
+    # Zero out self-loops
+    np.fill_diagonal(heuristic_matrix, 0)
+    
+    return heuristic_matrix
+```
+
+In this function, we first compute a distance-based penalty matrix where the diagonal elements represent the distances from each node to itself. We then compute a connectivity-aware factor matrix where each element represents the minimum distance from a node to all other nodes.
+
+We combine these two matrices and normalize the values to get a heuristic matrix between 0 and 1, where 0 represents excellent paths and 1 represents very poor paths.
+
+Finally, we zero out the self-loops in the heuristic matrix.
+
+This function should offer a better score than the original ones, as it captures both the immediate distance between nodes and the overall connectivity, making it a more comprehensive heuristic. However, please remember that the actual performance will also depend on the specifics of your problem and how well these heuristics align with the nature of the problem you're trying to solve.
+
+
+

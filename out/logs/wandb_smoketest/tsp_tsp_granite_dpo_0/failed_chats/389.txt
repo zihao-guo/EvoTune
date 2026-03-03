@@ -1,0 +1,84 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Based on the analysis, we aim to create a heuristics() function that not only captures the immediate distances but also incorporates some form of potential future cost. This could be a form of "cost-to-go" or "expected future distance". We'll use a heuristic called the "Bidirectional Search" which is often used in pathfinding algorithms to estimate the total cost of reaching a destination from two opposite directions, thus providing a more informed estimate of the path's undesirability.
+
+Here's a Python function that implements this idea:
+
+```python
+def heuristics(distance_matrix):
+    # Get the shape of the distance matrix
+    num_nodes = distance_matrix.shape[0]
+    
+    # Initialize the heuristic matrix with the same size as the input
+    heuristic_matrix = distance_matrix.copy()
+    
+    # Run bidirectional search
+    def bidirectional_search(start, goal):
+        queue = [(0, start)]  # (cost, node)
+        visited = set([start])
+        while queue:
+            (cost, current) = queue.pop(0)
+            if current == goal:
+                return cost
+            
+            # Explore along the path from current to goal
+            for neighbor, edge_cost in enumerate(distance_matrix[current]):
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    new_cost = cost + edge_cost
+                    queue.append((new_cost, neighbor))
+            
+            # Explore from the goal towards the start
+            reverse_queue = [(cost, goal) for (cost, node) in enumerate(distance_matrix[::-1])]
+            while reverse_queue:
+                (reverse_cost, goal) = reverse_queue.pop(0)
+                if goal not in visited:
+                    visited.add(goal)
+                    new_cost = reverse_cost + distance_matrix[goal][start]
+                    heuristic_matrix[goal][start] = new_cost
+                    queue.append((new_cost, start))
+                
+                for neighbor, edge_cost in enumerate(distance_matrix[goal]):
+                    if neighbor not in visited:
+                        visited.add(neighbor)
+                        new_cost = reverse_cost + edge_cost
+                        heuristic_matrix[goal][neighbor] = new_cost
+                        queue.append((new_cost, neighbor))
+        
+        return None  # No path found
+
+    # Perform bidirectional search for all nodes
+    for i in range(num_nodes):
+        bidirectional_search(i, (i+1) % num_nodes)
+
+    return heuristic_matrix
+```
+
+This heuristics() function performs a bidirectional search, estimating the cost from each node to all other nodes, and from all other nodes to each node. The resulting heuristic matrix will have higher values where direct paths are present (and thus more undesirable) and lower values for longer or indirect routes. The use of two independent searches increases the reliability of the cost estimate compared to a simple unidirectional search.
+
+
+

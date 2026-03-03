@@ -1,0 +1,55 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a novel heuristics function, we'll use a combination of the Manhattan distance and the square of the Euclidean distance, which can capture both the taxicab (or city block) and the straight-line distances. This will provide a more nuanced measure of distance, potentially leading to better edge prioritization.
+
+The new function will include a learning factor, `alpha`, to adjust the influence of these two distances on the final score. A higher `alpha` will favor the Manhattan distance (taxicab), while a lower `alpha` will favor the Euclidean distance (straight-line).
+
+Here's the Python function for heuristics():
+
+```python
+def heuristics(distance_matrix, alpha=0.5):
+    num_vertices = len(distance_matrix)
+    heuristics_matrix = [[0]*num_vertices for _ in range(num_vertices)]
+
+    # Calculate Manhattan and Euclidean distances
+    manhattan_distances = [sum(abs(a-b) for a, b in zip(row, col)) for row in distance_matrix]
+    euclidean_distances = [((a-b)**2).sum()**0.5 for a, b in zip(distance_matrix, distance_matrix)]
+
+    # Apply the learning factor alpha
+    for i in range(num_vertices):
+        for j in range(num_vertices):
+            heuristics_matrix[i][j] = alpha * manhattan_distances[i] + (1 - alpha) * euclidean_distances[i]
+
+    return heuristics_matrix
+```
+
+This function should perform better than the initial two, as it leverages two different distance metrics and allows for a balance between them using the `alpha` parameter. The higher the `alpha` value, the more emphasis will be placed on the Manhattan distance.
+
+You can adjust the `alpha` value in the function call to see how this affects the output, and find the optimal value through experimentation. Keep in mind that the best `alpha` may vary depending on the specific problem instance.
+
+
+

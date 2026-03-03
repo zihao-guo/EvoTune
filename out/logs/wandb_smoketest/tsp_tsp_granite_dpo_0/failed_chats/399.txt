@@ -1,0 +1,68 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+The challenge here is to create a more sophisticated heuristic function. For this, I propose an approach based on the Traveling Salesman Problem's well-known nearest neighbor (TSP-NN) heuristic, but with a twist - we'll incorporate some element of road network connectivity and congestion.
+
+Here's an example of how the heuristics() function might be implemented:
+
+```python
+def heuristics(distance_matrix):
+    import numpy as np
+
+    # Define a road network connectivity and congestion matrix
+    # For simplicity, let's assume a 3x3 matrix where 0 represents no connection and 1 represents a connection
+    road_network = np.array([
+        [1, 0, 1],
+        [1, 1, 1],
+        [0, 1, 1]
+    ])
+
+    # Initialize a new heuristic matrix with the same dimensions as the distance matrix
+    heuristic_matrix = np.zeros_like(distance_matrix)
+
+    # Iterate through each vertex
+    for i in range(distance_matrix.shape[0]):
+        for j in range(distance_matrix.shape[1]):
+
+            # If the vertex isn't the same as the current one, consider adding this edge
+            if i!= j:
+                # Calculate the combined distance (distance + congestion) between the current and potential next vertices
+                combined_distance = distance_matrix[i, j] + (1 - road_network[i, j])
+
+                # Add this heuristic to the matrix for the current vertex
+                heuristic_matrix[i, j] = combined_distance
+
+    return heuristic_matrix
+```
+
+In this function, we're adding a road network connectivity component (`1 - road_network[i, j]`) which can potentially decrease the heuristic value for edges between vertices with a connection. This reflects a scenario where traveling through connected roads might be more efficient or even faster.
+
+Please note that this is a conceptual example and would need to be adjusted based on the specifics of your problem, including the nature of the 'congestion' or 'connectivity' values, and how they relate to the distances in the matrix.
+
+Also, remember to validate this function by testing it with sample input data and observing its performance. You might want to compare its output with other established heuristics or even the original function to quantify its effectiveness.
+
+
+

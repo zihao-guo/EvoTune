@@ -1,0 +1,60 @@
+# Score: -314.425
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Creating a novel and superior heuristics() function requires a deep understanding of the problem context, such as the characteristics of the input distance matrix, and the specifics of the scoring function that evaluated the other two solutions negatively. However, I can suggest a general heuristic approach based on the commonly used concept of the "shortest path first" (SPF) heuristic in Dijkstra's algorithm for finding the shortest paths between nodes in a graph.
+
+This heuristic works by estimating the cost from a given node to the farthest node in the graph. In our case, since the distances are provided, this could be seen as an estimate of the total cost from a node to all other nodes.
+
+Here's an idea for your heuristics() function in Python:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Assuming the matrix represents distances between nodes
+    n_nodes = distance_matrix.shape[0]
+    # Initialize heuristic matrix with same shape as distance_matrix
+    heuristic_matrix = np.copy(distance_matrix)
+    
+    # Calculate the heuristic value for each node
+    for i in range(n_nodes):
+        # Find the maximum distance (i.e., farthest node) for node i
+        max_dist = np.max(distance_matrix[i])
+        
+        # Add this maximum distance to the heuristic of all nodes
+        heuristic_matrix[i] += max_dist
+    
+    return heuristic_matrix
+```
+
+This function calculates the heuristic for each node based on the maximum distance to any other node, providing a rough estimate of the total cost for paths that pass through each node. 
+
+This approach differs from the original heuristics() function by creating a node-specific heuristic based on the entire graph structure (distance matrix), rather than simply using the distance matrix itself.
+
+To further improve this heuristic, you might consider adding weighting factors for nodes based on their importance, or integrating additional information into the heuristic calculation. Always validate the performance of new heuristics with a suitable test suite and fine-tuning.
+
+
+

@@ -1,0 +1,82 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more effective heuristics() function, we'll consider a few advanced strategies:
+
+1. **Weighted Edge Importance**: Each edge's contribution to the overall cost should be weighted by its reciprocal of the shortest path between the source and destination vertices. This means edges that are crucial for reaching other vertices will be considered more desirable.
+
+2. **Negative Cycle Detection**: If a negative cycle is detected in the distance matrix, edges within this cycle should be given extremely low heuristics scores, as they can make the solution suboptimal or unsolvable.
+
+Here's a Python function that implements these strategies. For simplicity, I've assumed the use of Dijkstra's algorithm for path computation. We'll implement a basic version of it using Python's built-in `heapq` module for priority queue.
+
+```python
+import heapq
+
+def heuristics(distance_matrix):
+    n = len(distance_matrix)
+    if n == 0:
+        return distance_matrix
+    
+    # Initialize shortest paths using Dijkstra's Algorithm
+    shortest_paths = [float('inf')] * n
+    shortest_paths[0] = 0
+    priority_queue = [(0, 0)]  # (distance, node)
+    
+    while priority_queue:
+        current_distance, current_node = heapq.heappop(priority_queue)
+        
+        if current_distance > shortest_paths[current_node]:
+            continue
+        
+        for neighbor, weight in enumerate(distance_matrix[current_node]):
+            if shortest_paths[neighbor] > current_distance + weight:
+                shortest_paths[neighbor] = current_distance + weight
+                heapq.heappush(priority_queue, (shortest_paths[neighbor], neighbor))
+    
+    # Calculate the heuristics
+    heuristics_matrix = [min(shortest_paths[i], 1.0 / shortest_paths[i]) for i in range(n)]
+    
+    # Negative cycle detection
+    for i in range(n):
+        for j in range(n):
+            for k in range(n):
+                if distance_matrix[i][j] + distance_matrix[j][k] < distance_matrix[i][k]:
+                    heuristics_matrix[i] = float('-inf')
+                    break
+    
+    return heuristics_matrix
+```
+
+This function should achieve a better score than the previous ones. The heuristics matrix now not only indicates the desirability of each edge but also considers the shortest path distances and detects negative cycles, providing more accurate prior indicators.
+
+Please note that actual performance will depend on the specific characteristics of your input distance matrices. This implementation assumes edge weights are non-negative, and a shortest path exists between all pairs of nodes.
+
+The algorithm's time complexity is O(n^3) due to the triple nested loop for negative cycle detection, where n is the number of vertices. The space complexity is O(n) for storing the shortest path distances and the heuristics matrix.
+
+Please, test this function with your data to see if it meets your expectations.
+
+
+

@@ -1,0 +1,53 @@
+# Score: -318.288
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a new, innovative function that outperforms the existing ones, let's introduce a novel approach based on the concept of "Potential Cost Minimization" (PCM). The idea here is to estimate the potential cost of including each edge in the solution and penalize them based on their potential negative impact.
+
+This function will make use of the assumption that edges with higher distances in the matrix are more likely to create a suboptimal solution in a graph. We will use a negative exponential function to quantify this.
+
+Here's the new heuristics() function in Python:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Calculate the potential cost for each edge
+    potential_cost = -np.log(distance_matrix)
+    
+    # To ensure the result is a non-negative matrix, we set a minimum value
+    potential_cost[distance_matrix == 0] = 1
+    
+    return potential_cost
+```
+
+This function calculates the potential cost for each edge as the negative natural logarithm of its distance. This results in larger costs for more distant edges, which aligns with our assumption. A minimum value is set for edges with zero distance, to ensure the output is a non-negative matrix, as edge costs cannot be negative.
+
+The algorithmic approach in this function deviates from the existing ones, making it a novel solution. We're not just assigning arbitrary values or simply applying the same method used in the lower-scoring function. Instead, we're introducing a concept from information theory, and using it to infer the undesirability of including each edge in a solution.
+
+To evaluate its performance, you would need to test it with your specific use cases and compare its scores with the existing functions. Note that performance will also depend on the structure and scale of your distance matrices.
+
+
+

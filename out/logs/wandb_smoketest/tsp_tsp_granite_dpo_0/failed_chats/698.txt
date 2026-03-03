@@ -1,0 +1,51 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To improve upon the heuristics() function, I'll introduce a novel strategy called "Graph Density Heuristic" which takes into account both the number of edges and their distances. The idea is that graphs with a higher density (more edges) but with shorter distances are generally less desirable as they might introduce more redundancy or congestion in the solution.
+
+Here is the revised `heuristics()` function:
+
+```python
+def heuristics(distance_matrix):
+    # Calculate the density of the graph
+    num_edges = distance_matrix.shape[0] * distance_matrix.shape[1] // 2  # assuming square matrix
+    density = num_edges / (distance_matrix.shape[0] * distance_matrix.shape[1])
+    
+    # Calculate the average distance
+    avg_distance = distance_matrix.mean()
+    
+    # Assign a heuristic score based on density and average distance
+    heuristic_matrix = avg_distance * density
+    
+    return heuristic_matrix
+```
+
+This function computes the density of the graph (number of edges / (number of vertices * number of vertices)) and uses that to weight the average distance. This implies that graphs with a high average distance and a high density (indicating a lot of connections) would receive higher heuristic scores, potentially pushing them lower in optimization algorithms.
+
+I would recommend evaluating this new function using a larger and more diverse dataset to ensure it generalizes well to different scenarios.
+
+
+

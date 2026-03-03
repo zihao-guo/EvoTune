@@ -1,0 +1,70 @@
+# Score: -342.402
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more efficient heuristics function, I will leverage the properties of the input distance matrix to introduce a heuristic that considers the distribution of distances and the density of edges in the graph. The goal is to favor paths with fewer edges and shorter distances.
+
+Here's a possible implementation:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Calculate the sum of each row (which represents the total distance from a node)
+    row_sums = np.sum(distance_matrix, axis=1)
+    
+    # Calculate the average distance per edge (i.e., total distance divided by number of edges)
+    avg_distance_per_edge = distance_matrix / np.expand_dims(np.sum(distance_matrix, axis=1), axis=1)
+    
+    # Calculate the density of edges (number of edges per node)
+    edge_density = np.sum(distance_matrix, axis=1) / np.sum(distance_matrix!= 0, axis=1)
+    
+    # Combine these factors to create a score for each edge
+    heuristics_matrix = -avg_distance_per_edge * edge_density
+    
+    # Inverse the sign of the result to give lower values as better heuristics
+    return heuristics_matrix
+
+# Test the function
+distance_matrix = np.array([[0, 10, 15, 20],
+                            [10, 0, 35, 25],
+                            [15, 35, 0, 30],
+                            [20, 25, 30, 0]])
+
+score = -np.min(heuristics(distance_matrix))
+print(f"The score achieved with the new function is: {score}")
+```
+
+This function computes three main metrics for each edge:
+
+1. `avg_distance_per_edge`: This measures how much distance there is on average on a given edge.
+2. `edge_density`: This measures the degree of a node (i.e., the number of edges connected to it).
+
+Then, it combines these metrics with a negative sign to favor lower-scoring (i.e., better) edges. The result is a heuristic matrix where smaller values indicate better paths. 
+
+By considering both edge density and the average distance per edge, this function takes into account the overall structure of the graph, aiming to find paths that minimize both the number of edges and the total distance, providing a more balanced heuristic.
+
+
+

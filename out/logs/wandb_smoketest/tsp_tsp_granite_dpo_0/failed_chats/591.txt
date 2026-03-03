@@ -1,0 +1,77 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a better heuristics function, we need to incorporate more advanced concepts and techniques that account for more complex characteristics of the input distance matrix. A common approach in graph optimization problems is using the concept of graph density and edge-towers. Edge-towers help capture the local structure of the graph, considering not only the immediate neighbors but also the neighboring neighbors.
+
+Here's a novel heuristics function called `heuristics_advanced()` that utilizes these concepts:
+
+```python
+import numpy as np
+
+def heuristics_advanced(distance_matrix):
+    n = distance_matrix.shape[0]
+
+    # Compute the degree of each vertex
+    degree = np.sum(distance_matrix, axis=1)
+    
+    # Initialize the heuristics matrix
+    heuristics = np.zeros_like(distance_matrix)
+
+    # Calculate edge-towers (a heuristic to capture local graph structure)
+    for i in range(n):
+        for j in range(i + 1, n):
+            # Get neighbors
+            nbr_i = np.where(distance_matrix[i] < distance_matrix.min())[0]
+            nbr_j = np.where(distance_matrix[j] < distance_matrix.min())[0]
+
+            # Get the minimum distance among the neighbors
+            min_dist_i = distance_matrix[i, nbr_i].min()
+            min_dist_j = distance_matrix[j, nbr_j].min()
+
+            # Edge-towers: higher min_dist_i and min_dist_j
+            heuristics[i, j] = max(min_dist_i, min_dist_j)
+            heuristics[j, i] = heuristics[i, j]  # Symmetry
+
+    # Normalize by degree to prevent edges connecting low-degree vertices from being penalized excessively
+    heuristics /= degree[:, np.newaxis]
+
+    # Add graph density as a secondary indicator
+    density = 2 * np.sum(distance_matrix) / (n * (n - 1))
+    heuristics += density[:, np.newaxis]
+
+    return heuristics
+```
+
+This function first calculates the degree of each vertex, then computes an edge-tower value for each edge by taking the maximum of the minimum distances from the two vertices to their mutual neighbors. The edge-towers penalize edges that connect vertices with very different neighborhoods.
+
+To balance this stronger penalization, the computed edge-towers are normalized by the degree of the vertices. This moderates the effect of edges connecting vertices with different degrees.
+
+Lastly, we introduce graph density as a secondary indicator. Edges that connect vertices that are part of many short cycles (low-density areas) are less undesirable than those in sparsely connected regions. The density is calculated as twice the sum of all edge lengths divided by (n * (n - 1)).
+
+These changes should lead to a more sophisticated heuristics function that performs better than the initial, simple versions.
+
+
+

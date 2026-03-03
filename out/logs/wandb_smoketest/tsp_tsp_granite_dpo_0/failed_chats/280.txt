@@ -1,0 +1,69 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To improve the performance of the `heuristics()` function, we can use a heuristic that incorporates both the absolute distance values and the frequency of occurrence of each distance. This approach takes into account both the severity of individual connections (as represented by absolute distances) and the overall connectivity pattern (frequencies).
+
+Here's an updated version of the `heuristics()` function:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    num_nodes = distance_matrix.shape[0]
+    row_sums = np.sum(distance_matrix, axis=1)  # Row-wise sum of distances
+    col_sums = np.sum(distance_matrix, axis=0)  # Column-wise sum of distances
+    
+    # Replace zero distances with a large value to differentiate them
+    distance_matrix[distance_matrix == 0] = np.inf
+    
+    # Create a frequency matrix where each element represents the count of a specific distance
+    frequency_matrix = np.zeros((num_nodes, num_nodes))
+    for i in range(num_nodes):
+        for j in range(num_nodes):
+            if distance_matrix[i][j]!= np.inf:
+                frequency_matrix[i][j] = distance_matrix[i][j]
+                frequency_matrix[j][i] = distance_matrix[j][i]
+    
+    # Calculate the heuristic score for each edge
+    heuristic_scores = np.where(distance_matrix!= np.inf,
+                                 row_sums + col_sums + frequency_matrix[distance_matrix!= np.inf],
+                                 np.inf)  # Use infinite for non-existent distances
+    
+    return heuristic_scores
+```
+
+In this updated function:
+
+1. We've added row and column sums to better capture the importance of each node in the network, which is particularly useful in cases where nodes are of varying importance.
+
+2. We've also introduced a frequency matrix that counts the occurrences of each distance in the input distance matrix. This helps give higher scores to more common distances, which often indicate more reliable paths.
+
+3. Finally, the heuristic score for each edge is calculated by adding the row sum, column sum, and frequency of the distance (if the distance is not infinite). This method gives priority to more frequent and significant distances.
+
+This approach provides a more comprehensive consideration of the input data, leading to potentially better performance in many cases compared to simple summing or reciprocal averaging. The exact performance improvement will depend on the specific characteristics of the data.
+
+
+

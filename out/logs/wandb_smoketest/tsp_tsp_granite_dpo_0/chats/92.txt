@@ -1,0 +1,54 @@
+# Score: -342.528
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more effective heuristics() function, we can incorporate a strategy of prioritizing edges that are closest to their closest points (i.e., edges with small diagonal elements in the distance matrix). The rationale behind this is that such edges will result in shorter paths if included in the final solution, minimizing the overall distance. This heuristic is similar to the "Primal Heuristic" in Traveling Salesman Problem (TSP) where edges that bring two vertices closer together are preferred.
+
+Here's a new implementation:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Calculate the diagonal elements which represent the direct distance between vertices
+    diagonal = np.diagonal(distance_matrix)
+    
+    # Create a heuristics matrix where each element represents the estimated cost of extending a path by including the corresponding edge
+    heuristics_matrix = diagonal.reshape(-1, 1)
+    
+    # Since we prioritize edges that reduce the distance, we take the negative of these diagonal values
+    heuristics_matrix = -heuristics_matrix
+    
+    return heuristics_matrix
+```
+
+This function's score should be higher than the original one because it is making a more aggressive choice in favoring edges that lead to shorter total path lengths. The new function gives more weight to the immediate pairwise distances, which should align better with the TSP's core objective.
+
+Note: The actual scoring of the function is not provided in the problem description, so the assertion of it being better is based on the intuition provided by the Primal Heuristic strategy. You would need to evaluate this function on a specific TSP instance to determine its actual performance.
+
+Also, it's important to remember that this is a simplified heuristic. For real-world TSP instances, you'd typically use more sophisticated methods such as 2-Opt, Lin–Kernighan–Helsgaun, or Ant Colony Optimization, which incorporate complex interactions between edges and account for symmetries in the problem.
+
+
+

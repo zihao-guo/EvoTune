@@ -1,0 +1,57 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a heuristics() function that outperforms the existing ones, we need to consider aspects like the distance structure, the distribution of edge weights, and potentially introduce a heuristic to estimate the "ease" of integrating each edge. Here's an example of a more advanced heuristics() function that uses the inverse of edge weights and a simple heuristic based on the distance between source and destination nodes:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Step 1: Estimate the "ease" of integration for each edge
+    ease_of_integration = 1.0 / distance_matrix
+
+    # Step 2: Introduce a heuristic based on the distances between source and destination
+    # We'll use a simple Manhattan distance as our heuristic
+    def manhattan_distance(row, col):
+        return abs(row[0] - col[0]) + abs(row[1] - col[1])
+
+    # Apply the heuristic to each edge
+    heuristic_scores = np.vectorize(manhattan_distance)(distance_matrix, np.arange(distance_matrix.shape[0])).T
+
+    # Combine the ease of integration and heuristic scores
+    combined_score = ease_of_integration * heuristic_scores
+
+    return combined_score
+
+# Score achieved with the new function:
+score = np.sum(heuristics(distance_matrix) ** 2)  # Squaring the scores to avoid negative values
+print(f"Score achieved with the new function: {-score}")
+```
+
+This new heuristics() function first normalizes the distances (ease of integration) and then introduces a simple heuristic based on Manhattan distance. The combination of these two heuristics should provide a more nuanced and potentially better estimation of the "undesirability" of including each edge in a solution. Adjust the heuristic and combination methods according to your specific problem requirements.
+
+
+

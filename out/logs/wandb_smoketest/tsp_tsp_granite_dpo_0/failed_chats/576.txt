@@ -1,0 +1,78 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more effective heuristics function, we'll introduce a concept of "cost-to-include" which considers the surrounding nodes' distance and their importance or weight. This approach should help to identify edges that are more likely to cause high total distances, thus providing better indicators for undesirability.
+
+Here's a possible implementation:
+
+```python
+import numpy as np
+
+def weights(distance_matrix):
+    """Assign weights to nodes based on their positions or importance."""
+    # Assuming nodes are in a 2D plane
+    weights = np.exp(-distance_matrix**2)  # Here, we use an exponential decay function to give more importance to nearby nodes
+    return weights / np.sum(weights)  # Normalize so that weights sum up to 1
+
+def cost_to_include(distance_matrix, weights):
+    """Calculate the cost to include each edge in a solution."""
+    n = distance_matrix.shape[0]
+    cost_matrix = np.zeros_like(distance_matrix)
+
+    # Iteratively calculate cost_to_include for each node
+    for i in range(n):
+        for j in range(n):
+            if i == j:  # Self-loops have zero cost
+                cost_matrix[i, j] = 0
+                continue
+
+            # Consider the impact of both the current node and its neighbors
+            total_cost = 0
+            for k in range(n):
+                # Calculate cost based on the distance to the current node and the importance of its neighbors
+                total_cost += distance_matrix[i, k] * weights[k, j]
+
+            cost_matrix[i, j] = total_cost
+
+    return cost_matrix
+
+def heuristics(distance_matrix):
+    """Compute a cost matrix where the value at position (i, j) is a heuristic estimate of undesirability to include edge (i, j)."""
+    weights = weights(distance_matrix)
+    return cost_to_include(distance_matrix, weights)
+
+# Example usage:
+distance_matrix = np.array([[0, 10, 15, 20],
+                             [10, 0, 35, 25],
+                             [15, 35, 0, 30],
+                             [20, 25, 30, 0]])
+print(heuristics(distance_matrix))
+```
+
+This heuristics function calculates a cost-to-include matrix that considers not only the edge distance but also the relative positions and weights of the nodes involved. It's designed to penalize edges that lead to high overall distances by considering the impact of surrounding nodes. As a result, this function might score better than the previous ones. However, the actual performance will depend on the specific characteristics of the distance matrix you use.
+
+
+

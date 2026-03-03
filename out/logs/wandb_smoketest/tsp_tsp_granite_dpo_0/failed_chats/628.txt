@@ -1,0 +1,75 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To improve the heuristics function, we can incorporate a more sophisticated approach that combines the concept of Shortest Path Tree (SPT) with the concept of edge weights, considering both local and global properties of the graph. Here's an example of how this could be implemented in Python:
+
+```python
+import heapq
+
+def heuristics(distance_matrix):
+    n = len(distance_matrix)
+    # Initialize SPT priority queue with (cost, node) for each node
+    spt = [(0, i) for i in range(n)]
+    heapq.heapify(spt)
+    # Initialize parent and cost arrays for SPT
+    parent = [None] * n
+    cost = [float('inf')] * n
+    cost[0] = 0
+
+    while spt:
+        current_cost, current_node = heapq.heappop(spt)
+
+        # If we've reached the target node, construct the path and add to heuristics
+        if current_node == n - 1:
+            path = []
+            while current_node is not None:
+                path.append(current_node)
+                current_node = parent[current_node]
+            path.reverse()
+            return distance_matrix[path[0]][path[-1]]
+        
+        # Explore neighbors
+        for neighbor, weight in enumerate(distance_matrix[current_node]):
+            if weight > cost[neighbor]:
+                continue  # Already found a better path
+
+            # Update cost and parent
+            new_cost = current_cost + weight
+            if new_cost < cost[neighbor]:
+                cost[neighbor] = new_cost
+                heapq.heappush(spt, (new_cost, neighbor))
+                parent[neighbor] = current_node
+
+    # If no path found (shouldn't happen with valid input), return a large number
+    return float('inf')
+```
+
+This function employs Dijkstra's algorithm, but tailored for the shortest path tree, which helps to find the most cost-effective route in a network from source to destination. It also considers the edge weights in the distance_matrix, giving a higher heuristic score to paths with smaller total edge weights, hence prioritizing edges that would be desirable in a solution.
+
+This function might perform better than the simpler functions by considering the entire graph structure in its heuristic evaluation, leading to potentially more accurate estimates of edge desirability. Please note that the performance of this function depends on the specific nature of the problem instance (i.e., the quality of the distance_matrix), and it may not always outperform all other heuristics.
+
+
+

@@ -1,0 +1,70 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Sure, let's create a heuristics() function that employs a combination of Dijkstra's algorithm for single-source shortest path (SSSP) and a novel scoring mechanism based on edge weights and their positions in the matrix. We'll also incorporate a simple form of "centrality" concept to account for edges connecting to more nodes.
+
+```python
+import heapq
+
+def heuristics(distance_matrix):
+    # Step 1: Dijkstra's algorithm to calculate tentative distances
+    n = len(distance_matrix)
+    tentative_distances = [float('inf')] * n
+    tentative_distances[0] = 0
+    priority_queue = [(0, 0)]  # (distance, node)
+    
+    while priority_queue:
+        current_distance, current_node = heapq.heappop(priority_queue)
+        
+        # If we have found a shorter path to current node, update
+        if current_distance > tentative_distances[current_node]:
+            continue
+        
+        for neighbor, edge_weight in enumerate(distance_matrix[current_node]):
+            if edge_weight > 0 and tentative_distances[neighbor] > current_distance + edge_weight:
+                tentative_distances[neighbor] = current_distance + edge_weight
+                heapq.heappush(priority_queue, (tentative_distances[neighbor], neighbor))
+    
+    # Step 2: Heuristics scoring
+    heuristic_matrix = [0] * n
+    centrality = [sum(distance_matrix[i]) for i in range(n)]
+    max_centrality = max(centrality)
+    
+    for i in range(n):
+        for j in range(i + 1, n):
+            if distance_matrix[i][j] > 0:
+                heuristic_matrix[i] += 1 / (centrality[i] * centrality[j])
+                heuristic_matrix[j] += 1 / (centrality[i] * centrality[j])
+
+    return heuristic_matrix
+```
+
+This function calculates the shortest distances from a given source (node 0 in this example) using Dijkstra's algorithm, and uses this information to create a heuristic matrix. The heuristic score for each node is influenced by both the inverse of the product of the centralities of its connected nodes and its own centrality, which is the sum of distances to all other nodes.
+
+This approach attempts to balance the exploration of more central nodes (those with a large sum of distances to other nodes) and those with a higher proximity to central nodes. The hope is that this combination of strategies will lead to a more accurate prioritization of edges, resulting in a better heuristic score.
+
+
+

@@ -1,0 +1,71 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a better performing `heuristics()` function, we can incorporate graph theory concepts like shortest path and clustering coefficients. In addition, we will use a heuristic known as the "Effective Resistance" method, which is particularly effective for network optimization problems.
+
+The function will first compute the effective resistance of the graph using the following formula:
+
+R = (1/2 * A * E) * inverse(A)
+
+where A is the adjacency matrix derived from the distance matrix, and E is the edge weight matrix.
+
+Here is the Python implementation:
+
+```python
+import numpy as np
+
+def adjacency_matrix(distance_matrix):
+    # Convert distance matrix to adjacency matrix
+    n = distance_matrix.shape[0]
+    adj_matrix = np.where(distance_matrix < 1e-6, 0, 1) # Assuming edges exist if distance is below threshold
+    return adj_matrix
+
+def effective_resistance(adj_matrix):
+    n = adj_matrix.shape[0]
+    I = np.identity(n)
+    return 0.5 * np.matmul(adj_matrix, np.ones((n, n))) * np.linalg.inv(I + adj_matrix)
+
+def heuristics(distance_matrix):
+    adj_matrix = adjacency_matrix(distance_matrix)
+    effective_resistance_matrix = effective_resistance(adj_matrix)
+
+    # Normalize resistance values
+    max_resistance = np.max(effective_resistance_matrix)
+    normalized_resistance_matrix = effective_resistance_matrix / max_resistance
+
+    return normalized_resistance_matrix
+```
+
+This function `heuristics()` will return a normalized resistance matrix indicating how undesirable it is to include each edge in a solution. The key improvements are:
+
+1. Utilizing the adjacency matrix from the distance matrix, which allows for a more accurate representation of the graph structure.
+2. Applying the effective resistance method to derive the heuristic values, which considers not only edge weights but also the structure of the network.
+3. Normalizing the results, which can help in comparing the heuristic values across different scales.
+
+The improved heuristics() function should yield better scores than the previous ones. However, the exact score improvement can only be determined by testing it with a suitable test case.
+
+
+

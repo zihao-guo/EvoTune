@@ -1,0 +1,55 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more effective heuristics() function, we need to introduce a novel approach that leverages the structure of the distance matrix to provide better estimates of edge undesirability. One such method is to incorporate the concept of proximity, or the tendency of nearby edges to be less desirable.
+
+Here's a Python function that implements this idea:
+
+```python
+import numpy as np
+
+def heuristics(distance_matrix):
+    # Calculate the Manhattan distance for each row to capture the proximity effect
+    row_manhattan_distances = np.sum(np.abs(distance_matrix - np.min(distance_matrix, axis=0)), axis=1)
+    
+    # Inversely scale these distances to emphasize the importance of smaller, more distant edges
+    heuristics_matrix = np.maximum(1, 1 / row_manhattan_distances)
+    
+    return heuristics_matrix
+```
+
+This function calculates the Manhattan distance for each row in the input distance matrix, which helps capture the proximity effect. By taking the absolute difference with the minimum value in each row, we consider all edges equally important in terms of distance, even if they are not the minimum distance.
+
+Then, to emphasize the importance of edges that are less desirable (i.e., larger distances), we apply an inverse scaling. We replace any zero or negative distances with one and raise the rest to the power of 1 (i.e., heuristics_matrix = np.maximum(1, 1 / row_manhattan_distances)).
+
+This approach has two key benefits:
+1. It captures the proximity effect more effectively, since it considers all distances equally, yet more distant edges are reduced more.
+2. The use of a power function in the scaling part of the calculation will have a higher impact on larger distances, making these edges more undesirable.
+
+The higher score of this function compared to the baseline heuristics(distance_matrix) function should reflect the improved performance.
+
+
+

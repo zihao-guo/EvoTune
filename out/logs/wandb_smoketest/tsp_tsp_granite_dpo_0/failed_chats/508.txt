@@ -1,0 +1,63 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Given the requirements, we need to create a heuristics function that provides more advanced and nuanced information about the undesirability of including each edge in a solution. The function could leverage additional context or graph-theoretic properties to make more informed decisions.
+
+Let's assume that each row in the distance_matrix represents a vertex and each column represents a potential connection to another vertex (edge). We want to create a matrix where each cell represents a heuristic score indicating how undesirable including an edge is based on certain criteria.
+
+Here's a potential implementation. For this example, I'll consider two additional properties: degree of the vertices and the average distance to all other vertices for the vertices involved in the potential edge.
+
+```python
+def heuristics(distance_matrix):
+    import numpy as np
+    
+    # Calculate the degree of each vertex (number of edges connected to it)
+    vertex_degrees = np.sum(distance_matrix, axis=1)
+    
+    # Calculate the average distance of each vertex to all other vertices
+    avg_distances = np.mean(distance_matrix, axis=1)
+    
+    # Create a heuristic matrix.
+    # Each cell (i,j) contains a negative value if adding an edge between vertices i and j would be undesirable,
+    # and a positive value if it would be desirable.
+    heuristic_matrix = np.where(distance_matrix > 1, # Assuming cost > 1 for an undesirable edge
+                               -vertex_degrees[np.arange(len(distance_matrix))][distance_matrix[np.arange(len(distance_matrix)), np.arange(len(distance_matrix)) > 1]] +
+                               avg_distances[np.arange(len(distance_matrix))][distance_matrix[np.arange(len(distance_matrix)), np.arange(len(distance_matrix)) > 1]] - 1,  # Subtract 1 to make it a desirable score for undesirable edges
+                               0)
+    
+    return heuristic_matrix
+```
+
+In this function, we're considering a few things:
+1. Degree: Higher-degree vertices have fewer connections, and adding an edge to them might disrupt their existing connections more.
+2. Average Distance: A vertex that is already well-connected (low average distance) might not want to add more edges, as it would increase its overall path lengths.
+
+Please note that the specific formula can be adjusted according to the exact problem and the nature of the data. The key is to include information beyond the direct distances, as these properties can also impact the desirability of including an edge.
+
+The exact score and its impact will depend on the input data, so it's difficult to predict the exact score without a specific test case. However, this function aims to be more sophisticated than the previous ones and should score better based on the added criteria.
+
+
+

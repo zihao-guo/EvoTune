@@ -1,0 +1,63 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+To create a more sophisticated heuristics function, we can consider using a combination of concepts from graph theory (like graph density, clustering coefficient, and average shortest path length) and machine learning (like using a simple model to predict edge weights based on local node features). This approach will provide a more nuanced evaluation of the undesirability of each edge. Here's an example of how this can be done using a simple clustering coefficient-based heuristic:
+
+```python
+import numpy as np
+from sklearn.cluster import AgglomerativeClustering
+
+def heuristics(distance_matrix):
+    # Compute the adjacency matrix
+    adj_matrix = np.abs(distance_matrix - distance_matrix.T)
+    
+    # Use Agglomerative Clustering to identify densely connected groups
+    clustering_model = AgglomerativeClustering(n_clusters=None, affinity='precomputed', linkage='average')
+    clustering_labels = clustering_model.fit_predict(adj_matrix)
+    
+    # Create a heuristics matrix
+    heuristics_matrix = np.zeros(adj_matrix.shape)
+    
+    for i in range(distance_matrix.shape[0]):
+        for j in range(distance_matrix.shape[1]):
+            if i!= j:
+                neighbors = adj_matrix[i, j]
+                if clustering_labels[i] == clustering_labels[j]:
+                    heuristics_matrix[i, j] = 1 / (neighbors * (np.mean(adj_matrix[i, neighbors]) + np.mean(adj_matrix[j, neighbors])))
+                else:
+                    heuristics_matrix[i, j] = 1 / neighbors
+    
+    return heuristics_matrix
+```
+
+In this new function, we first convert the distance matrix into an adjacency matrix to represent the graph structure. We then use Agglomerative Clustering to group nodes that are densely connected, assuming that the presence of a heavily connected group makes that group's edges less desirable. The heuristic value for each edge is inversely proportional to the product of the number of neighbors, the average distance within the group, and a similarity measure (which is 1 if both endpoints belong to the same group, and 0 otherwise).
+
+This heuristic score should be better than the simple distance matrix replication, as it takes into account the overall structure and connectedness of the graph, providing a more meaningful indication of how undesirable each edge is. The specific coefficients and similarity measure (inverse of the product of the number of neighbors and the average group distance) are chosen based on the assumption that more connected and densely packed groups have more redundant or potentially less critical connections.
+
+This approach can be further optimized or adjusted depending on the specific properties of the problem at hand.
+
+
+

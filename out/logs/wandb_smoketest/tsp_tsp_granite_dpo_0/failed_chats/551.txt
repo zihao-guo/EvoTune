@@ -1,0 +1,79 @@
+# Score: -20000
+system
+
+You are helpful, excellent and innovative problem solver specializing in mathematical optimization and algorithm design. You are an expert in writing Python functions.
+
+
+
+user
+
+def heuristics(distance_matrix):
+    return distance_matrix
+
+# Score achieved with the function above: -275.742
+
+
+You are tasked with creating a new function, heuristics(), that outperforms the other two presented functions. 
+The heuristics() function takes as input a distance matrix, and returns prior indicators of how undesirable it is to include each edge in a solution. The returned matrix should be of the same shape as the input. 
+When writing the new function, follow these guidelines:
+Think Outside the Box: Avoid simply rewriting or rephrasing existing approaches. Prioritize creating novel solutions rather than making superficial tweaks.
+Analyze the Score Drivers: Analyze the characteristics of the higher-scoring function. Identify what it is doing differently or more effectively than the lower-scoring function. Determine which specific changes or techniques lead to better performance.
+To summarize, your task is to write a new function named heuristics() that will perform better than both functions above and achieve a higher score.
+
+
+
+assistant
+
+Based on the requirements and analysis of the existing heuristics function, a novel approach that may improve performance involves incorporating a form of graph clustering or community detection to provide better initial estimations for the undesirability of edges.
+
+Here, we'll use the Louvain community detection method, which is efficient and effective in identifying communities in complex networks. This approach considers the relationships between nodes rather than treating each node independently.
+
+Firstly, we'll need to install the `community` Python library, which can be done via pip:
+
+```python
+pip install community
+```
+
+Now, here is the new `heuristics()` function:
+
+```python
+from community import community_louvain
+
+def heuristics(distance_matrix):
+    # Compute the affinity matrix
+    affinity = 1 - distance_matrix
+    
+    # Perform Louvain community detection
+    communities = community_louvain.best_partition(affinity)
+    
+    # Initialize the output matrix
+    result_matrix = np.zeros(distance_matrix.shape)
+
+    # Assign undesirability scores based on community structure
+    for node in range(affinity.shape[0]):
+        for neighbor in range(node + 1, affinity.shape[0]):
+            community_node = communities[node]
+            community_neighbor = communities[neighbor]
+            
+            # If the nodes belong to different communities
+            if community_node!= community_neighbor:
+                # Increase the undesirability score
+                result_matrix[node, neighbor] = result_matrix[neighbor, node] = 100  # Arbitrary high score
+
+    return result_matrix
+```
+
+This new function considers the network structure (community) to assign edge undesirability scores, which may lead to a higher score compared to the simple reordering of distances.
+
+Please note that the actual score improvement would depend on the specific properties of the input distance matrices. This solution assumes that edges between nodes in different communities have a higher undesirability score, although this could be adjusted according to specific requirements.
+
+Also, please ensure you have the `community` library properly installed and import the numpy package to use arrays:
+
+```python
+import numpy as np
+```
+
+The exact score comparison would require testing the function with various datasets. However, this approach leverages graph-based reasoning to influence the heuristics, which should theoretically improve performance over simpler methods.
+
+
+

@@ -1,0 +1,93 @@
+本次改动与输出记录
+
+1. 新建了 `src/eval/` 评测沙盒，并拆分为三个子目录：
+   - `src/eval/tsp/`
+   - `src/eval/bp/`
+   - `src/eval/fp/`
+   同时新增了顶层汇总脚本：
+   - `src/eval/run_all.py`
+
+2. 在 `src/eval/` 中补充了论文最佳程序的独立评测实现：
+   - TSP: `best_heuristic.py` + `run_eval.py`
+   - BP: `best_priority.py` + `run_eval.py` + `baselines.py`
+   - FP: `best_priority.py` + `run_eval.py` + `baselines.py`
+
+3. 新增了统一汇总与报告输出：
+   - `src/eval/results/summary.json`
+   - `src/eval/results/comparison_table.csv`
+   - `src/eval/results/report.md`
+
+4. 修改了 TSP 相关类型注解，修复 NumPy 2.x 下 `np.float_` / `np.int_` 导入错误：
+   - 修改 `src/packing/evaluate/tsp/tsp_generate_dataset.py`
+   - 修改 `src/packing/evaluate/tsp/task_tsp.py`
+
+5. 修改了训练配置，补充了 `wandb` 默认字段，避免 Hydra 报 `Key 'wandb' is not in struct`：
+   - 修改 `configs/config.yaml`
+   - 新增字段：`wandb: 0`
+
+6. 修改了 vLLM 启动参数，给单卡 4070 增加可调显存占用配置：
+   - 修改 `configs/config.yaml`
+   - 新增字段：`vllm_gpu_memory_utilization: 0.8`
+   - 修改 `src/packing/model/model.py`
+   - 在 `vllm serve` 命令中加入 `--gpu-memory-utilization`
+
+7. 环境侧已处理但不属于代码文件修改：
+   - 安装了 CUDA 版 `jaxlib`
+   - 验证 `.venv` 中 `jax` 后端为 GPU
+   - 验证 `.venv` 中 `torch.cuda.is_available()` 为 `True`
+
+8. 已确认的命令运行结果：
+   - `model=llama32` 会在 Hugging Face 阶段失败，因为 `meta-llama/Llama-3.2-1B-Instruct` 是 gated repo，当前账号无访问权限
+   - `model=granite` 可以访问模型并启动到 vLLM 加载阶段
+
+9. 当前已生成的评测结果位置：
+   - TSP 结果：
+     `src/eval/tsp/results/test_summary.json`
+     `src/eval/tsp/results/test_instances.csv`
+   - BP 结果：
+     `src/eval/bp/results/OR3_val_summary.json`
+     `src/eval/bp/results/OR3_val_instances.csv`
+   - FP 结果：
+     `src/eval/fp/results/test_flatpack_dynamic_0_seed_summary.json`
+     `src/eval/fp/results/test_flatpack_dynamic_0_seed_instances.csv`
+   - 统一汇总：
+     `src/eval/results/summary.json`
+     `src/eval/results/comparison_table.csv`
+     `src/eval/results/report.md`
+
+10. 当前已生成的训练输出目录：
+   - 原始 llama32 运行输出：
+     `out/logs/local4070/bin_bin_llama32_dpo_0/`
+   - granite 测试运行输出：
+     `out/logs/local4070g/bin_bin_granite_dpo_0/`
+
+11. 训练目录内重点文件位置：
+   - 配置：
+     `out/logs/<prefix>/<run_name>/config.yaml`
+   - 主日志：
+     `out/logs/<prefix>/<run_name>/stdout.log`
+   - 当前找到的较优程序：
+     `out/logs/<prefix>/<run_name>/best_programs.txt`
+   - 程序库：
+     `out/logs/<prefix>/<run_name>/programbank/`
+     `out/logs/<prefix>/<run_name>/programdb_scores.json`
+   - 指标：
+     `out/logs/<prefix>/<run_name>/metrics/`
+
+12. 当前更推荐直接尝试的训练方向：
+   - 使用 `model=granite`
+   - 使用真实可用的 `wandb project/entity`
+   - 如果仍用单卡 4070 + vLLM，优先关注 `stdout.log` 中的显存与服务启动日志
+
+
+PYTHONPATH=src python src/experiments/main.py \
+    task=bin \
+    model=phi \
+    train=dpo \
+    cluster=example \
+    gpu_nums=0 \
+    prefix=wandb_single_gpu \
+    seed=0 \
+    wandb=1 \
+    project=EvoTune \
+    entity=zeio99guo-institut-polytechnique-de-paris
