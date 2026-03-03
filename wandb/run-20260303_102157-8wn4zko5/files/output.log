@@ -1,4 +1,0 @@
-id 8wn4zko5
-url_attr 'https://wandb.ai/zeio99guo-institut-polytechnique-de-paris/evotune/runs/8wn4zko5'
-[34m[1mwandb[0m: [33mWARNING[0m The get_url method is deprecated and will be removed in a future release. Please use `run.url` instead.
-get_url 'https://wandb.ai/zeio99guo-institut-polytechnique-de-paris/evotune/runs/8wn4zko5'
