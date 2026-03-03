@@ -11,13 +11,10 @@ requires-python = ">=3.10,<3.13"
 dependencies = [
     "absl-py",
     "accelerate",
-    "chex",
     "datasets",
     "elkai",
     "huggingface-hub>=0.34,<1",
     "hydra-core",
-    "jax",
-    "jumanji",
     "matplotlib",
     "numba",
     "numpy",
@@ -26,11 +23,10 @@ dependencies = [
     "psutil",
     "requests",
     "scipy",
-    "torch",
+    "torch==2.5.1",
     "tqdm",
     "transformers",
     "trl",
-    "vllm==0.16.0",
     "wandb",
 ]
 
