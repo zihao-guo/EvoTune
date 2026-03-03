@@ -388,6 +388,19 @@ def wandb_log_plot(cfg, data, wandb_name, title, xlabel, ylabel, plot_type='hist
 
 
 def write_to_json(json_file, data):
+    def _normalize(obj):
+        if isinstance(obj, np.generic):
+            return obj.item()
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        if isinstance(obj, dict):
+            return {key: _normalize(value) for key, value in obj.items()}
+        if isinstance(obj, list):
+            return [_normalize(value) for value in obj]
+        if isinstance(obj, tuple):
+            return [_normalize(value) for value in obj]
+        return obj
+
     if os.path.exists(json_file):
         with open(json_file, "r") as f:
             try:
@@ -397,7 +410,7 @@ def write_to_json(json_file, data):
                 all_data = []
     else:
         all_data = []
-    all_data.append(data)
+    all_data.append(_normalize(data))
     with open(json_file, "w") as f:
         json.dump(all_data, f, indent=2)
     return
