@@ -2,7 +2,7 @@
 
 ## 1. Search training command
 
-The main search loop uses `src/experiments/main.py`. A representative command for the run stored in `out/logs/wandb_smoketest/tsp_tsp_granite_dpo_0` is:
+The main search loop uses `src/experiments/main.py`. Using repository defaults for the core training parameters, a standard launch command is:
 
 ```bash
 PYTHONPATH=src .venv/bin/python src/experiments/main.py \
@@ -16,13 +16,8 @@ PYTHONPATH=src .venv/bin/python src/experiments/main.py \
   wandb=1 \
   project=EvoTune \
   entity=zeio99guo-institut-polytechnique-de-paris \
-  num_rounds=500 \
-  num_cont_rounds=100 \
   use_vllm=0 \
-  use_tgi=0 \
-  finetuning_frequency=10 \
-  train.dpo_config.per_device_train_batch_size=1 \
-  train.dpo_config.max_seq_length=512
+  use_tgi=0
 ```
 
 This command drives the full EvoTune loop:
@@ -79,29 +74,29 @@ Notes:
 - For TSP, `evalset=testset` maps to `("val", "0.0")`.
 - `evalset=trainperturbedset` maps to `("train", "0.2")`.
 
-## 4. Parameter differences from current repo defaults
+## 4. Current repository defaults
 
-The table below compares the current checked-in defaults with the values used in the training command above.
+The table below lists the current checked-in defaults used by the training command above.
 
 ### Core loop parameters
 
-| Parameter | Current repo default | Run value | Note |
-| --- | --- | --- | --- |
-| `num_rounds` | `2701` | `500` | Reduced total outer rounds. |
-| `num_cont_rounds` | `100` | `100` | Same as current default. |
-| `finetuning_frequency` | `400` | `10` | Much more frequent finetuning than the default. |
+| Parameter | Current repo default | Note |
+| --- | --- | --- |
+| `num_rounds` | `2701` | Total number of outer rounds. |
+| `num_cont_rounds` | `100` | Number of continuous sampling/evaluation rounds per outer loop. |
+| `finetuning_frequency` | `400` | Inherited from `configs/train/dpo.yaml`. |
 
 Defaults are taken from [configs/config.yaml](/mnt/e/currentWORK/AAA_LCM/EvoTune/configs/config.yaml) and [configs/train/dpo.yaml](/mnt/e/currentWORK/AAA_LCM/EvoTune/configs/train/dpo.yaml).
 
 ### DPO parameters
 
-| Parameter | Current repo default | Run value | Note |
-| --- | --- | --- | --- |
-| `train.dpo_config.max_seq_length` | `6500` | `512` | Reduced heavily to fit memory limits. |
-| `train.dpo_config.per_device_train_batch_size` | `2` | `1` | Lowered to reduce memory use. |
-| `train.dpo_config.gradient_accumulation_steps` | `16` | `16` | Same as default. |
-| `train.dpo_config.beta` | `0.4` | `0.4` | Same as current default. |
+| Parameter | Current repo default | Note |
+| --- | --- | --- |
+| `train.dpo_config.max_seq_length` | `6500` | Default sequence length in `configs/train/dpo.yaml`. |
+| `train.dpo_config.per_device_train_batch_size` | `2` | Default per-device batch size. |
+| `train.dpo_config.gradient_accumulation_steps` | `16` | Default gradient accumulation. |
+| `train.dpo_config.beta` | `0.4` | Default DPO beta. |
 
 ## 5. Important clarification
 
-Some older notes may mention different defaults such as `num_rounds=1000`, `num_cont_rounds=20`, or `max_seq_length=1024`. Those are not the current checked-in defaults of this repository at the time this README was written. The table above follows the current repository state.
+Some earlier experiments used overrides such as `num_rounds=500`, `finetuning_frequency=10`, `train.dpo_config.max_seq_length=512`, or `train.dpo_config.per_device_train_batch_size=1`. Those are experiment-specific overrides, not repository defaults. The commands and tables above follow the current checked-in default configuration.
