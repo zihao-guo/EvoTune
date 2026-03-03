@@ -27,7 +27,31 @@ This command drives the full EvoTune loop:
 - update the program database and DPO buffer
 - periodically finetune the LLM
 
-## 2. Direct finetune command
+## 2. Smoke test command
+
+For a quick startup check, use the following one-round smoke test command:
+
+```bash
+PYTHONPATH=src .venv/bin/python src/experiments/main.py \
+  task=tsp \
+  model=granite \
+  train=dpo \
+  cluster=example \
+  gpu_nums=0 \
+  prefix=tsp_granite_smoketest \
+  seed=0 \
+  wandb=1 \
+  project=EvoTune \
+  entity=zeio99guo-institut-polytechnique-de-paris \
+  use_vllm=0 \
+  use_tgi=0 \
+  num_rounds=1 \
+  num_cont_rounds=1
+```
+
+This command is only for checking that the pipeline can start correctly. It typically reaches model loading, prompt generation, worker startup, one round of sampling/evaluation, and log saving, but it does not reach DPO finetuning.
+
+## 3. Direct finetune command
 
 If DPO finetuning is resumed directly from an existing logs directory, use:
 
@@ -45,7 +69,7 @@ PYTHONPATH=src .venv/bin/accelerate launch \
 
 This command does not continue search. It only runs the DPO finetune stage and saves the merged checkpoint to `model_adapter_granite/`.
 
-## 3. Offline eval command
+## 4. Offline eval command
 
 Offline evaluation uses `src/experiments/eval.py` and re-evaluates saved programs from the logs directory:
 
@@ -74,7 +98,7 @@ Notes:
 - For TSP, `evalset=testset` maps to `("val", "0.0")`.
 - `evalset=trainperturbedset` maps to `("train", "0.2")`.
 
-## 4. Current repository defaults
+## 5. Current repository defaults
 
 The table below lists the current checked-in defaults used by the training command above.
 
@@ -97,6 +121,6 @@ Defaults are taken from [configs/config.yaml](/mnt/e/currentWORK/AAA_LCM/EvoTune
 | `train.dpo_config.gradient_accumulation_steps` | `16` | Default gradient accumulation. |
 | `train.dpo_config.beta` | `0.4` | Default DPO beta. |
 
-## 5. Important clarification
+## 6. Important clarification
 
 Some earlier experiments used overrides such as `num_rounds=500`, `finetuning_frequency=10`, `train.dpo_config.max_seq_length=512`, or `train.dpo_config.per_device_train_batch_size=1`. Those are experiment-specific overrides, not repository defaults. The commands and tables above follow the current checked-in default configuration.
