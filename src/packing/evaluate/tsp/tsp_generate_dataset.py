@@ -12,6 +12,7 @@ import numpy as np
 import numpy.typing as npt
 from scipy.spatial import distance_matrix
 import os
+from pathlib import Path
 
 ######################
 dataset_conf = {
@@ -41,6 +42,15 @@ iter_limit_map = {
 
 SCALE = 1000000
 sizes = list(iter_limit_map.keys())
+
+REPO_ROOT = Path(__file__).resolve().parents[4]
+DEFAULT_DATASET_DIR = REPO_ROOT / "data" / "dataset"
+
+
+def get_dataset_dir(basepath=None) -> Path:
+    dataset_dir = Path(basepath) if basepath is not None else DEFAULT_DATASET_DIR
+    dataset_dir.mkdir(parents=True, exist_ok=True)
+    return dataset_dir
 
 
 
@@ -72,18 +82,15 @@ def generate_dataset(filepath, n, batch_size=64, drop_rate=0.0):
 
 
 def generate_datasets(basepath=None, drop_rate=0.0):
-    import os
-    # TODO: change the directory
-    basepath = basepath or os.path.join(os.getcwd(), "dataset")
-    os.makedirs(basepath, exist_ok=True)
+    dataset_dir = get_dataset_dir(basepath)
 
     for split, problem_sizes in dataset_conf.items():
         np.random.seed(len(split))
         for n in problem_sizes:
             batch_size = batch_sizes[n]
-            filepath = os.path.join(basepath, f"{split}{n}_positions.npy")
+            filepath = dataset_dir / f"{split}{n}_positions.npy"
             # generate_dataset(filepath, n, batch_size=10 if split =='train' else 64)
-            generate_dataset(filepath, n, batch_size, drop_rate)
+            generate_dataset(os.fspath(filepath), n, batch_size, drop_rate)
 
 
 def load_dataset(fp, drop_rate) -> list[TSPInstance]:
@@ -102,16 +109,17 @@ if __name__ == "__main__":
 
     np.random.seed(0)
     drop_rate = 0.0
+    dataset_dir = get_dataset_dir()
 
     for split in dataset_conf.keys():
 
-        generate_datasets(drop_rate=drop_rate)
+        generate_datasets(basepath=dataset_dir, drop_rate=drop_rate)
 
         # Precompute the optimal solutions
         optimal_objs_dict = {}
         for problem_size in sizes:
-            dataset_path = f"dataset/{split}{problem_size}_positions.npy"
-            dataset = load_dataset(dataset_path, drop_rate)  # converts position to distance matrix
+            dataset_path = dataset_dir / f"{split}{problem_size}_positions.npy"
+            dataset = load_dataset(os.fspath(dataset_path), drop_rate)  # converts position to distance matrix
             n_instances = dataset[0].n
             print(f"[*] Evaluating {dataset_path} with LKH")
 
@@ -147,5 +155,5 @@ if __name__ == "__main__":
         # Save the optimal solutions in folder dataset, optimal_objs_dict is a dictionary with keys as problem sizes and values as optimal solutions
         sizes_str = '_'.join(map(str, sizes))
         name = f"optimal_objs_dict_{split}_drop_{drop_rate}_townsizes_{'_'.join(map(str, sizes))}_perturbations_{'_'.join(map(str, perturbation_moves_map.values()))}_iterlimits_{'_'.join(map(str, iter_limit_map.values()))}.pkl"
-        with open(f"dataset/{name}", "wb") as f:
+        with open(dataset_dir / name, "wb") as f:
             pickle.dump(optimal_objs_dict, f)

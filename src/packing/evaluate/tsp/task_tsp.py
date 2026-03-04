@@ -9,7 +9,12 @@ import numba as nb
 import pickle
 
 from packing.evaluate.registry import TASK_REGISTRY
-from packing.evaluate.tsp.tsp_generate_dataset import TSPInstance, load_dataset, calculate_cost
+from packing.evaluate.tsp.tsp_generate_dataset import (
+    TSPInstance,
+    load_dataset,
+    calculate_cost,
+    get_dataset_dir,
+)
 import traceback
 import os
 
@@ -278,30 +283,24 @@ def solve(inst: TSPInstance, heuristics):
 def evaluate(function_from_llm, dataset_struct, iter_limit_map):
     t0 = time.perf_counter()
     split, drop_rate = dataset_struct
+    dataset_dir = get_dataset_dir()
 
     # Load the optimal solutions
     logging.info(f"{os.getcwd()}")
-    logging.info(
-        f"[*] Loading optimal_objs_dict_{split}_drop_{drop_rate}_townsizes_100_200_perturbations_20_20_iterlimits_16_8.pkl")
-    try:
-        preamble = "."
-        with open(
-                f"{preamble}/dataset/optimal_objs_dict_{split}_drop_{drop_rate}_townsizes_100_200_perturbations_20_20_iterlimits_16_8.pkl",
-                "rb") as f:
-            optimal_objs_dict = pickle.load(f)
-    except:
-        preamble = "/claire-rcp-scratch/home/smmansou/packing/run"
-        with open(
-                f"{preamble}/dataset/optimal_objs_dict_{split}_drop_{drop_rate}_townsizes_100_200_perturbations_20_20_iterlimits_16_8.pkl",
-                "rb") as f:
-            optimal_objs_dict = pickle.load(f)
+    optimal_path = (
+        dataset_dir
+        / f"optimal_objs_dict_{split}_drop_{drop_rate}_townsizes_100_200_perturbations_20_20_iterlimits_16_8.pkl"
+    )
+    logging.info(f"[*] Loading {optimal_path}")
+    with open(optimal_path, "rb") as f:
+        optimal_objs_dict = pickle.load(f)
     logging.info(f"[*] Time taken to load optimal_objs_dict: {time.perf_counter() - t0:.6f}s")
 
     mean_gap_per_problem_size = []
     # print(f"Iter limit map{iter_limit_map}")
     for problem_size in iter_limit_map.keys():
-        positions_path = f"{preamble}/dataset/{split}{problem_size}_positions.npy"
-        dataset = load_dataset(positions_path, drop_rate)
+        positions_path = dataset_dir / f"{split}{problem_size}_positions.npy"
+        dataset = load_dataset(os.fspath(positions_path), drop_rate)
         # print(f"[*] Evaluating {dataset_path}")
 
         objs = []
