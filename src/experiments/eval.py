@@ -10,7 +10,7 @@ os.environ["JAX_PLATFORM_NAME"] = "cpu"  # We can't use GPU with multiprocessing
 os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
-os.environ["WANDB_SILENT"] = "true"
+os.environ["WANDB_SILENT"] = "false"
 
 import wandb
 from pathlib import Path

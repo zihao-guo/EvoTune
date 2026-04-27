@@ -7,10 +7,1994 @@ name = "packing"
 readme = "README.md"
 license = { file = "LICENSE" }
 version = "0.0.1"
-requires-python = ">=3.10"
+requires-python = ">=3.10,<3.11"
+dependencies = [
+    "absl-py==2.4.0",
+    "accelerate==1.13.0",
+    "aiohappyeyeballs==2.6.1",
+    "aiohttp==3.13.5",
+    "aiosignal==1.4.0",
+    "airportsdata==20260315",
+    "annotated-doc==0.0.4",
+    "annotated-types==0.7.0",
+    "anthropic==0.97.0",
+    "antlr4-python3-runtime==4.9.3",
+    "anyio==4.13.0",
+    "apache-tvm-ffi==0.1.9",
+    "argon2-cffi-bindings==25.1.0",
+    "argon2-cffi==25.1.0",
+    "arrow==1.4.0",
+    "astor==0.8.1",
+    "asttokens==3.0.1",
+    "async-lru==2.3.0",
+    "async-timeout==5.0.1",
+    "attrs==26.1.0",
+    "babel==2.18.0",
+    "beautifulsoup4==4.14.3",
+    "bitsandbytes==0.49.2",
+    "blake3==1.0.8",
+    "bleach==6.3.0",
+    "blessed==1.38.0",
+    "cachetools==7.0.6",
+    "cbor2==5.9.0",
+    "certifi==2026.4.22",
+    "cffi==2.0.0",
+    "charset-normalizer==3.4.7",
+    "chex==0.1.90",
+    "click==8.3.3",
+    "cloudpickle==3.1.2",
+    "comm==0.2.3",
+    "compressed-tensors==0.9.3",
+    "contourpy==1.3.2",
+    "cryptography==47.0.0",
+    "cuda-bindings==13.2.0",
+    "cuda-pathfinder==1.5.3",
+    "cuda-python==13.2.0",
+    "cuda-tile==1.3.0",
+    "cuda-toolkit==13.0.2",
+    "cupy-cuda12x==14.0.1",
+    "cycler==0.12.1",
+    "datasets==4.8.5",
+    "debugpy==1.8.20",
+    "decorator==5.2.1",
+    "defusedxml==0.7.1",
+    "Deprecated==1.3.1",
+    "depyf==0.18.0",
+    "dill==0.4.1",
+    "diskcache==5.6.3",
+    "distro==1.9.0",
+    "dm-env==1.6",
+    "dm-tree==0.1.10",
+    "dnspython==2.8.0",
+    "docstring_parser==0.18.0",
+    "editables==0.6",
+    "einops==0.8.2",
+    "elkai==2.0.1",
+    "email-validator==2.3.0",
+    "esquilax==2.1.0",
+    "evaluate==0.4.6",
+    "exceptiongroup==1.3.1",
+    "executing==2.2.1",
+    "Farama-Notifications==0.0.6",
+    "fastapi-cli==0.0.24",
+    "fastapi-cloud-cli==0.17.1",
+    "fastapi==0.136.1",
+    "fastar==0.11.0",
+    "fastjsonschema==2.21.2",
+    "fastsafetensors==0.3",
+    "filelock==3.29.0",
+    "flashinfer-cubin==0.6.8.post1",
+    "flashinfer-python==0.6.8.post1",
+    "fonttools==4.62.1",
+    "fqdn==1.5.1",
+    "frozenlist==1.8.0",
+    "fsspec==2026.3.0",
+    "galois==0.4.10",
+    "gguf==0.18.0",
+    "gitdb==4.0.12",
+    "GitPython==3.1.46",
+    "googleapis-common-protos==1.74.0",
+    "gpustat==1.1.1",
+    "grpcio==1.80.0",
+    "gurobipy==13.0.1",
+    "gymnasium==1.3.0",
+    "h11==0.16.0",
+    "hatchling==1.29.0",
+    "hf-xet==1.4.3",
+    "httpcore==1.0.9",
+    "httptools==0.7.1",
+    "httpx-sse==0.4.3",
+    "httpx==0.28.1",
+    "huggingface_hub==0.36.2",
+    "hydra-core==1.3.2",
+    "idna==3.13",
+    "ijson==3.5.0",
+    "importlib_metadata==8.0.0",
+    "interegular==0.3.3",
+    "ipykernel==7.2.0",
+    "ipython==8.39.0",
+    "ipywidgets==8.1.8",
+    "isoduration==20.11.0",
+    "jax-tqdm==0.4.0",
+    "jax==0.6.2",
+    "jaxlib==0.6.2",
+    "jedi==0.19.2",
+    "Jinja2==3.1.6",
+    "jiter==0.14.0",
+    "jmespath==1.1.0",
+    "joblib==1.5.3",
+    "json5==0.13.0",
+    "jsonpointer==3.0.0",
+    "jsonschema-specifications==2025.9.1",
+    "jsonschema==4.26.0",
+    "jumanji==1.1.1",
+    "jupyter-console==6.6.3",
+    "jupyter-events==0.12.0",
+    "jupyter-lsp==2.3.0",
+    "jupyter==1.1.1",
+    "jupyter_client==8.8.0",
+    "jupyter_core==5.9.1",
+    "jupyter_server==2.17.0",
+    "jupyter_server_terminals==0.5.4",
+    "jupyterlab==4.5.6",
+    "jupyterlab_pygments==0.3.0",
+    "jupyterlab_server==2.28.0",
+    "jupyterlab_widgets==3.0.16",
+    "kiwisolver==1.5.0",
+    "lark==1.2.2",
+    "llguidance==0.7.30",
+    "llvmlite==0.44.0",
+    "lm-format-enforcer==0.10.12",
+    "loguru==0.7.3",
+    "markdown-it-py==4.0.0",
+    "Markdown==3.10.2",
+    "MarkupSafe==3.0.3",
+    "matplotlib-inline==0.2.1",
+    "matplotlib==3.10.9",
+    "mcp==1.27.0",
+    "mdurl==0.1.2",
+    "mistral_common==1.11.0",
+    "mistune==3.2.0",
+    "ml_dtypes==0.5.4",
+    "model-hosting-container-standards==0.1.14",
+    "more-itertools==11.0.2",
+    "mpmath==1.3.0",
+    "msgpack==1.1.2",
+    "msgspec==0.21.1",
+    "multidict==6.7.1",
+    "multiprocess==0.70.19",
+    "nbclient==0.10.4",
+    "nbconvert==7.17.0",
+    "nbformat==5.10.4",
+    "nest-asyncio==1.6.0",
+    "networkx==3.4.2",
+    "ninja==1.13.0",
+    "notebook==7.5.5",
+    "notebook_shim==0.2.4",
+    "numba==0.61.2",
+    "numpy==1.26.4",
+    "nvidia-cublas-cu12==12.4.5.8",
+    "nvidia-cublas==13.1.0.3",
+    "nvidia-cuda-cupti-cu12==12.4.127",
+    "nvidia-cuda-cupti==13.0.85",
+    "nvidia-cuda-nvrtc-cu12==12.4.127",
+    "nvidia-cuda-nvrtc==13.0.88",
+    "nvidia-cuda-runtime-cu12==12.4.127",
+    "nvidia-cuda-runtime==13.0.96",
+    "nvidia-cudnn-cu12==9.1.0.70",
+    "nvidia-cudnn-cu13==9.19.0.56",
+    "nvidia-cudnn-frontend==1.18.0",
+    "nvidia-cufft-cu12==11.2.1.3",
+    "nvidia-cufft==12.0.0.61",
+    "nvidia-cufile==1.15.1.6",
+    "nvidia-curand-cu12==10.3.5.147",
+    "nvidia-curand==10.4.0.35",
+    "nvidia-cusolver-cu12==11.6.1.9",
+    "nvidia-cusolver==12.0.4.66",
+    "nvidia-cusparse-cu12==12.3.1.170",
+    "nvidia-cusparse==12.6.3.3",
+    "nvidia-cusparselt-cu12==0.6.2",
+    "nvidia-cusparselt-cu13==0.8.0",
+    "nvidia-cutlass-dsl-libs-base==4.4.2",
+    "nvidia-cutlass-dsl==4.4.2",
+    "nvidia-ml-py==13.590.48",
+    "nvidia-nccl-cu12==2.21.5",
+    "nvidia-nccl-cu13==2.28.9",
+    "nvidia-nvjitlink-cu12==12.4.127",
+    "nvidia-nvjitlink==13.0.88",
+    "nvidia-nvshmem-cu13==3.4.5",
+    "nvidia-nvtx-cu12==12.4.127",
+    "nvidia-nvtx==13.0.85",
+    "nvitop==1.6.2",
+    "omegaconf==2.3.0",
+    "openai-harmony==0.0.8",
+    "openai==2.32.0",
+    "opencv-python-headless==4.13.0.92",
+    "opencv-python==4.13.0.92",
+    "opentelemetry-api==1.26.0",
+    "opentelemetry-exporter-otlp-proto-common==1.26.0",
+    "opentelemetry-exporter-otlp-proto-grpc==1.26.0",
+    "opentelemetry-exporter-otlp-proto-http==1.26.0",
+    "opentelemetry-exporter-otlp==1.26.0",
+    "opentelemetry-proto==1.26.0",
+    "opentelemetry-sdk==1.26.0",
+    "opentelemetry-semantic-conventions-ai==0.4.13",
+    "opentelemetry-semantic-conventions==0.47b0",
+    "opt_einsum==3.4.0",
+    "outlines==0.1.11",
+    "outlines_core==0.1.26",
+    "overrides==7.7.0",
+    "packaging==26.0",
+    "pandas==2.3.3",
+    "pandocfilters==1.5.1",
+    "parso==0.8.6",
+    "partial-json-parser==0.2.1.1.post7",
+    "pathspec==1.1.1",
+    "peft==0.19.1",
+    "pexpect==4.9.0",
+    "pillow==12.2.0",
+    "platformdirs==4.9.4",
+    "pluggy==1.6.0",
+    "prometheus-fastapi-instrumentator==7.1.0",
+    "prometheus_client==0.25.0",
+    "prompt_toolkit==3.0.52",
+    "propcache==0.4.1",
+    "protobuf==4.25.9",
+    "psutil==7.2.2",
+    "ptyprocess==0.7.0",
+    "pure_eval==0.2.3",
+    "py-cpuinfo==9.0.0",
+    "pyarrow==24.0.0",
+    "pybase64==1.4.3",
+    "pycountry==26.2.16",
+    "pycparser==3.0",
+    "pydantic-extra-types==2.11.1",
+    "pydantic-settings==2.14.0",
+    "pydantic==2.13.3",
+    "pydantic_core==2.46.3",
+    "Pygments==2.20.0",
+    "PyJWT==2.12.1",
+    "pyparsing==3.3.2",
+    "python-dateutil==2.9.0.post0",
+    "python-dotenv==1.2.2",
+    "python-json-logger==4.1.0",
+    "python-multipart==0.0.27",
+    "pytz==2026.1.post1",
+    "PyYAML==6.0.3",
+    "pyzmq==27.1.0",
+    "quack-kernels==0.4.0",
+    "ray==2.55.1",
+    "referencing==0.37.0",
+    "regex==2026.4.4",
+    "requests==2.33.1",
+    "rfc3339-validator==0.1.4",
+    "rfc3986-validator==0.1.1",
+    "rfc3987-syntax==1.1.0",
+    "rich-toolkit==0.19.7",
+    "rich==15.0.0",
+    "rignore==0.7.6",
+    "rpds-py==0.30.0",
+    "safetensors==0.7.0",
+    "scikit-learn==1.7.2",
+    "scipy==1.15.3",
+    "Send2Trash==2.1.0",
+    "sentencepiece==0.2.1",
+    "sentry-sdk==2.58.0",
+    "setproctitle==1.3.7",
+    "shellingham==1.5.4",
+    "six==1.17.0",
+    "smmap==5.0.3",
+    "sniffio==1.3.1",
+    "soupsieve==2.8.3",
+    "sse-starlette==3.4.1",
+    "stack-data==0.6.3",
+    "starlette==0.52.1",
+    "supervisor==4.3.0",
+    "sympy==1.13.1",
+    "tabulate==0.10.0",
+    "tensorboard-data-server==0.7.2",
+    "tensorboard==2.20.0",
+    "terminado==0.18.1",
+    "threadpoolctl==3.6.0",
+    "tiktoken==0.12.0",
+    "tilelang==0.1.9",
+    "timm==1.0.26",
+    "tinycss2==1.4.0",
+    "tokenizers==0.21.4",
+    "tomli==2.4.1",
+    "toolz==1.1.0",
+    "torch==2.6.0",
+    "torch_c_dlpack_ext==0.1.5",
+    "torchaudio==2.6.0",
+    "torchvision==0.21.0",
+    "tornado==6.5.5",
+    "tqdm==4.67.3",
+    "traitlets==5.14.3",
+    "transformers==4.51.3",
+    "triton==3.2.0",
+    "trl==0.18.2",
+    "trove-classifiers==2026.1.14.14",
+    "typer==0.25.0",
+    "typing-inspection==0.4.2",
+    "typing_extensions==4.15.0",
+    "tzdata==2025.3",
+    "uri-template==1.3.0",
+    "urllib3==2.6.3",
+    "uvicorn==0.46.0",
+    "uvloop==0.22.1",
+    "vllm==0.8.5.post1",
+    "wandb==0.25.1",
+    "watchfiles==1.1.1",
+    "wcwidth==0.6.0",
+    "webcolors==25.10.0",
+    "webencodings==0.5.1",
+    "websocket-client==1.9.0",
+    "websockets==16.0",
+    "Werkzeug==3.1.8",
+    "widgetsnbextension==4.0.15",
+    "wrapt==2.1.2",
+    "xformers==0.0.29.post2",
+    "xgrammar==0.1.18",
+    "xxhash==3.7.0",
+    "yarl==1.23.0",
+    "z3-solver==4.15.4.0",
+    "zipp==3.23.1",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/packing"]
 
+[tool.uv]
+package = true
+
+[[tool.uv.dependency-metadata]]
+name = "absl-py"
+version = "2.4.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "accelerate"
+version = "1.13.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "aiohappyeyeballs"
+version = "2.6.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "aiohttp"
+version = "3.13.5"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "aiosignal"
+version = "1.4.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "airportsdata"
+version = "20260315"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "annotated-doc"
+version = "0.0.4"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "annotated-types"
+version = "0.7.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "anthropic"
+version = "0.97.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "antlr4-python3-runtime"
+version = "4.9.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "anyio"
+version = "4.13.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "apache-tvm-ffi"
+version = "0.1.9"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "argon2-cffi-bindings"
+version = "25.1.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "argon2-cffi"
+version = "25.1.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "arrow"
+version = "1.4.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "astor"
+version = "0.8.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "asttokens"
+version = "3.0.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "async-lru"
+version = "2.3.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "async-timeout"
+version = "5.0.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "attrs"
+version = "26.1.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "babel"
+version = "2.18.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "beautifulsoup4"
+version = "4.14.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "bitsandbytes"
+version = "0.49.2"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "blake3"
+version = "1.0.8"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "bleach"
+version = "6.3.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "blessed"
+version = "1.38.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "cachetools"
+version = "7.0.6"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "cbor2"
+version = "5.9.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "certifi"
+version = "2026.4.22"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "cffi"
+version = "2.0.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "charset-normalizer"
+version = "3.4.7"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "chex"
+version = "0.1.90"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "click"
+version = "8.3.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "cloudpickle"
+version = "3.1.2"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "comm"
+version = "0.2.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "compressed-tensors"
+version = "0.9.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "contourpy"
+version = "1.3.2"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "cryptography"
+version = "47.0.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "cuda-bindings"
+version = "13.2.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "cuda-pathfinder"
+version = "1.5.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "cuda-python"
+version = "13.2.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "cuda-tile"
+version = "1.3.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "cuda-toolkit"
+version = "13.0.2"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "cupy-cuda12x"
+version = "14.0.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "cycler"
+version = "0.12.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "datasets"
+version = "4.8.5"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "debugpy"
+version = "1.8.20"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "decorator"
+version = "5.2.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "defusedxml"
+version = "0.7.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "Deprecated"
+version = "1.3.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "depyf"
+version = "0.18.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "dill"
+version = "0.4.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "diskcache"
+version = "5.6.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "distro"
+version = "1.9.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "dm-env"
+version = "1.6"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "dm-tree"
+version = "0.1.10"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "dnspython"
+version = "2.8.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "docstring_parser"
+version = "0.18.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "editables"
+version = "0.6"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "einops"
+version = "0.8.2"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "elkai"
+version = "2.0.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "email-validator"
+version = "2.3.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "esquilax"
+version = "2.1.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "evaluate"
+version = "0.4.6"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "exceptiongroup"
+version = "1.3.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "executing"
+version = "2.2.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "Farama-Notifications"
+version = "0.0.6"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "fastapi-cli"
+version = "0.0.24"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "fastapi-cloud-cli"
+version = "0.17.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "fastapi"
+version = "0.136.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "fastar"
+version = "0.11.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "fastjsonschema"
+version = "2.21.2"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "fastsafetensors"
+version = "0.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "filelock"
+version = "3.29.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "flashinfer-cubin"
+version = "0.6.8.post1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "flashinfer-python"
+version = "0.6.8.post1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "fonttools"
+version = "4.62.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "fqdn"
+version = "1.5.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "frozenlist"
+version = "1.8.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "fsspec"
+version = "2026.3.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "galois"
+version = "0.4.10"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "gguf"
+version = "0.18.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "gitdb"
+version = "4.0.12"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "GitPython"
+version = "3.1.46"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "googleapis-common-protos"
+version = "1.74.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "gpustat"
+version = "1.1.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "grpcio"
+version = "1.80.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "gurobipy"
+version = "13.0.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "gymnasium"
+version = "1.3.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "h11"
+version = "0.16.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "hatchling"
+version = "1.29.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "hf-xet"
+version = "1.4.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "httpcore"
+version = "1.0.9"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "httptools"
+version = "0.7.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "httpx-sse"
+version = "0.4.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "httpx"
+version = "0.28.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "huggingface_hub"
+version = "0.36.2"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "hydra-core"
+version = "1.3.2"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "idna"
+version = "3.13"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "ijson"
+version = "3.5.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "importlib_metadata"
+version = "8.0.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "interegular"
+version = "0.3.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "ipykernel"
+version = "7.2.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "ipython"
+version = "8.39.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "ipywidgets"
+version = "8.1.8"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "isoduration"
+version = "20.11.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "jax-tqdm"
+version = "0.4.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "jax"
+version = "0.6.2"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "jaxlib"
+version = "0.6.2"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "jedi"
+version = "0.19.2"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "Jinja2"
+version = "3.1.6"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "jiter"
+version = "0.14.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "jmespath"
+version = "1.1.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "joblib"
+version = "1.5.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "json5"
+version = "0.13.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "jsonpointer"
+version = "3.0.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "jsonschema-specifications"
+version = "2025.9.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "jsonschema"
+version = "4.26.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "jumanji"
+version = "1.1.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "jupyter-console"
+version = "6.6.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "jupyter-events"
+version = "0.12.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "jupyter-lsp"
+version = "2.3.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "jupyter"
+version = "1.1.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "jupyter_client"
+version = "8.8.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "jupyter_core"
+version = "5.9.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "jupyter_server"
+version = "2.17.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "jupyter_server_terminals"
+version = "0.5.4"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "jupyterlab"
+version = "4.5.6"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "jupyterlab_pygments"
+version = "0.3.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "jupyterlab_server"
+version = "2.28.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "jupyterlab_widgets"
+version = "3.0.16"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "kiwisolver"
+version = "1.5.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "lark"
+version = "1.2.2"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "llguidance"
+version = "0.7.30"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "llvmlite"
+version = "0.44.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "lm-format-enforcer"
+version = "0.10.12"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "loguru"
+version = "0.7.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "markdown-it-py"
+version = "4.0.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "Markdown"
+version = "3.10.2"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "MarkupSafe"
+version = "3.0.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "matplotlib-inline"
+version = "0.2.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "matplotlib"
+version = "3.10.9"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "mcp"
+version = "1.27.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "mdurl"
+version = "0.1.2"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "mistral_common"
+version = "1.11.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "mistune"
+version = "3.2.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "ml_dtypes"
+version = "0.5.4"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "model-hosting-container-standards"
+version = "0.1.14"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "more-itertools"
+version = "11.0.2"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "mpmath"
+version = "1.3.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "msgpack"
+version = "1.1.2"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "msgspec"
+version = "0.21.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "multidict"
+version = "6.7.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "multiprocess"
+version = "0.70.19"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nbclient"
+version = "0.10.4"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nbconvert"
+version = "7.17.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nbformat"
+version = "5.10.4"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nest-asyncio"
+version = "1.6.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "networkx"
+version = "3.4.2"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "ninja"
+version = "1.13.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "notebook"
+version = "7.5.5"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "notebook_shim"
+version = "0.2.4"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "numba"
+version = "0.61.2"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "numpy"
+version = "1.26.4"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvidia-cublas-cu12"
+version = "12.4.5.8"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvidia-cublas"
+version = "13.1.0.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvidia-cuda-cupti-cu12"
+version = "12.4.127"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvidia-cuda-cupti"
+version = "13.0.85"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvidia-cuda-nvrtc-cu12"
+version = "12.4.127"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvidia-cuda-nvrtc"
+version = "13.0.88"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvidia-cuda-runtime-cu12"
+version = "12.4.127"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvidia-cuda-runtime"
+version = "13.0.96"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvidia-cudnn-cu12"
+version = "9.1.0.70"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvidia-cudnn-cu13"
+version = "9.19.0.56"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvidia-cudnn-frontend"
+version = "1.18.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvidia-cufft-cu12"
+version = "11.2.1.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvidia-cufft"
+version = "12.0.0.61"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvidia-cufile"
+version = "1.15.1.6"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvidia-curand-cu12"
+version = "10.3.5.147"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvidia-curand"
+version = "10.4.0.35"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvidia-cusolver-cu12"
+version = "11.6.1.9"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvidia-cusolver"
+version = "12.0.4.66"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvidia-cusparse-cu12"
+version = "12.3.1.170"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvidia-cusparse"
+version = "12.6.3.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvidia-cusparselt-cu12"
+version = "0.6.2"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvidia-cusparselt-cu13"
+version = "0.8.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvidia-cutlass-dsl-libs-base"
+version = "4.4.2"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvidia-cutlass-dsl"
+version = "4.4.2"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvidia-ml-py"
+version = "13.590.48"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvidia-nccl-cu12"
+version = "2.21.5"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvidia-nccl-cu13"
+version = "2.28.9"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvidia-nvjitlink-cu12"
+version = "12.4.127"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvidia-nvjitlink"
+version = "13.0.88"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvidia-nvshmem-cu13"
+version = "3.4.5"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvidia-nvtx-cu12"
+version = "12.4.127"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvidia-nvtx"
+version = "13.0.85"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "nvitop"
+version = "1.6.2"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "omegaconf"
+version = "2.3.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "openai-harmony"
+version = "0.0.8"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "openai"
+version = "2.32.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "opencv-python-headless"
+version = "4.13.0.92"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "opencv-python"
+version = "4.13.0.92"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "opentelemetry-api"
+version = "1.26.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "opentelemetry-exporter-otlp-proto-common"
+version = "1.26.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "opentelemetry-exporter-otlp-proto-grpc"
+version = "1.26.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "opentelemetry-exporter-otlp-proto-http"
+version = "1.26.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "opentelemetry-exporter-otlp"
+version = "1.26.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "opentelemetry-proto"
+version = "1.26.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "opentelemetry-sdk"
+version = "1.26.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "opentelemetry-semantic-conventions-ai"
+version = "0.4.13"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "opentelemetry-semantic-conventions"
+version = "0.47b0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "opt_einsum"
+version = "3.4.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "outlines"
+version = "0.1.11"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "outlines_core"
+version = "0.1.26"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "overrides"
+version = "7.7.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "packaging"
+version = "26.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "pandas"
+version = "2.3.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "pandocfilters"
+version = "1.5.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "parso"
+version = "0.8.6"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "partial-json-parser"
+version = "0.2.1.1.post7"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "pathspec"
+version = "1.1.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "peft"
+version = "0.19.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "pexpect"
+version = "4.9.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "pillow"
+version = "12.2.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "platformdirs"
+version = "4.9.4"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "pluggy"
+version = "1.6.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "prometheus-fastapi-instrumentator"
+version = "7.1.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "prometheus_client"
+version = "0.25.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "prompt_toolkit"
+version = "3.0.52"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "propcache"
+version = "0.4.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "protobuf"
+version = "4.25.9"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "psutil"
+version = "7.2.2"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "ptyprocess"
+version = "0.7.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "pure_eval"
+version = "0.2.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "py-cpuinfo"
+version = "9.0.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "pyarrow"
+version = "24.0.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "pybase64"
+version = "1.4.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "pycountry"
+version = "26.2.16"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "pycparser"
+version = "3.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "pydantic-extra-types"
+version = "2.11.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "pydantic-settings"
+version = "2.14.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "pydantic"
+version = "2.13.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "pydantic_core"
+version = "2.46.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "Pygments"
+version = "2.20.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "PyJWT"
+version = "2.12.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "pyparsing"
+version = "3.3.2"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "python-dateutil"
+version = "2.9.0.post0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "python-dotenv"
+version = "1.2.2"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "python-json-logger"
+version = "4.1.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "python-multipart"
+version = "0.0.27"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "pytz"
+version = "2026.1.post1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "PyYAML"
+version = "6.0.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "pyzmq"
+version = "27.1.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "quack-kernels"
+version = "0.4.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "ray"
+version = "2.55.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "referencing"
+version = "0.37.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "regex"
+version = "2026.4.4"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "requests"
+version = "2.33.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "rfc3339-validator"
+version = "0.1.4"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "rfc3986-validator"
+version = "0.1.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "rfc3987-syntax"
+version = "1.1.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "rich-toolkit"
+version = "0.19.7"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "rich"
+version = "15.0.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "rignore"
+version = "0.7.6"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "rpds-py"
+version = "0.30.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "safetensors"
+version = "0.7.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "scikit-learn"
+version = "1.7.2"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "scipy"
+version = "1.15.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "Send2Trash"
+version = "2.1.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "sentencepiece"
+version = "0.2.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "sentry-sdk"
+version = "2.58.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "setproctitle"
+version = "1.3.7"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "shellingham"
+version = "1.5.4"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "six"
+version = "1.17.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "smmap"
+version = "5.0.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "sniffio"
+version = "1.3.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "soupsieve"
+version = "2.8.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "sse-starlette"
+version = "3.4.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "stack-data"
+version = "0.6.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "starlette"
+version = "0.52.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "supervisor"
+version = "4.3.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "sympy"
+version = "1.13.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "tabulate"
+version = "0.10.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "tensorboard-data-server"
+version = "0.7.2"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "tensorboard"
+version = "2.20.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "terminado"
+version = "0.18.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "threadpoolctl"
+version = "3.6.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "tiktoken"
+version = "0.12.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "tilelang"
+version = "0.1.9"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "timm"
+version = "1.0.26"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "tinycss2"
+version = "1.4.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "tokenizers"
+version = "0.21.4"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "tomli"
+version = "2.4.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "toolz"
+version = "1.1.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "torch"
+version = "2.6.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "torch_c_dlpack_ext"
+version = "0.1.5"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "torchaudio"
+version = "2.6.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "torchvision"
+version = "0.21.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "tornado"
+version = "6.5.5"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "tqdm"
+version = "4.67.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "traitlets"
+version = "5.14.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "transformers"
+version = "4.51.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "triton"
+version = "3.2.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "trl"
+version = "0.18.2"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "trove-classifiers"
+version = "2026.1.14.14"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "typer"
+version = "0.25.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "typing-inspection"
+version = "0.4.2"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "typing_extensions"
+version = "4.15.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "tzdata"
+version = "2025.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "uri-template"
+version = "1.3.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "urllib3"
+version = "2.6.3"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "uvicorn"
+version = "0.46.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "uvloop"
+version = "0.22.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "vllm"
+version = "0.8.5.post1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "wandb"
+version = "0.25.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "watchfiles"
+version = "1.1.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "wcwidth"
+version = "0.6.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "webcolors"
+version = "25.10.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "webencodings"
+version = "0.5.1"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "websocket-client"
+version = "1.9.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "websockets"
+version = "16.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "Werkzeug"
+version = "3.1.8"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "widgetsnbextension"
+version = "4.0.15"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "wrapt"
+version = "2.1.2"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "xformers"
+version = "0.0.29.post2"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "xgrammar"
+version = "0.1.18"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "xxhash"
+version = "3.7.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "yarl"
+version = "1.23.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "z3-solver"
+version = "4.15.4.0"
+requires-dist = []
+
+[[tool.uv.dependency-metadata]]
+name = "zipp"
+version = "3.23.1"
+requires-dist = []
 [tool.isort]
 known_third_party = ["wandb"]

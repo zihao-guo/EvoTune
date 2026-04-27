@@ -1,133 +1,103 @@
-# Algorithm Discovery With LLMs: Evolutionary Search Meets Reinforcement Learning
+# EvoTune TSP 运行说明
 
-<!-- ![Method Image](./data/readme/method-fig.png) -->
+本文记录在 `evotune` miniconda 环境中，使用本地模型
+`/home/zguo/Coding/evohgs/utils/model/Qwen2.5-7B-Instruct` 跑 TSP 默认配置的方法。
 
-[![Paper](https://img.shields.io/badge/Paper-arXiv%20preprint-b31b1b.svg)](https://arxiv.org/abs/2504.05108)
-[![License](https://img.shields.io/github/license/CLAIRE-Labo/EvoTune)](./LICENSE)
+## 进入环境
 
-
-
-
-## Overview
-
-**EvoTune** is a framework for discovering new algorithms by combining:
-
-1. Evolutionary search over LLM-generated Python programs, and
-2. Reinforcement Learning to fine-tune the search operator - the LLM - based on performance scores of discovered algorithms .
-
-
-
-## Repo Structure
-
-The core codebase lives under ```src/``` and is organized as follows:
-
-```plaintext
-
-evotune/
-├── configs/                  # Hydra-based config system
-│   ├── accelerate_config/    # Accelerate configs
-│   ├── cluster/              # SLURM / cluster overrides
-│   ├── model/                # Model-specific settings
-│   ├── sweep/                # Sweep configuration files
-│   ├── task/                 # Per-task configs (e.g., bin, tsp, etc.)
-│   ├── train/                # Training configuration
-│   └── config.yaml           # Default config
-├── data/                     # TSP and flatpack datasets
-├── installation/             # Dockerfiles for various hardware
-├── scripts/                  # Example launch scripts for sweeps
-│   ├── run_eval_sweep_example.sh
-│   └── run_train_sweep_example.sh
-├── src/
-|   ├── packing/              # Core EvoTune framework
-|   │   ├── evaluate/         # Task-specific logic (registered via registry)
-|   │   │   ├── bin_packing/
-|   │   │   ├── flat_pack/
-|   │   │   ├── tsp/
-|   │   │   ├── registry.py   # Task registry
-|   │   │   └── README.md     # How to add new tasks
-|   │   ├── funsearch/        # Program database implementation
-|   │   ├── logging/          # Logging, statistics, and function tracking
-|   │   ├── model/            # Prompting, LLM I/O, inference engine setup
-|   │   ├── parallel/         # Multiprocessing producers & consumers
-|   │   ├── train/            # DPO pipelines for fine-tuning LLMs
-|   │   └── utils/            # Seeding, function helpers, etc.
-|   └──  experiments/         # Scripts for specific experiments (train / eval)
-├── pyproject.toml
-└── LICENSE
+```bash
+cd /home/zguo/Coding/baseline/EvoTune
+conda activate evotune
 ```
 
+## 从头开始运行 TSP
 
+使用默认配置、TSP 任务、Qwen2.5-7B-Instruct 模型：
 
-## Setup & Dependencies
-
-To create the Python environment for running experiments, use one of the provided **Dockerfiles** that matches your machine architecture and desired inference backend:
-
-```plaintext
-installation/
-├── docker-amd64-cuda-tgi/   # For x86_64 machines using TGI
-├── docker-amd64-cuda-vllm/  # For x86_64 machines using vLLM
-└── docker-arm64-cuda/       # For ARM64 machines using vLLM
+```bash
+python src/experiments/main.py task=tsp model=qwen25
 ```
 
-> Most experiments for the paper were run using **A100 GPUs (80GB)**.
+当前默认日志目录由配置自动生成：
 
-
-## How to Run the Code
-
-### Single Runs
-
-The two main entry points are located in:
-
-```plaintext
-src/experiments/
-├── main.py   # For running training with evolution + finetuning
-├── eval.py   # For evaluating saved programbanks
+```text
+out/logs/example/tsp_tsp_qwen25_dpo_0
 ```
 
-### Sweep Runs
+W&B 默认已开启：
 
-We provide example sweep scripts in the ```scripts/``` folder:
-
-```plaintext
-scripts/
-├── run_eval_sweep_example.sh
-├── run_train_sweep_example.sh
+```yaml
+wandb: 1
+project: evotune_TSP
+entity: zeio99guo-institut-polytechnique-de-paris
 ```
 
-These are designed to be used with job schedulers like SLURM or RunAI. To use them:
+## 后台运行
 
-1. Fill in the ```# TODO``` block in each script with your cluster submission logic.
-2. Configure the sweep/grid settings in the appropriate ```configs/sweep/``` and ```configs/cluster/``` YAML files.
-3. Launch your sweep using the modified script.
-
-> You can also run sweeps locally by adapting these scripts, just remove the SLURM logic.
-
-### Notes 
-As the project evolved, so did the code. We are open-sourcing the latest version as it is easier to work with after a round of refactoring and other minor updates (for example, improved extraction of functions from LLM outputs). These changes may introduce small discrepancies in the results. In the paper, the bin packing and traveling salesman problem results were generated with the TGI inference engine, whereas the Flatpack, Hash Code, and LLM-SR experiments used vLLM. We added vLLM support to simplify running the code on clusters with ARM64 architecture.
-
-
-## Adding a New Task
-
-To add your own task:
-
-👉 Navigate to:
-
-```src/packing/evaluate/README.md```
-
-You’ll find instructions for implementing and registering a new task with following components:
-
-- ```generate_input```
-- ```evaluate_func```
-- ```get_initial_func```
-- ```system_prompt``` / ```append_prompt```
-
-
-### Citation
-```bibtex
-@inproceedings{surina2025algorithm,
-title={Algorithm Discovery With LLMs: Evolutionary Search Meets Reinforcement Learning},
-author={Anja Surina and Amin Mansouri and Lars C.P.M. Quaedvlieg and Amal Seddas and Maryna Viazovska and Emmanuel Abbe and Caglar Gulcehre},
-booktitle={Second Conference on Language Modeling},
-year={2025},
-}
+```bash
+mkdir -p out
+setsid env PATH=/home/zguo/miniconda/envs/evotune/bin:$PATH \
+  PYTHONUNBUFFERED=1 VLLM_USE_V1=0 \
+  /home/zguo/miniconda/envs/evotune/bin/python src/experiments/main.py task=tsp model=qwen25 \
+  > out/run_tsp_qwen25_default.log 2>&1 < /dev/null &
+echo $! > out/run_tsp_qwen25_default.pid
 ```
+
+查看后台日志：
+
+```bash
+tail -f out/run_tsp_qwen25_default.log
+```
+
+停止后台运行：
+
+```bash
+kill "$(cat out/run_tsp_qwen25_default.pid)"
+```
+
+## Resume 指定日志目录
+
+要 resume 这个目录：
+
+```text
+/home/zguo/Coding/baseline/EvoTune/out/logs/example/tsp_tsp_qwen25_dpo_0
+```
+
+直接使用同一组 `task/model/prefix/seed` 参数重新运行即可：
+
+```bash
+python src/experiments/main.py task=tsp model=qwen25 prefix=example seed=0
+```
+
+这条命令会重新解析到同一个日志目录：
+
+```text
+out/logs/example/tsp_tsp_qwen25_dpo_0
+```
+
+代码只有在该目录下存在 `flag_resume.txt` 时才会 resume。如果日志里看到：
+
+```text
+Resuming from logs directory
+```
+
+说明确实在 resume。如果看到：
+
+```text
+Starting from scratch
+```
+
+说明没有进入 resume。
+
+可以先检查 resume 所需文件：
+
+```bash
+ls out/logs/example/tsp_tsp_qwen25_dpo_0/flag_resume.txt
+ls out/logs/example/tsp_tsp_qwen25_dpo_0/running_dict.pkl
+ls out/logs/example/tsp_tsp_qwen25_dpo_0/programbank.pkl
+ls out/logs/example/tsp_tsp_qwen25_dpo_0/dpo_chats.pkl
+ls out/logs/example/tsp_tsp_qwen25_dpo_0/round_num.txt
+ls out/logs/example/tsp_tsp_qwen25_dpo_0/input_struct.pkl
+```
+
+如果这些文件还没有生成，说明上一次运行还没有到达保存点，不能从该目录 resume。

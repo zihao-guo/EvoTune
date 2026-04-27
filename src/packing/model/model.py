@@ -42,6 +42,10 @@ def get_full_model_name(cfg):
             model_id = "meta-llama/Llama-3.2-1B-Instruct"
         elif name == "phi":
             model_id = "microsoft/Phi-3.5-mini-instruct"
+        elif name == "qwen25":
+            model_id = "/home/zguo/Coding/evohgs/utils/model/Qwen2.5-7B-Instruct"
+        elif os.path.exists(os.path.expanduser(name)):
+            model_id = os.path.expanduser(name)
         else:
             raise ValueError(f"Invalid model name: {name}")
         return model_id
@@ -525,7 +529,7 @@ def initialize_models_server(cfg, load_finetuned, use_vllm=False):
 
         server_pids = []
         model_ids = []
-        ports = [8080 + i for i in range(len(cfg.model.model_name))]
+        ports = _get_available_ports(8080, len(cfg.model.model_name))
 
         for full_model_name, gpu_num, model_adapter_dir, port in zip(
                 cfg.full_model_name, cfg.gpu_nums, cfg.model_adapter_dir, ports
@@ -551,7 +555,7 @@ def initialize_models_server(cfg, load_finetuned, use_vllm=False):
                 f"Cuda memory allocated: {torch.cuda.memory_allocated() // 1024 // 1024}MB"
             )
     else:
-        ports = [8080 + cfg.gpu_nums]  # Hacky but this will make sure we have unique server ports for each model
+        ports = _get_available_ports(8080 + cfg.gpu_nums, 1)
         model_id = cfg.full_model_name if not load_finetuned else cfg.model_adapter_dir
 
         if not use_vllm:
@@ -576,6 +580,23 @@ def initialize_models_server(cfg, load_finetuned, use_vllm=False):
     return server_pids, ports
 
 
+def _get_available_ports(start_port, count):
+    ports = []
+    port = start_port
+    while len(ports) < count:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            try:
+                sock.bind(("localhost", port))
+            except OSError:
+                logging.info(f"Port {port} is unavailable, trying {port + 1}")
+                port += 1
+                continue
+        ports.append(port)
+        port += 1
+    return ports
+
+
 def start_tgi_server(model_id, gpu_num, port):
     env_vars = os.environ.copy()
     env_vars["CUDA_VISIBLE_DEVICES"] = str(gpu_num)
@@ -596,6 +617,8 @@ def start_vllm_server(model_id, gpu_num, port):
     env_vars = os.environ.copy()
     # Limit the server process to the specified GPU
     env_vars["CUDA_VISIBLE_DEVICES"] = str(gpu_num)
+    # vLLM V1 pulls in flashinfer paths that are ABI-sensitive on this host.
+    env_vars.setdefault("VLLM_USE_V1", "0")
 
     logging.info(f"Starting vLLM server for model {model_id} on GPU {gpu_num} at port {port}")
 

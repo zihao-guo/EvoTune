@@ -66,8 +66,9 @@ logs_path: .
 logs_dir: out/logs/${prefix}/${task.task_name}_${run_identifier_name}_${seed}
 
 # Wandb settings
-project: "project_name"
-entity: project_entity
+wandb: 1
+project: "evotune_TSP"
+entity: "zeio99guo-institut-polytechnique-de-paris"
 
 # Other settings
 seed: 0
