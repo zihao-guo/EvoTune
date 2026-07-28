@@ -38,13 +38,15 @@ class DPODataBuffer:
 
         pairs = []
 
-        wandb.log(
-            {"dpodata/passed_chats": len(passed_chats), "dpodata/failed_chats": len(failed_chats)}
-        )
+        if cfg.wandb:
+            wandb.log(
+                {"dpodata/passed_chats": len(passed_chats), "dpodata/failed_chats": len(failed_chats)}
+            )
 
         if passed_chats:
             unique_scores = set(passed_scores)
-            wandb.log({"dpodata/unique_passed_scores": len(unique_scores)})
+            if cfg.wandb:
+                wandb.log({"dpodata/unique_passed_scores": len(unique_scores)})
             chat_ranking = sorted(
                 zip(passed_chats, passed_scores), key=lambda x: x[1], reverse=True
             )
