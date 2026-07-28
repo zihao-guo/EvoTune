@@ -1,0 +1,20 @@
+# heavy / secret-bearing artifacts — NEVER track
+/utils/model/
+/utils/data/Operator/
+**/wandb_run.json
+wandb/
+
+# build artifacts
+/pyvrp_rep/build*/
+*.so
+*.o
+*.a
+__pycache__/
+*.py[cod]
+
+# runtime sandboxes & outputs
+/scratch/
+/out/
+/outputs/
+/multirun/
+flag_resume.txt
