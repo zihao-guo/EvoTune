@@ -1,0 +1,7 @@
+model_name: "Qwen3-14B-Instruct"
+temperature: 0.8
+topk: 20
+topp: 0.9
+max_tokens: 6144
+chat_template_kwargs: {enable_thinking: false}
+vllm_extra_args: ["--max-model-len", "16384", "--gpu-memory-utilization", "0.90", "--max-num-seqs", "8", "--enable-prefix-caching"]

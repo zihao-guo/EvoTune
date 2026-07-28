@@ -1,0 +1,7 @@
+model_name: "Qwen3-0.6B"
+temperature: 0.8
+topk: 20
+topp: 0.9
+max_tokens: 4096
+chat_template_kwargs: {enable_thinking: false}
+vllm_extra_args: ["--max-model-len", "16384", "--gpu-memory-utilization", "0.35"]

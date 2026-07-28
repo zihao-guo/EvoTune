@@ -6,13 +6,15 @@ class TaskRegistry:
         self.is_initialized = False
         self._registry = {}
 
-    def register(self, name, generate_input, evaluate_func, get_initial_func, system_prompt, append_prompt):
+    def register(self, name, generate_input, evaluate_func, get_initial_func, system_prompt, append_prompt,
+                 parse_llm_output=None):
         self._registry[name] = {
             "generate_input": generate_input,
             "evaluate_func": evaluate_func,
             "get_initial_func": get_initial_func,
             "system_prompt": system_prompt,
             "append_prompt": append_prompt,
+            "parse_llm_output": parse_llm_output,
         }
 
     def get(self, name):

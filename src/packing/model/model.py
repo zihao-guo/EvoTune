@@ -30,8 +30,10 @@ import subprocess
 import socket
 from huggingface_hub import InferenceClient
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
 
 from packing.utils.vllm import dict_to_namespace
+from packing.evaluate.registry import TASK_REGISTRY
 
 
 def get_full_model_name(cfg):
@@ -43,7 +45,13 @@ def get_full_model_name(cfg):
         elif name == "phi":
             model_id = "microsoft/Phi-3.5-mini-instruct"
         else:
-            raise ValueError(f"Invalid model name: {name}")
+            # Local-dir passthrough: e.g. `utils/model/Qwen3-14B-Instruct`.
+            repo_root = Path(__file__).resolve().parents[3]
+            local_dir = repo_root / "utils" / "model" / name
+            if local_dir.is_dir():
+                model_id = str(local_dir)
+            else:
+                raise ValueError(f"Invalid model name: {name}")
         return model_id
 
     if isinstance(cfg.model.model_name, (list, ListConfig)):
@@ -340,6 +348,8 @@ def make_vllm_request(cfg, chat, load_finetuned, port):
         "temperature": cfg.model.temperature,
         "top_p": cfg.model.topp,
     }
+    if "chat_template_kwargs" in cfg.model:
+        payload["chat_template_kwargs"] = dict(cfg.model.chat_template_kwargs)
 
     response = requests.post(url, json=payload)
     response.raise_for_status()  # Raises an HTTPError if the response was unsuccessful
@@ -363,8 +373,17 @@ def generate_from_server(cfg, chat, flag_load_finetuned, server_port, num_output
 
     outputs = [output.choices[0].message.content for output in outputs]
 
-    extracted_functions_init = [extract_functions(output) for output in outputs]
-    extracted_imports_init = [extract_imports(output) for output in outputs]
+    # Opt-in per-task raw-output parsing hook (e.g. C++ fence extraction for
+    # HGS/Crex tasks). Tasks that don't register `parse_llm_output` fall back
+    # to the existing python function/import line-scanners unchanged.
+    parse_llm_output = TASK_REGISTRY.get(cfg.task.task_name).get("parse_llm_output")
+    if parse_llm_output is not None:
+        parsed_outputs = [parse_llm_output(output) for output in outputs]
+        extracted_functions_init = [function_str for function_str, _ in parsed_outputs]
+        extracted_imports_init = [imports_str for _, imports_str in parsed_outputs]
+    else:
+        extracted_functions_init = [extract_functions(output) for output in outputs]
+        extracted_imports_init = [extract_imports(output) for output in outputs]
 
     # Filter out texts, functions, and imports where functions are extracted successfully
     extracted_functions = [func for func in extracted_functions_init if func]
@@ -525,7 +544,8 @@ def initialize_models_server(cfg, load_finetuned, use_vllm=False):
 
         server_pids = []
         model_ids = []
-        ports = [8080 + i for i in range(len(cfg.model.model_name))]
+        base_port = cfg.get("vllm_base_port", 8080)
+        ports = [base_port + i for i in range(len(cfg.model.model_name))]
 
         for full_model_name, gpu_num, model_adapter_dir, port in zip(
                 cfg.full_model_name, cfg.gpu_nums, cfg.model_adapter_dir, ports
@@ -535,7 +555,7 @@ def initialize_models_server(cfg, load_finetuned, use_vllm=False):
             if not use_vllm:
                 pid = start_tgi_server(model_id, gpu_num, port)
             else:
-                pid = start_vllm_server(model_id, gpu_num, port)
+                pid = start_vllm_server(model_id, gpu_num, port, extra_args=cfg.model.get("vllm_extra_args", []))
             server_pids.append(pid)
             model_ids.append(model_id)
             # wait to avoid crashing by initializing consecutive servers too quickly
@@ -551,13 +571,14 @@ def initialize_models_server(cfg, load_finetuned, use_vllm=False):
                 f"Cuda memory allocated: {torch.cuda.memory_allocated() // 1024 // 1024}MB"
             )
     else:
-        ports = [8080 + cfg.gpu_nums]  # Hacky but this will make sure we have unique server ports for each model
+        base_port = cfg.get("vllm_base_port", 8080)
+        ports = [base_port + cfg.gpu_nums]  # Hacky but this will make sure we have unique server ports for each model
         model_id = cfg.full_model_name if not load_finetuned else cfg.model_adapter_dir
 
         if not use_vllm:
             pid = start_tgi_server(model_id, cfg.gpu_nums, ports[0])
         else:
-            pid = start_vllm_server(model_id, cfg.gpu_nums, ports[0])
+            pid = start_vllm_server(model_id, cfg.gpu_nums, ports[0], extra_args=cfg.model.get("vllm_extra_args", []))
 
         server_pids = [pid]
         model_ids = [model_id]
@@ -587,11 +608,14 @@ def start_tgi_server(model_id, gpu_num, port):
     return pid
 
 
-def start_vllm_server(model_id, gpu_num, port):
+def start_vllm_server(model_id, gpu_num, port, extra_args=None):
     """
     Starts a vLLM server with OpenAI-compatible API, assigning the specified GPU.
     Refer to vLLM docs for additional flags/options:
     https://docs.vllm.ai/en/latest/serving/openai_compatible_server.html#vllm-serve
+
+    `extra_args` (optional list[str]) is appended verbatim to the command,
+    e.g. `cfg.model.get("vllm_extra_args", [])`.
     """
     env_vars = os.environ.copy()
     # Limit the server process to the specified GPU
@@ -612,6 +636,8 @@ def start_vllm_server(model_id, gpu_num, port):
     # command += ["--tensor-parallel-size", "1"]
     # command += ["--max-num-batches", "4"]
     # etc.
+    if extra_args:
+        command += list(extra_args)
 
     process = subprocess.Popen(command, env=env_vars)
     return process.pid

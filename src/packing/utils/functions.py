@@ -12,6 +12,9 @@ def function_to_string(func):
     Returns:
     str: The source code of the function.
     """
+    raw = getattr(func, "_raw_source", None)
+    if raw is not None:
+        return raw
     try:
         source = inspect.getsource(func)
         dedented_source = textwrap.dedent(source)
@@ -133,4 +136,6 @@ def separate_imports_from_func(func_str):
         else:
             if found_def:
                 func_lines.append(line)
+    if not found_def:
+        return "", func_str
     return "\n".join(import_lines), "\n".join(func_lines)
