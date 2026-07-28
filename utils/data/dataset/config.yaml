@@ -1,0 +1,19 @@
+# Shared defaults for dataset generation and reference solvers.
+
+paths:
+  generated_dir: generated  # Root directory for generated VRPLIB instances.
+  opt_dir: opt  # Root directory for generated reference solution files.
+
+scaling:
+  coord_scale: 100000  # Internal solver scaling applied to floating-point coordinates.
+  file_scale: 1000  # VRPLIB on-disk scaling used when parsing and writing coordinates.
+
+generate:
+  seed: 0  # RNG seed used for dataset generation.
+
+pyvrp:
+  seed: 0  # RNG seed used by the PyVRP reference solver.
+  max_iterations: 1000  # PyVRP stopping criterion in iterations.
+
+ortools:
+  time_limit: 300  # Per-instance OR-Tools time limit in seconds.
