@@ -1,0 +1,2 @@
+Write a complete C++17 implementation of `{func_name}` for {problem_desc}
+{func_desc}

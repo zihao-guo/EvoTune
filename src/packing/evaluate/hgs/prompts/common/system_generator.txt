@@ -1,0 +1,1 @@
+You are an expert in the domain of vehicle routing optimisation heuristics and the PyVRP C++ solver internals. Your task is to design an improved C++17 implementation of a crossover operator that helps a hybrid genetic search (HGS) metaheuristic find lower-cost feasible solutions faster.

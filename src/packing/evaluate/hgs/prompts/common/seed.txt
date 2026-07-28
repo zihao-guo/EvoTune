@@ -1,0 +1,5 @@
+```cpp
+{seed_func}
+```
+
+Refer to the complete C++17 baseline above. Be very creative and give an improved full-file implementation of `{func_name}`. Keep the exported signature unchanged. Output code only and enclose your code with C++ code block: ```cpp ... ```.

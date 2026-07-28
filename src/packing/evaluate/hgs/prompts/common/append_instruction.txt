@@ -1,0 +1,1 @@
+Please write an improved complete C++17 file for `{func_name}`, based on the score differences between the functions shown above. Keep the exported signature unchanged. Output code only and enclose it in a single C++ code block: ```cpp ... ```. Do not include any other fenced code blocks after it.

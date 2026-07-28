@@ -1,0 +1,7 @@
+## OUTPUT CONTRACT
+
+- Return one complete, compilable C++17 source file implementing the function below -- a full file, not a diff or a fragment.
+- Keep the exported function signature exactly as given: do not rename it, add/remove/reorder parameters, or change its return type.
+- Preserve the required `#include` directives, namespace usage, and any anonymous-namespace helpers you keep from the seed implementation.
+- Output your answer as a single fenced code block: ```cpp ... ``` and nothing else.
+- Do not include any other fenced code block, of any language, before or after it -- only the last ```cpp/c++/cxx/cc block in your reply is read and everything else is ignored.

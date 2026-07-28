@@ -1,0 +1,13 @@
+{user_generator}
+
+[Worse code]
+{worse_code}
+
+[Better code]
+{better_code}
+
+[Reflection]
+{reflection}
+
+[Improved code]
+Please write an improved complete C++17 file for `{func_name}`, according to the reflection. Keep the exported signature unchanged. Output code only and enclose your code with C++ code block: ```cpp ... ```.
