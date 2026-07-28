@@ -1,0 +1,32 @@
+# Task vrpb_hgs -- ReEvo-style evolution of the shared PyVRP SREX/Crex C++
+# crossover operator (pyvrp::crossover::selectiveRouteExchange) for VRPB.
+task_name: "vrpb_hgs"
+function_str_to_extract: "selectiveRouteExchange"
+
+# --- hgs_task_factory.generate_input --------------------------------------
+variant: "VRPB"
+dataset_root: "utils/data/dataset/generated"
+baseline_root: "utils/data/dataset/opt"  # + /<variant>/<size>/pyvrp leaf
+
+# --- hgs_common.evaluate_candidate (see hgs_common._cfg_get calls) --------
+num_eval_instances: 50
+smoke_instances: 1
+max_iterations: 1000
+hgs_seed: 0
+py312: "/home/zguo/miniconda/envs/rlft/bin/python3.12"
+sandbox_root: "scratch/hgs"
+eval_timeout: 900
+# NOTE: compile_timeout is not read by hgs_common.py or hgs_eval_py312.py as
+# built (Tasks 3/4) -- the bridge subprocess bounds compile+solve jointly
+# via eval_timeout above (subprocess.communicate(timeout=eval_timeout) +
+# killpg). Kept here as a reserved/documented key for forward compatibility
+# rather than silently dropped; harmless no-op if unused.
+compile_timeout: 300
+
+# --- framework-standard task keys ------------------------------------------
+failed_score: -20000
+timeout_period: 1200
+mem_limit_gb: 16
+
+programdatabaseConfig:
+  temp: 0.5

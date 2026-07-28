@@ -1,0 +1,63 @@
+## CONSTRAINTS
+
+Required route properties:
+- Capacity constraints must remain feasible.
+- Each client must be served within its allowed time window.
+
+## Extra Information
+## DOMAIN KNOWLEDGE: CROSSOVER OPERATIONS
+
+The Selective Route Exchange is a crossover operation for the Vehicle Routing Problem Family. The algorithm:
+1. Selects routes from two parent solutions
+2. Exchanges these routes to create offspring
+3. Aims to preserve beneficial route structures while creating new combinations
+
+### Key Optimization Areas to Consider:
+
+- Route selection strategy (which routes to exchange)
+- Client-to-route assignment decisions
+- Proximity/distance calculations between routes using available centroid coordinates
+- Handling of task specific constraints
+- Diversity generation in offspring solutions
+
+## Essential Fields and Methods for SREX
+
+**ProblemData Key Methods:**
+- `centroid()` - Returns `std::pair<Coordinate, Coordinate>` center of all client locations
+- `numLocations()` - Returns `size_t` total number of locations (depots + clients)
+
+**Solution Key Methods:**
+- `numRoutes()` - Returns `size_t` number of routes in the solution
+- `routes()` - Returns `std::vector<Route> const &`
+
+**Route Key Methods:**
+- `centroid()` - Returns `std::pair<Coordinate, Coordinate>` center of route's client locations
+- `vehicleType()` - Returns `VehicleType` (`size_t`) vehicle type index
+- `begin()` / `end()` - Iterator support for visiting clients in route
+- `size()` - Returns `size_t` number of clients in route
+- `visits()` - Returns the route visits as a client list
+
+**Route Construction:**
+- `Route(data, visits, vehicleType)` - Constructor taking `std::vector<Client>` visits and vehicle type
+
+**Cost Evaluation:**
+- `costEvaluator.penalisedCost(solution)` - Returns the penalised objective used to compare offspring solutions
+
+**Selection and Offspring Structure Used by SREX:**
+- `parents` - Passed as `std::pair<Solution const *, Solution const *>`
+- `startIndices` - Passed as `std::pair<size_t, size_t>`
+- `numMovedRoutes` - Passed as `size_t`
+- `selectiveRouteExchange(...)` - Returns one `Solution` offspring
+
+## Hard Constraints
+
+- The candidate must be one complete compilable C++17 `selective_route_exchange.cpp` file, not a fragment or patch.
+- Evaluation compiles the candidate inside a persistent per-worker PyVRP sandbox and runs PyVRP's HGS on the configured VRPTW instance set.
+- Optimisation target is the average percentage gap versus the reference PyVRP HGS solutions stored alongside that instance set.
+- Keep `pyvrp::crossover::selectiveRouteExchange(...)` unchanged and preserve required includes.
+- Use only the methods listed above or already used in the seed implementation.
+- Do not use APIs or fields that are not listed in the Essential Fields and Methods section.
+- No direct distance API is available in this interface; if proximity is needed, compute it from `centroid()` coordinates with standard C++ math.
+- Prefer localized, reliable edits over large rewrites, and avoid new dependencies.
+- Every actual code modification should be marked with a clear `// MODIFY: ...` comment.
+- Output exactly one fenced C++ block: ```cpp ... ```.
