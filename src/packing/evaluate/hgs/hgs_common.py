@@ -440,8 +440,21 @@ def _bridge_call(
 
     try:
         if not json_out.is_file():
+            rc = proc.returncode
+            if rc is not None and rc < 0:
+                # Bridge killed by a signal: the candidate's compiled .so
+                # crashed at runtime (segfault/abort/OOM). Candidate's fault,
+                # not infra -- route to the graceful solve_failed path.
+                return {
+                    "ok": False,
+                    "stage": "solve",
+                    "crash_signal": -rc,
+                    "compile_stderr_tail": "",
+                    "reason": f"hgs bridge killed by signal {-rc} (candidate runtime crash); "
+                              f"output tail: {(stdout_text or '')[-2000:]}",
+                }
             raise RuntimeError(
-                f"hgs bridge exited {proc.returncode} without producing JSON output at {json_out}; "
+                f"hgs bridge exited {rc} without producing JSON output at {json_out}; "
                 f"output tail: {(stdout_text or '')[-2000:]}"
             )
         with open(json_out, "r", encoding="utf-8") as fh:
