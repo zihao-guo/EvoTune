@@ -409,7 +409,16 @@ def main(cfg: DictConfig):
         )
 
         # Are we finetuning the model in this round?
-        if round_num % cfg.finetuning_frequency == 0 and round_num != 0:
+        do_finetune = round_num % cfg.finetuning_frequency == 0 and round_num != 0
+        if do_finetune and (
+            not dpo_chats.scores_since_finetune or not dpo_chats.train_dataset["chosen_chat_score"]
+        ):
+            logging.warning(
+                f"[dpo] round {round_num}: no DPO preference data accumulated since last finetune; "
+                "skipping this finetune window (server stays up)."
+            )
+            do_finetune = False
+        if do_finetune:
             if cfg.use_tgi or cfg.use_vllm:
                 logging.info("Killing model server, preparing for finetuning...")
                 for server_pid in server_pids:
