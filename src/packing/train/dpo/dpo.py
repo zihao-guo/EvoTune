@@ -112,7 +112,8 @@ def DPO(
         print(f"Finetuning with {len(dpo_train_dataset)} chats")
         if isinstance(model, PeftModel):
             model = model.merge_and_unload()
-            del model.peft_config
+            if hasattr(model, "peft_config"):
+                del model.peft_config
         model.config.use_cache = False
         model.train()
         # model.print_trainable_parameters()
