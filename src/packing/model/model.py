@@ -33,7 +33,11 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 from packing.utils.vllm import dict_to_namespace
-from packing.evaluate.registry import TASK_REGISTRY
+# NOTE: packing.evaluate.registry is intentionally NOT imported at module
+# level -- importing it eagerly runs packing.evaluate.import_all_tasks(),
+# which rglobs and imports every task_*.py module (including flat_pack's,
+# which pulls in jax/jumanji). Import it lazily inside generate_from_server,
+# the only place it's used, so importing packing.model.model stays cheap.
 
 
 def get_full_model_name(cfg):
@@ -357,6 +361,8 @@ def make_vllm_request(cfg, chat, load_finetuned, port):
 
 
 def generate_from_server(cfg, chat, flag_load_finetuned, server_port, num_outputs_per_prompt):
+    from packing.evaluate.registry import TASK_REGISTRY
+
     outputs = []
     with ThreadPoolExecutor(max_workers=num_outputs_per_prompt) as executor:
         futures = [

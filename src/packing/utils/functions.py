@@ -136,6 +136,11 @@ def separate_imports_from_func(func_str):
         else:
             if found_def:
                 func_lines.append(line)
-    if not found_def:
+    if not found_def and "selectiveRouteExchange" in func_str:
+        # HGS/Crex C++ candidates have no "def " line (they're raw C++, not
+        # Python) and must be preserved verbatim rather than falling through
+        # to the def-less path below, which drops the body entirely. Scoped
+        # to this marker so all other (Python) tasks keep the pre-existing
+        # def-less behavior unchanged.
         return "", func_str
     return "\n".join(import_lines), "\n".join(func_lines)

@@ -25,12 +25,12 @@ import hashlib
 import json
 import logging
 import os
-import re
 import shutil
 import subprocess
 import signal
 import time
 import uuid
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -49,7 +49,10 @@ HGS_EVAL_SCRIPT = Path(__file__).resolve().with_name("hgs_eval_py312.py")
 
 # The pristine seed (D5: same seed for all six variants) and the vendored
 # copy it must stay byte-identical to (checked lazily, once per repo root).
-PRISTINE_SEED_RELATIVE = Path("utils/data/Operator/selective_route_exchange.original.cpp")
+# Committed under this module's own seed/ dir (NOT utils/data/Operator/,
+# which is gitignored and absent on a fresh checkout -- see
+# hgs_task_factory._SEED_PATH, the other consumer of this same file).
+PRISTINE_SEED_PATH = Path(__file__).resolve().parent / "seed" / "selective_route_exchange.original.cpp"
 VENDORED_SEED_RELATIVE = Path("pyvrp_rep/pyvrp/cpp/crossover/selective_route_exchange.cpp")
 CANDIDATE_RELATIVE_PATH = Path("pyvrp") / "cpp" / "crossover" / "selective_route_exchange.cpp"
 
@@ -102,15 +105,14 @@ def _pristine_seed_text(repo_root: Path) -> str:
     if cached is not None:
         return cached
 
-    pristine_path = repo_root / PRISTINE_SEED_RELATIVE
-    pristine_bytes = pristine_path.read_bytes()
+    pristine_bytes = PRISTINE_SEED_PATH.read_bytes()
 
     vendored_path = repo_root / VENDORED_SEED_RELATIVE
     if vendored_path.is_file():
         vendored_bytes = vendored_path.read_bytes()
         if vendored_bytes != pristine_bytes:
             raise RuntimeError(
-                f"hgs: pristine seed mismatch -- {pristine_path} differs from "
+                f"hgs: pristine seed mismatch -- {PRISTINE_SEED_PATH} differs from "
                 f"{vendored_path}; refusing to use it as ground truth."
             )
 
@@ -195,50 +197,120 @@ def _restore_pristine_cpp(repo_root: Path, sandbox: Path) -> None:
         target.write_text(pristine_text, encoding="utf-8")
 
 
+def _slot_paths(task_cfg: Any, repo_root: Path, variant: str, slot: int) -> tuple[Path, Path]:
+    sandbox_root = repo_root / str(_cfg_get(task_cfg, "sandbox_root", "scratch/hgs"))
+    slot_dir = sandbox_root / variant / f"w{slot}"
+    return slot_dir, slot_dir / "pyvrp_rep"
+
+
+def _ensure_slot_locked(repo_root: Path, variant: str, slot: int, sandbox: Path) -> None:
+    """Primes/repairs ``sandbox`` and restores the pristine candidate .cpp.
+    Assumes the caller already holds the per-slot flock (LOCK_EX)."""
+    if not _sandbox_is_valid(sandbox):
+        logging.info(f"[hgs] priming sandbox variant={variant} slot={slot} at {sandbox}")
+        if sandbox.exists():
+            shutil.rmtree(sandbox)
+        _prime_sandbox(repo_root, sandbox)
+        logging.info(f"[hgs] sandbox variant={variant} slot={slot} primed successfully")
+    _restore_pristine_cpp(repo_root, sandbox)
+
+
 def ensure_slot(task_cfg: Any, variant: str, slot: int) -> Path:
     """Ensures ``<repo>/scratch/hgs/<VARIANT>/w<slot>/pyvrp_rep`` exists and
     is built; primes it (copytree + meson setup/compile/install) if missing
     or corrupt. Idempotent and flock-guarded across concurrent callers for
     the same slot. Always leaves the candidate .cpp at the pristine seed
     before returning. Raises on unrecoverable priming failures (loud infra
-    failure, never silently returns a broken sandbox)."""
+    failure, never silently returns a broken sandbox).
+
+    Standalone helper (e.g. for warmup scripts/tests); ``evaluate_candidate``
+    uses :func:`_held_slot` instead so the same flock spans priming *and* the
+    subsequent compile+solve bridge calls."""
     repo_root = _repo_root()
-    sandbox_root = repo_root / str(_cfg_get(task_cfg, "sandbox_root", "scratch/hgs"))
-    slot_dir = sandbox_root / variant / f"w{slot}"
-    sandbox = slot_dir / "pyvrp_rep"
+    slot_dir, sandbox = _slot_paths(task_cfg, repo_root, variant, slot)
     slot_dir.mkdir(parents=True, exist_ok=True)
 
     lock_path = slot_dir / ".ensure_slot.lock"
     with open(lock_path, "w") as lock_file:
         fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
         try:
-            if not _sandbox_is_valid(sandbox):
-                logging.info(f"[hgs] priming sandbox variant={variant} slot={slot} at {sandbox}")
-                if sandbox.exists():
-                    shutil.rmtree(sandbox)
-                _prime_sandbox(repo_root, sandbox)
-                logging.info(f"[hgs] sandbox variant={variant} slot={slot} primed successfully")
-            _restore_pristine_cpp(repo_root, sandbox)
+            _ensure_slot_locked(repo_root, variant, slot, sandbox)
         finally:
             fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
 
     return sandbox
 
 
+@contextmanager
+def _held_slot(task_cfg: Any, repo_root: Path, variant: str, slot: int):
+    """Acquires the per-slot flock for the ENTIRE evaluation lifecycle (prime
+    check + compile + solve), not just priming, and holds it until the
+    caller is done with the sandbox. This makes a reused slot block until
+    any previous bridge invocation against it has exited (FIX 4a), instead
+    of releasing the lock right after priming and letting two evaluations
+    race on the same sandbox's candidate .cpp / build dir."""
+    slot_dir, sandbox = _slot_paths(task_cfg, repo_root, variant, slot)
+    slot_dir.mkdir(parents=True, exist_ok=True)
+
+    lock_path = slot_dir / ".ensure_slot.lock"
+    with open(lock_path, "w") as lock_file:
+        fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
+        try:
+            _ensure_slot_locked(repo_root, variant, slot, sandbox)
+            yield sandbox
+        finally:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+
+
 # ---------------------------------------------------------------------------
-# Score cache: sha256(normalized cpp) -> jsonl
+# Score cache: sha256(exact candidate bytes + eval-context) -> jsonl
 # ---------------------------------------------------------------------------
 
+# Bumped whenever the cache key derivation or record shape changes in a way
+# that makes old entries unsafe to reuse (FIX 2: v1 keyed only on
+# whitespace/comment-normalized source, scoped only by variant -- collided
+# across dataset size/seed/iteration knobs and could normalize away
+# semantically-significant whitespace, e.g. inside a `#define`). Records
+# without a matching "v" are treated as misses, never read as hits.
+CACHE_SCHEMA_VERSION = 2
 
-def _normalize_cpp(text: str) -> str:
-    text = re.sub(r"/\*.*?\*/", " ", text, flags=re.DOTALL)  # block comments
-    text = re.sub(r"//[^\n]*", " ", text)  # line comments
-    text = re.sub(r"\s+", " ", text).strip()  # collapse whitespace
-    return text
 
+def _cache_key(
+    func_str: str,
+    *,
+    repo_root: Path,
+    instances_dir: Path,
+    baselines_dir: Path,
+    num_instances: int,
+    max_iterations: int,
+    hgs_seed: int,
+    smoke_instances: int,
+) -> str:
+    """Hashes the EXACT candidate source bytes (no comment/whitespace
+    normalization -- correctness over hit rate) together with every knob
+    that affects the resulting score, so identical source evaluated under a
+    different dataset size/seed/iteration budget never collides."""
 
-def _cache_key(func_str: str) -> str:
-    return hashlib.sha256(_normalize_cpp(func_str).encode("utf-8")).hexdigest()
+    def _rel(path: Path) -> str:
+        resolved = path.resolve()
+        try:
+            return resolved.relative_to(repo_root).as_posix()
+        except ValueError:
+            return resolved.as_posix()
+
+    context = "\x1f".join([
+        _rel(instances_dir),
+        _rel(baselines_dir),
+        str(num_instances),
+        str(max_iterations),
+        str(hgs_seed),
+        str(smoke_instances),
+    ])
+    hasher = hashlib.sha256()
+    hasher.update(func_str.encode("utf-8"))
+    hasher.update(b"\x00")
+    hasher.update(context.encode("utf-8"))
+    return hasher.hexdigest()
 
 
 def _cache_path(repo_root: Path, task_cfg: Any, variant: str) -> Path:
@@ -262,6 +334,8 @@ def _cache_lookup(cache_path: Path, key: str) -> dict | None:
                     record = json.loads(line)
                 except json.JSONDecodeError:
                     continue
+                if record.get("v") != CACHE_SCHEMA_VERSION:
+                    continue  # stale/foreign schema -- never a hit
                 if record.get("hash") == key:
                     best = record  # last one wins (most recent re-evaluation)
     except OSError:
@@ -270,6 +344,7 @@ def _cache_lookup(cache_path: Path, key: str) -> dict | None:
 
 
 def _cache_append(cache_path: Path, record: dict) -> None:
+    record = {"v": CACHE_SCHEMA_VERSION, **record}
     cache_path.parent.mkdir(parents=True, exist_ok=True)
     with open(cache_path, "a", encoding="utf-8") as fh:
         fcntl.flock(fh.fileno(), fcntl.LOCK_EX)
@@ -298,6 +373,7 @@ class _EvalContext:
     max_iterations: int
     hgs_seed: int
     eval_timeout: float
+    smoke_timeout: float
     tmp_dir: Path
 
 
@@ -325,7 +401,9 @@ def _resolve_dataset_config(dataset_config: Any, repo_root: Path) -> tuple[Path,
     return instances_dir, baselines_dir, get("n")
 
 
-def _bridge_call(ctx: _EvalContext, candidate_path: Path, n_instances: int, compile_flag: bool) -> dict:
+def _bridge_call(
+    ctx: _EvalContext, candidate_path: Path, n_instances: int, compile_flag: bool, timeout: float,
+) -> dict:
     json_out = ctx.tmp_dir / f"result_w{ctx.slot}_{os.getpid()}_{uuid.uuid4().hex}.json"
     argv = [
         ctx.py312, str(HGS_EVAL_SCRIPT),
@@ -344,8 +422,14 @@ def _bridge_call(ctx: _EvalContext, candidate_path: Path, n_instances: int, comp
         argv, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, start_new_session=True,
     )
     try:
-        stdout_text, _ = proc.communicate(timeout=ctx.eval_timeout)
-    except subprocess.TimeoutExpired:
+        stdout_text, _ = proc.communicate(timeout=timeout)
+    except BaseException:
+        # ANY exception here (not just TimeoutExpired: e.g. the worker being
+        # torn down mid-call) must still reap the bridge's process group --
+        # otherwise a reused slot's next evaluation races an orphaned bridge
+        # still holding the sandbox's build dir (FIX 4b). SIGKILL of the
+        # worker itself remains a documented residual risk: no Python code
+        # runs to get here in that case.
         try:
             os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
         except OSError:
@@ -371,7 +455,7 @@ def _looks_like_compiler_diagnostic(stderr_tail: str) -> bool:
     return any(marker in lowered for marker in _COMPILER_DIAGNOSTIC_MARKERS)
 
 
-def _probe_pristine_compiles(ctx: _EvalContext) -> bool:
+def _probe_pristine_compiles(ctx: _EvalContext, timeout: float) -> bool:
     """One-off compile-only probe used to discriminate "candidate is broken"
     from "sandbox is broken" during the recovery ladder. Returns True if the
     pristine seed compiles cleanly in ctx.sandbox."""
@@ -379,7 +463,7 @@ def _probe_pristine_compiles(ctx: _EvalContext) -> bool:
     probe_path = ctx.tmp_dir / f"pristine_probe_w{ctx.slot}_{uuid.uuid4().hex}.cpp"
     probe_path.write_text(pristine_text, encoding="utf-8")
     try:
-        result = _bridge_call(ctx, probe_path, 1, compile_flag=True)
+        result = _bridge_call(ctx, probe_path, 1, compile_flag=True, timeout=timeout)
     finally:
         probe_path.unlink(missing_ok=True)
     compile_failed = result.get("stage") == "compile" and not result.get("ok")
@@ -387,7 +471,7 @@ def _probe_pristine_compiles(ctx: _EvalContext) -> bool:
 
 
 def _compile_and_solve_with_recovery(
-    ctx: _EvalContext, candidate_path: Path, n_instances: int
+    ctx: _EvalContext, candidate_path: Path, n_instances: int, timeout: float
 ) -> tuple[str, dict]:
     """Runs the bridge with the recovery ladder from the plan on compile
     failure. Returns ``(status, payload)`` where status is one of:
@@ -395,9 +479,18 @@ def _compile_and_solve_with_recovery(
       - "candidate_invalid": payload is {"reason": <diagnostic text>}.
       - "solve_failed": payload is the full bridge result JSON (non-compile
         stage failure, e.g. an exception while solving).
-    Raises RuntimeError if the sandbox is still broken after one re-prime
-    (loud infra failure, never silently scored)."""
-    result = _bridge_call(ctx, candidate_path, n_instances, compile_flag=True)
+    Raises RuntimeError only if re-priming itself fails or the pristine seed
+    still doesn't compile afterwards (unrecoverable infra failure, loud,
+    never silently scored). A candidate that still fails to compile against
+    a freshly re-primed (and therefore proven-healthy) sandbox is the
+    candidate's fault, not infra's -- that maps to "candidate_invalid"
+    (FIX 5), not a raise.
+
+    Must be called with the sandbox's per-slot flock already held by the
+    caller (see ``_held_slot``): the re-prime path below calls
+    ``_ensure_slot_locked`` directly, not ``ensure_slot``, to avoid
+    re-acquiring (and self-deadlocking on) that same lock."""
+    result = _bridge_call(ctx, candidate_path, n_instances, compile_flag=True, timeout=timeout)
     if result.get("ok"):
         return "ok", result
     if result.get("stage") != "compile":
@@ -411,7 +504,7 @@ def _compile_and_solve_with_recovery(
         f"[hgs] ambiguous compile failure (no compiler diagnostic markers) for "
         f"variant={ctx.variant} slot={ctx.slot}; probing sandbox health with the pristine seed."
     )
-    if _probe_pristine_compiles(ctx):
+    if _probe_pristine_compiles(ctx, timeout):
         return "candidate_invalid", {
             "reason": f"hgs candidate failed to compile (sandbox verified healthy):\n{stderr_tail}"
         }
@@ -421,16 +514,21 @@ def _compile_and_solve_with_recovery(
         "(pristine seed also fails to compile); re-priming once."
     )
     shutil.rmtree(ctx.sandbox, ignore_errors=True)
-    ensure_slot(ctx.task_cfg, ctx.variant, ctx.slot)
+    _ensure_slot_locked(ctx.repo_root, ctx.variant, ctx.slot, ctx.sandbox)
 
-    retry = _bridge_call(ctx, candidate_path, n_instances, compile_flag=True)
+    retry = _bridge_call(ctx, candidate_path, n_instances, compile_flag=True, timeout=timeout)
     if retry.get("ok"):
         return "ok", retry
     if retry.get("stage") == "compile":
-        raise RuntimeError(
-            f"hgs sandbox variant={ctx.variant} slot={ctx.slot} still fails to compile after "
-            f"re-priming; unrecoverable infra failure.\n{retry.get('compile_stderr_tail', '')}"
-        )
+        # Re-priming above just rebuilt+installed the sandbox from the
+        # pristine seed without raising, so the sandbox is proven healthy;
+        # this compile failure is the candidate's fault (FIX 5).
+        return "candidate_invalid", {
+            "reason": (
+                "hgs candidate failed to compile (sandbox re-primed and verified "
+                f"healthy):\n{retry.get('compile_stderr_tail', '')}"
+            )
+        }
     return "solve_failed", retry
 
 
@@ -490,7 +588,8 @@ def evaluate_candidate(cfg: Any, dataset_config: Any, function_class):
     py312 = _cfg_get(task_cfg, "py312", DEFAULT_PY312)
     max_iterations = int(_cfg_get(task_cfg, "max_iterations", 1000))
     hgs_seed = int(_cfg_get(task_cfg, "hgs_seed", 0))
-    eval_timeout = float(_cfg_get(task_cfg, "eval_timeout", 900))
+    eval_timeout = float(_cfg_get(task_cfg, "eval_timeout", 480))
+    smoke_timeout = float(_cfg_get(task_cfg, "smoke_timeout", eval_timeout))
     smoke_instances = int(_cfg_get(task_cfg, "smoke_instances", 0) or 0)
     failed_score = _cfg_get(task_cfg, "failed_score", -20000)
     num_instances = int(_cfg_get(task_cfg, "num_eval_instances", 50))
@@ -504,11 +603,19 @@ def evaluate_candidate(cfg: Any, dataset_config: Any, function_class):
 
     slot = max(int(getattr(function_class.eval, "idx_process", 0) or 0), 0)
 
-    # Infra failures while priming are raised loudly, never silently scored.
-    sandbox = ensure_slot(task_cfg, variant, slot)
+    instances_dir, baselines_dir, _n = _resolve_dataset_config(dataset_config, repo_root)
 
     cache_path = _cache_path(repo_root, task_cfg, variant)
-    cache_key = _cache_key(func_str)
+    cache_key = _cache_key(
+        func_str,
+        repo_root=repo_root,
+        instances_dir=instances_dir,
+        baselines_dir=baselines_dir,
+        num_instances=num_instances,
+        max_iterations=max_iterations,
+        hgs_seed=hgs_seed,
+        smoke_instances=smoke_instances,
+    )
     cached = _cache_lookup(cache_path, cache_key)
     if cached is not None:
         logging.info(
@@ -523,55 +630,61 @@ def evaluate_candidate(cfg: Any, dataset_config: Any, function_class):
             function_class.correct_flag = cached.get("correct_flag", 1)
         return function_class
 
-    instances_dir, baselines_dir, _n = _resolve_dataset_config(dataset_config, repo_root)
-
     tmp_dir = repo_root / "scratch" / "hgs" / "tmp"
     tmp_dir.mkdir(parents=True, exist_ok=True)
-
-    ctx = _EvalContext(
-        repo_root=repo_root, task_cfg=task_cfg, variant=variant, slot=slot, sandbox=sandbox,
-        py312=py312, instances_dir=instances_dir, baselines_dir=baselines_dir,
-        max_iterations=max_iterations, hgs_seed=hgs_seed, eval_timeout=eval_timeout, tmp_dir=tmp_dir,
-    )
 
     candidate_path = tmp_dir / f"candidate_w{slot}_{os.getpid()}_{uuid.uuid4().hex}.cpp"
     candidate_path.write_text(func_str, encoding="utf-8")
 
     try:
-        if smoke_instances > 0:
+        # Infra failures while priming are raised loudly, never silently
+        # scored. The per-slot flock is held for the whole prime+compile+
+        # solve lifecycle (FIX 4a) so a reused slot blocks until any
+        # previous bridge invocation against it has fully exited.
+        with _held_slot(task_cfg, repo_root, variant, slot) as sandbox:
+            ctx = _EvalContext(
+                repo_root=repo_root, task_cfg=task_cfg, variant=variant, slot=slot, sandbox=sandbox,
+                py312=py312, instances_dir=instances_dir, baselines_dir=baselines_dir,
+                max_iterations=max_iterations, hgs_seed=hgs_seed, eval_timeout=eval_timeout,
+                smoke_timeout=smoke_timeout, tmp_dir=tmp_dir,
+            )
+
+            if smoke_instances > 0:
+                try:
+                    status, payload = _compile_and_solve_with_recovery(
+                        ctx, candidate_path, smoke_instances, smoke_timeout,
+                    )
+                except subprocess.TimeoutExpired:
+                    return _finish_failed(
+                        function_class, failed_score,
+                        f"hgs smoke stage timed out after {smoke_timeout}s (slot={slot})",
+                    )
+                if status == "candidate_invalid":
+                    return _finish_failed(function_class, failed_score, payload["reason"], cache_path, cache_key)
+                if status == "solve_failed":
+                    return _finish_failed(
+                        function_class, failed_score, f"hgs smoke solve stage failed: {payload}", cache_path, cache_key,
+                    )
+                # status == "ok": the smoke instance(s) compiled and solved
+                # without a bridge/compile failure. Per FIX 6, an infeasible
+                # smoke result is NOT a rejection reason -- the bridge caps
+                # infeasible gap at +100% already, so proceed to the full
+                # run and let that score speak for itself.
+
             try:
-                status, payload = _compile_and_solve_with_recovery(ctx, candidate_path, smoke_instances)
+                status, payload = _compile_and_solve_with_recovery(ctx, candidate_path, num_instances, eval_timeout)
             except subprocess.TimeoutExpired:
                 return _finish_failed(
-                    function_class, failed_score,
-                    f"hgs smoke stage timed out after {eval_timeout}s (slot={slot})",
+                    function_class, failed_score, f"hgs evaluation timed out after {eval_timeout}s (slot={slot})",
                 )
+
             if status == "candidate_invalid":
                 return _finish_failed(function_class, failed_score, payload["reason"], cache_path, cache_key)
             if status == "solve_failed":
                 return _finish_failed(
-                    function_class, failed_score, f"hgs smoke solve stage failed: {payload}", cache_path, cache_key,
-                )
-            if payload.get("n_feasible", 0) < payload.get("n_instances", 0):
-                return _finish_failed(
-                    function_class, failed_score,
-                    "hgs smoke screen: infeasible on smoke instance(s)", cache_path, cache_key,
+                    function_class, failed_score, f"hgs solve stage failed: {payload}", cache_path, cache_key,
                 )
 
-        try:
-            status, payload = _compile_and_solve_with_recovery(ctx, candidate_path, num_instances)
-        except subprocess.TimeoutExpired:
-            return _finish_failed(
-                function_class, failed_score, f"hgs evaluation timed out after {eval_timeout}s (slot={slot})",
-            )
-
-        if status == "candidate_invalid":
-            return _finish_failed(function_class, failed_score, payload["reason"], cache_path, cache_key)
-        if status == "solve_failed":
-            return _finish_failed(
-                function_class, failed_score, f"hgs solve stage failed: {payload}", cache_path, cache_key,
-            )
-
-        return _finish_success(function_class, payload, cache_path, cache_key)
+            return _finish_success(function_class, payload, cache_path, cache_key)
     finally:
         candidate_path.unlink(missing_ok=True)

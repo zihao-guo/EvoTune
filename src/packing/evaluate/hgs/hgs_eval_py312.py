@@ -28,9 +28,13 @@ Core solve logic (parse_vrp_instance / build_manual_model /
 calculate_route_cost) is ported near-verbatim from
 ``ReEvo/problems/hgs_share/eval.py``, which handles all six VRP variants
 generically via the TYPE-header driven sets below. Dropped relative to
-ReEvo: temp-sandbox cloning (sandboxes are persistent, primed elsewhere),
-the argv/stdout-line protocol (replaced by --flags + JSON file), and the
-anti-plagiarism check (handled py3.10-side).
+ReEvo: temp-sandbox cloning (sandboxes are persistent, primed elsewhere)
+and the argv/stdout-line protocol (replaced by --flags + JSON file).
+Anti-plagiarism enforcement is intentionally omitted entirely (not handled
+on either side of the py3.10/py3.12 split): ReEvo's check used a similarity
+threshold of 1.01, which no achievable similarity score can cross, making
+it a permanent no-op in the original code too -- dropping it here is not a
+behavior change.
 """
 
 from __future__ import annotations
@@ -451,6 +455,28 @@ def main(argv: list[str] | None = None) -> int:
         ensure_local_pyvrp_import(sandbox)
 
         instance_paths = sorted(instances_dir.glob("*.vrp"))[: args.num_instances]
+        if not instance_paths or len(instance_paths) < args.num_instances:
+            result["stage"] = "solve"
+            result["compile_stderr_tail"] = (
+                f"hgs: expected {args.num_instances} instance(s) under {instances_dir}, "
+                f"found only {len(instance_paths)} loadable .vrp instance(s)."
+            )
+            write_json(json_out, {**result, "wall_seconds": time.perf_counter() - start})
+            return 0
+
+        missing_baselines = [
+            instance_path.name for instance_path in instance_paths
+            if not (baselines_dir / f"{instance_path.stem}.sol").is_file()
+        ]
+        if missing_baselines:
+            result["stage"] = "solve"
+            result["compile_stderr_tail"] = (
+                f"hgs: missing baseline .sol under {baselines_dir} for instance(s): "
+                + ", ".join(missing_baselines)
+            )
+            write_json(json_out, {**result, "wall_seconds": time.perf_counter() - start})
+            return 0
+
         per_instance = []
         for instance_path in instance_paths:
             baseline_path = baselines_dir / f"{instance_path.stem}.sol"
