@@ -33,6 +33,8 @@ def train_model(
             reinit=False,
             entity=cfg.entity,
         )
+    else:
+        train_run = None
     logging.info(f"Training model {model_name}")
 
     logging.info(
@@ -82,7 +84,8 @@ def train_model(
     # Saving the full model since multiple adapters are used sequentially on top of the base model
     finetuned_model = trainer.model
     finetuned_model_merged = finetuned_model.merge_and_unload(progressbar=True, safe_merge=True)
-    del finetuned_model_merged.peft_config
+    if hasattr(finetuned_model_merged, "peft_config"):
+        del finetuned_model_merged.peft_config
     finetuned_model_merged.save_pretrained(model_adapter_dir)
     # Save the tokenizer as well, save newly initialized tokenizer, to not have to deal with pad and eos tokens
     tokenizer = AutoTokenizer.from_pretrained(full_model_name)

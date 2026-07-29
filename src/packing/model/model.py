@@ -89,7 +89,7 @@ def initialize_single_model(
             "device_map": {"": gpu_num},
         }
     else:
-        init_args = {}
+        init_args = {"torch_dtype": torch_dtype}
 
     if cfg.flash_attn:
         init_args["attn_implementation"] = "flash_attention_2"
@@ -655,8 +655,8 @@ def kill_process_with_pid_and_wait(pid):
     while True:
         try:
             # Check the process state
-            pid, _ = os.waitpid(pid, os.WNOHANG)
-            if pid == 0:
+            done_pid, _ = os.waitpid(pid, os.WNOHANG)
+            if done_pid != pid:
                 # Process is still running, sleep for a short duration
                 time.sleep(0.1)
             else:

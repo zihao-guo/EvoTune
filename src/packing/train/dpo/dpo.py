@@ -67,8 +67,9 @@ def DPO(
         running_dict[f"traindata_loop/score_threshold_{model_name}"].append(copy.deepcopy(score_threshold))
         running_dict[f"{model_name}_loop_num"].append(last_loop_num + tuning_loop)
 
-        wandb.log(
-            {"traindata/num_datapoints": num_datapoints, "traindata/score_threshold": copy.deepcopy(score_threshold)})
+        if cfg.wandb:
+            wandb.log(
+                {"traindata/num_datapoints": num_datapoints, "traindata/score_threshold": copy.deepcopy(score_threshold)})
 
         learning_rate = learning_rate_schedule(cfg, cfg.train.dpo_config.learning_rate, num_datapoints, tuning_loop,
                                                round_num)
@@ -98,6 +99,8 @@ def DPO(
             max_grad_norm=1.0,
             f_divergence_type=cfg.train.dpo_config.f_divergence_type,
             f_alpha_divergence_coef=cfg.train.dpo_config.f_alpha_divergence_coef,
+            use_logits_to_keep=True,
+            optim=cfg.train.dpo_config.get("optim", "adamw_torch"),
         )
 
         logging.info(
