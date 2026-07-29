@@ -346,7 +346,7 @@ def make_vllm_request(cfg, chat, load_finetuned, port):
     """
     url = f"http://localhost:{port}/v1/chat/completions"
     payload = {
-        "model": cfg.full_model_name if not load_finetuned else cfg.model_adapter_dir,
+        "model": cfg.full_model_name if not load_finetuned else "evotune_lora",
         "messages": chat,
         "max_tokens": cfg.model.max_tokens,
         "temperature": cfg.model.temperature,
@@ -584,7 +584,21 @@ def initialize_models_server(cfg, load_finetuned, use_vllm=False):
         if not use_vllm:
             pid = start_tgi_server(model_id, cfg.gpu_nums, ports[0])
         else:
-            pid = start_vllm_server(model_id, cfg.gpu_nums, ports[0], extra_args=cfg.model.get("vllm_extra_args", []))
+            # Always serve the base model; when a finetuned adapter is requested, serve it
+            # as a LoRA module instead of loading a merged checkpoint (disk quota forbids
+            # saving 29.5GB merged models -- adapters are ~150MB).
+            extra_args = list(cfg.model.get("vllm_extra_args", []))
+            if load_finetuned:
+                adapter_abs = os.path.abspath(cfg.model_adapter_dir)
+                r = int(cfg.lora_config.r)
+                max_lora_rank = next(x for x in (8, 16, 32, 64, 128, 256, 320, 512) if x >= r)
+                extra_args += ["--enable-lora", "--lora-modules", f"evotune_lora={adapter_abs}",
+                               "--max-lora-rank", str(max_lora_rank)]
+            pid = start_vllm_server(cfg.full_model_name, cfg.gpu_nums, ports[0], extra_args=extra_args)
+            # The server is always launched under cfg.full_model_name, but when a LoRA
+            # adapter is in play, poll readiness under the adapter's served name so the
+            # check actually exercises the adapter route (not just the base model).
+            model_id = "evotune_lora" if load_finetuned else cfg.full_model_name
 
         server_pids = [pid]
         model_ids = [model_id]
@@ -599,6 +613,7 @@ def initialize_models_server(cfg, load_finetuned, use_vllm=False):
                 wait_for_vllm_server(port, model_id)
         except TimeoutError as e:
             logging.error(e)
+            raise
 
     return server_pids, ports
 

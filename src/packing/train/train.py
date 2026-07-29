@@ -81,12 +81,9 @@ def train_model(
     logging.info(f"Training finished, saving model {model_name} in {model_adapter_dir}")
     # trainer.save_model(model_adapter_dir)
 
-    # Saving the full model since multiple adapters are used sequentially on top of the base model
+    # Saving the LoRA adapter only (~150MB); disk quota forbids full-merge saves (~29.5GB)
     finetuned_model = trainer.model
-    finetuned_model_merged = finetuned_model.merge_and_unload(progressbar=True, safe_merge=True)
-    if hasattr(finetuned_model_merged, "peft_config"):
-        del finetuned_model_merged.peft_config
-    finetuned_model_merged.save_pretrained(model_adapter_dir)
+    finetuned_model.save_pretrained(model_adapter_dir)  # LoRA adapter only (~150MB); quota forbids 29.5GB merged saves
     # Save the tokenizer as well, save newly initialized tokenizer, to not have to deal with pad and eos tokens
     tokenizer = AutoTokenizer.from_pretrained(full_model_name)
     tokenizer.save_pretrained(model_adapter_dir)
