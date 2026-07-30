@@ -14,7 +14,14 @@ Task 3)::
         --sandbox <abs path to sandbox pyvrp_rep root> --candidate <cpp path> \
         --variant CVRP --instances <dir with *.vrp> --baselines <dir with *.sol> \
         --num-instances 50 --max-iterations 1000 --seed 0 --compile 1 \
+        [--candidate-relative-path <sandbox-relative path>] \
         --json-out <path>
+
+``--candidate-relative-path`` is optional (added post-freeze for layer
+consistency with hgs_common.py's task-cfg-driven path): when omitted it
+defaults to the kind-appropriate hardcoded path exactly as before (the Crex
+.cpp path for --candidate-kind cpp, D6's Population.py for --candidate-kind
+py), so existing callers are unaffected.
 
 JSON out (frozen shape)::
 
@@ -40,6 +47,7 @@ behavior change.
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import math
 import os
@@ -94,6 +102,13 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--max-iterations", type=int, default=1000)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--compile", type=int, default=1, choices=[0, 1])
+    parser.add_argument(
+        "--candidate-relative-path", default=None,
+        help="Sandbox-relative path the candidate is written to/compiled at. "
+             "Defaults to the kind-appropriate hardcoded path (POP_CANDIDATE_RELATIVE_PATH "
+             "for --candidate-kind py, CANDIDATE_RELATIVE_PATH for cpp) when omitted, so "
+             "existing invocations that don't pass this flag are unaffected.",
+    )
     parser.add_argument("--json-out", required=True, help="Path to write result JSON")
     return parser.parse_args(argv)
 
@@ -334,14 +349,21 @@ def parse_baseline_cost(sol_path: Path) -> float:
 # --------------------------------------------------------------------------
 
 
-def compile_candidate(sandbox: Path, candidate_path: Path) -> tuple[bool, str]:
+def compile_candidate(
+    sandbox: Path, candidate_path: Path, candidate_relative_path: Path = CANDIDATE_RELATIVE_PATH,
+) -> tuple[bool, str]:
     """Writes the candidate source into the sandbox and rebuilds in place.
+
+    ``candidate_relative_path`` (FIX C: layer consistency) defaults to the
+    module-level ``CANDIDATE_RELATIVE_PATH`` constant, so this stays
+    byte-for-byte the existing cpp behavior when the caller doesn't override
+    it -- only the flag exists now, not a behavior change for cpp tasks.
 
     Returns ``(ok, stderr_tail)``. ``stderr_tail`` is the last
     ``DIAGNOSTIC_TAIL_CHARS`` characters of combined stdout+stderr from
     whichever meson step failed, or ``""`` on success.
     """
-    target = sandbox / CANDIDATE_RELATIVE_PATH
+    target = sandbox / candidate_relative_path
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(candidate_path.read_text(encoding="utf-8"), encoding="utf-8")
 
@@ -367,13 +389,33 @@ def compile_candidate(sandbox: Path, candidate_path: Path) -> tuple[bool, str]:
     return True, ""
 
 
-def write_python_candidate(sandbox: Path, candidate_path: Path) -> None:
+def write_python_candidate(
+    sandbox: Path, candidate_path: Path, candidate_relative_path: Path = POP_CANDIDATE_RELATIVE_PATH,
+) -> None:
     """D6: writes a pure-Python operator candidate (e.g. Population.py) into
     the sandbox. No meson step -- the sandbox's compiled extensions (built at
-    priming time) are untouched; only this one .py file changes per eval."""
-    target = sandbox / POP_CANDIDATE_RELATIVE_PATH
+    priming time) are untouched; only this one .py file changes per eval.
+
+    ``candidate_relative_path`` (FIX C: layer consistency) defaults to the
+    module-level ``POP_CANDIDATE_RELATIVE_PATH`` constant, so this stays the
+    existing behavior when the caller doesn't override it.
+
+    FIX A (stale .pyc corruption): CPython validates a cached .pyc against
+    its source via (source mtime truncated to whole seconds, source size)
+    recorded in the .pyc header -- not a content hash. Two different
+    same-size candidates written to this same path within the same
+    wall-clock second produce an IDENTICAL validation key, so importing the
+    second one can silently execute the FIRST candidate's already-cached
+    bytecode from this persistent sandbox instead of the new source we just
+    wrote. Guard against this by disabling bytecode writes for the rest of
+    this process and by purging any stale cache entry for this exact path
+    before it is ever imported.
+    """
+    sys.dont_write_bytecode = True
+    target = sandbox / candidate_relative_path
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(candidate_path.read_text(encoding="utf-8"), encoding="utf-8")
+    Path(importlib.util.cache_from_source(str(target))).unlink(missing_ok=True)
 
 
 # --------------------------------------------------------------------------
@@ -458,6 +500,16 @@ def main(argv: list[str] | None = None) -> int:
     baselines_dir = Path(args.baselines).resolve()
     json_out = Path(args.json_out)
 
+    # FIX C: layer consistency -- honor an explicit override for both kinds;
+    # absent one, fall back to each kind's existing hardcoded default so
+    # callers that don't pass the flag see byte-for-byte unchanged behavior.
+    if args.candidate_relative_path:
+        candidate_relative_path = Path(args.candidate_relative_path)
+    elif args.candidate_kind == "py":
+        candidate_relative_path = POP_CANDIDATE_RELATIVE_PATH
+    else:
+        candidate_relative_path = CANDIDATE_RELATIVE_PATH
+
     result = default_result()
 
     try:
@@ -467,9 +519,9 @@ def main(argv: list[str] | None = None) -> int:
             # these tasks; this branch does not consult args.compile so the
             # cpp branch below stays byte-for-byte untouched).
             result["stage"] = "solve"
-            write_python_candidate(sandbox, candidate_path)
+            write_python_candidate(sandbox, candidate_path, candidate_relative_path)
         elif args.compile:
-            ok, stderr_tail = compile_candidate(sandbox, candidate_path)
+            ok, stderr_tail = compile_candidate(sandbox, candidate_path, candidate_relative_path)
             if not ok:
                 result["stage"] = "compile"
                 result["compile_stderr_tail"] = stderr_tail
@@ -480,9 +532,11 @@ def main(argv: list[str] | None = None) -> int:
         # Broken candidates (SyntaxError, banned import -> ImportError,
         # missing `Population` class -> ImportError from pyvrp/__init__.py's
         # `from .Population import Population`) surface here as an ordinary
-        # exception, caught by the `except Exception` below -- never a
+        # exception, caught by the `except BaseException` below -- never a
         # traceback exit, always the graceful {"ok": false, "stage": "solve"}
-        # JSON shape.
+        # JSON shape. FIX B: that same handler also catches a candidate that
+        # calls sys.exit()/raises SystemExit, or a KeyboardInterrupt raised
+        # during this import/solve window -- see the handler for why.
         ensure_local_pyvrp_import(sandbox)
 
         instance_paths = sorted(instances_dir.glob("*.vrp"))[: args.num_instances]
@@ -531,7 +585,19 @@ def main(argv: list[str] | None = None) -> int:
             mean_gap_percent=mean_gap_percent,
             per_instance=per_instance,
         )
-    except Exception:
+    except BaseException:
+        # FIX B: widened from `except Exception` -- SystemExit (raised by a
+        # candidate's own sys.exit() call, e.g. at Population.py import time
+        # or mid-solve) and KeyboardInterrupt are NOT Exception subclasses,
+        # so they used to bypass this handler entirely, exiting the process
+        # with no json_out written. hgs_common's bridge caller treats a
+        # missing json_out as a loud infra failure and kills the whole run
+        # (see hgs_common._bridge_call), even though this is purely a
+        # broken-candidate signal that belongs in the graceful
+        # {"ok": false, "stage": "solve", ...} path below like any other
+        # candidate exception. Residual risk: a candidate calling os._exit()
+        # terminates the interpreter immediately with no unwinding at all,
+        # so no in-process handler -- this one included -- can catch it.
         result["ok"] = False
         result["compile_stderr_tail"] = traceback.format_exc()[-DIAGNOSTIC_TAIL_CHARS:]
 

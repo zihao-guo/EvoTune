@@ -321,6 +321,7 @@ def _cache_key(
     hgs_seed: int,
     smoke_instances: int,
     candidate_relative_path: Path,
+    needs_compile: bool,
 ) -> str:
     """Hashes the EXACT candidate source bytes (no comment/whitespace
     normalization -- correctness over hit rate) together with every knob
@@ -332,7 +333,13 @@ def _cache_key(
     under the "CVRP" cache) never collide on the same hash. This changes the
     cache key for existing Crex entries too (their context string now has an
     extra field) -- old entries simply miss and get re-evaluated once; see
-    the commit message for this trade-off."""
+    the commit message for this trade-off.
+
+    FIX C (codex ultra QA): ``needs_compile`` is included too -- it's a
+    behavior-affecting knob (gates whether the bridge recompiles the
+    candidate at all, see ``ctx.needs_compile`` / ``_compile_and_solve_with_
+    recovery``), so two task configs that differ only on it must not share a
+    cache entry. Same one-time invalidation trade-off as D7 above."""
 
     def _rel(path: Path) -> str:
         resolved = path.resolve()
@@ -349,6 +356,7 @@ def _cache_key(
         str(hgs_seed),
         str(smoke_instances),
         Path(candidate_relative_path).as_posix(),
+        str(int(needs_compile)),
     ])
     hasher = hashlib.sha256()
     hasher.update(func_str.encode("utf-8"))
@@ -460,6 +468,11 @@ def _bridge_call(
         "--sandbox", str(ctx.sandbox),
         "--candidate", str(candidate_path),
         "--candidate-kind", ctx.candidate_kind,
+        # FIX C: layer consistency -- pass the task-cfg-resolved path through
+        # explicitly rather than relying on the bridge re-deriving its own
+        # default from --candidate-kind alone; for the Crex default this is
+        # the exact same value the bridge would have picked anyway.
+        "--candidate-relative-path", str(ctx.candidate_relative_path),
         "--variant", ctx.variant,
         "--instances", str(ctx.instances_dir),
         "--baselines", str(ctx.baselines_dir),
@@ -690,6 +703,7 @@ def evaluate_candidate(cfg: Any, dataset_config: Any, function_class):
         hgs_seed=hgs_seed,
         smoke_instances=smoke_instances,
         candidate_relative_path=candidate_relative_path,
+        needs_compile=needs_compile,
     )
     cached = _cache_lookup(cache_path, cache_key)
     if cached is not None:
