@@ -1,0 +1,4 @@
+# Public signatures to preserve exactly.
+Population.select(self, rng, cost_evaluator, k=2) -> tuple[Solution, Solution]
+Population.tournament(self, rng, cost_evaluator, k=2) -> Solution
+Population._tournament(self, rng, k) -> Solution

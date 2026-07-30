@@ -1,0 +1,8 @@
+## OUTPUT CONTRACT
+
+- Return one complete, valid Python source file implementing `Population.py` -- a full file, not a diff or a fragment.
+- Keep the class name exactly `Population` -- never rename it to `Population_v2` or anything else.
+- Preserve these public method signatures exactly, unchanged: `select(self, rng, cost_evaluator, k=2)`, `tournament(self, rng, cost_evaluator, k=2)`, `_tournament(self, rng, k)`.
+- Do not import any third-party module beyond what the seed implementation already imports.
+- Output your answer as a single fenced code block: ```python ... ``` and nothing else.
+- Do not include any other fenced code block, of any language, before or after it -- only the last ```python block in your reply is read and everything else is ignored.

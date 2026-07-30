@@ -1,0 +1,64 @@
+## CONSTRAINTS
+
+Required solution properties:
+- Capacity constraints must remain feasible through the existing PyVRP pipeline.
+- Vehicles follow standard closed routes.
+- Parent selection must return existing `Solution` objects from the population.
+
+## Extra Information
+## DOMAIN KNOWLEDGE: HGS POPULATION PARENT SELECTION
+
+`Population.select(...)` chooses two parents before crossover:
+1. Updates biased fitness with `self._update_fitness(cost_evaluator)`.
+2. Selects parents from `self._feas` and `self._infeas`.
+3. Uses `self._op(parent_a, parent_b)` to measure pairwise diversity.
+4. Returns `(first, second)` to the existing crossover and local-search pipeline.
+
+### Key Optimization Areas to Consider:
+
+- Diversity-aware second-parent selection.
+- Bounded candidate sampling from feasible and infeasible subpopulations.
+- Balancing low `item.fitness` with diversity inside `[lb_diversity, ub_diversity]`.
+- Light randomization without full-population all-pairs scans.
+- Robust fallbacks when diversity bounds or subpopulation balance are poor.
+
+## Essential Fields and Methods for Population
+
+**Population Key Fields and Methods:**
+- `self._op(solution_a, solution_b)` - Returns pairwise diversity.
+- `self._params.lb_diversity` / `self._params.ub_diversity` - Read-only diversity bounds.
+- `self._feas` / `self._infeas` - `SubPopulation` objects.
+- `len(self)`, `len(self._feas)`, `len(self._infeas)` - Valid size checks.
+- `self._update_fitness(cost_evaluator)` - Updates biased fitness before using `item.fitness`.
+
+**SubPopulation Key Methods:**
+- `self._feas[idx]` / `self._infeas[idx]` - Return `SubPopulationItem`.
+- Iterating over `self._feas` or `self._infeas` yields `SubPopulationItem`.
+- `SubPopulation.update_fitness(cost_evaluator)` - Called by `_update_fitness(...)`.
+
+**SubPopulationItem Key Methods:**
+- `item.solution` - Existing `Solution` object.
+- `item.fitness` - Lower-is-better biased fitness after `_update_fitness(...)`.
+- `item.avg_distance_closest()` - Local population diversity.
+
+**Solution Key Methods:**
+- Treat `Solution` as opaque; pass it to diversity and crossover.
+- Verified lightweight methods: `is_feasible()`, `num_routes()`, `num_clients()`.
+
+**Random Number Generator:**
+- `rng.randint(high)` - Random integer in `[0, high)`.
+- `rng.rand()` - Random float.
+
+## Hard Constraints
+
+- The candidate must be one complete valid Python `Population.py` file, not a fragment or patch.
+- Keep class name `Population` and these public signatures unchanged:
+  `Population.select(self, rng, cost_evaluator, k=2) -> tuple[Solution, Solution]`
+  `Population.tournament(self, rng, cost_evaluator, k=2) -> Solution`
+  `Population._tournament(self, rng, k) -> Solution`
+- Use only the methods listed above or already used in the seed implementation.
+- Do not output `Population_v2`, wrapper functions, new classes, or third-party imports.
+- Do not call `solution.cost()`, `solution.cost`, `SubPopulation.contains`, `SubPopulation.index`, `SubPopulation.items`, or other unlisted APIs.
+- Prefer localized edits inside `select()`; avoid helper methods unless every needed value is passed explicitly.
+- If scoring second-parent candidates, score `SubPopulationItem` values directly and return `best_item.solution`.
+- Output exactly one fenced Python block: ```python ... ```.

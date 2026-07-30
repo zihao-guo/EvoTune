@@ -1,0 +1,1 @@
+Please write an improved complete Python file for `{func_name}`, based on the score differences between the functions shown above. Keep class `Population` and all public signatures (`select`, `tournament`, `_tournament`) unchanged. Output code only and enclose it in a single Python code block: ```python ... ```. Do not include any other fenced code blocks after it.

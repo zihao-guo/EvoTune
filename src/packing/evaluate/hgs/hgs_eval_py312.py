@@ -70,6 +70,10 @@ SECTION_HEADERS = {
 }
 
 CANDIDATE_RELATIVE_PATH = Path("pyvrp") / "cpp" / "crossover" / "selective_route_exchange.cpp"
+# D6: pure-Python operator target (e.g. HGS/Pop's Population.py) -- no
+# compile stage, so this is the only "candidate location" knob the bridge
+# itself needs (the compile path above stays hardcoded/untouched).
+POP_CANDIDATE_RELATIVE_PATH = Path("pyvrp") / "Population.py"
 INFEASIBLE_GAP_PERCENT = 100.0  # deviation from ReEvo's huge penalty; keeps scores softmax-friendly
 DIAGNOSTIC_TAIL_CHARS = 4000
 
@@ -77,7 +81,12 @@ DIAGNOSTIC_TAIL_CHARS = 4000
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--sandbox", required=True, help="Absolute path to sandbox pyvrp_rep root")
-    parser.add_argument("--candidate", required=True, help="Path to candidate .cpp file")
+    parser.add_argument("--candidate", required=True, help="Path to candidate source file")
+    parser.add_argument(
+        "--candidate-kind", choices=["cpp", "py"], default="cpp",
+        help="cpp: compile+install the Crex operator (default, unchanged behavior). "
+             "py: write a pure-Python operator (e.g. Population.py) and skip meson entirely.",
+    )
     parser.add_argument("--variant", required=True, help="VRP variant, e.g. CVRP, OVRP, VRPTW, ...")
     parser.add_argument("--instances", required=True, help="Directory containing *.vrp instance files")
     parser.add_argument("--baselines", required=True, help="Directory containing *.sol baseline files")
@@ -358,6 +367,15 @@ def compile_candidate(sandbox: Path, candidate_path: Path) -> tuple[bool, str]:
     return True, ""
 
 
+def write_python_candidate(sandbox: Path, candidate_path: Path) -> None:
+    """D6: writes a pure-Python operator candidate (e.g. Population.py) into
+    the sandbox. No meson step -- the sandbox's compiled extensions (built at
+    priming time) are untouched; only this one .py file changes per eval."""
+    target = sandbox / POP_CANDIDATE_RELATIVE_PATH
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(candidate_path.read_text(encoding="utf-8"), encoding="utf-8")
+
+
 # --------------------------------------------------------------------------
 # Solve step
 # --------------------------------------------------------------------------
@@ -443,7 +461,14 @@ def main(argv: list[str] | None = None) -> int:
     result = default_result()
 
     try:
-        if args.compile:
+        if args.candidate_kind == "py":
+            # D6: pure-Python operator -- no compile stage at all, regardless
+            # of --compile (the py3.10 side always passes --compile 0 for
+            # these tasks; this branch does not consult args.compile so the
+            # cpp branch below stays byte-for-byte untouched).
+            result["stage"] = "solve"
+            write_python_candidate(sandbox, candidate_path)
+        elif args.compile:
             ok, stderr_tail = compile_candidate(sandbox, candidate_path)
             if not ok:
                 result["stage"] = "compile"
@@ -452,6 +477,12 @@ def main(argv: list[str] | None = None) -> int:
                 return 0
 
         result["stage"] = "solve"
+        # Broken candidates (SyntaxError, banned import -> ImportError,
+        # missing `Population` class -> ImportError from pyvrp/__init__.py's
+        # `from .Population import Population`) surface here as an ordinary
+        # exception, caught by the `except Exception` below -- never a
+        # traceback exit, always the graceful {"ok": false, "stage": "solve"}
+        # JSON shape.
         ensure_local_pyvrp_import(sandbox)
 
         instance_paths = sorted(instances_dir.glob("*.vrp"))[: args.num_instances]

@@ -1,0 +1,47 @@
+# Task cvrp_hgs_pop -- ReEvo-style evolution of PyVRP's pure-Python HGS
+# population parent-selection module (pyvrp/Population.py, class
+# Population) for CVRP. Same evaluation pipeline as cvrp_hgs (hgs_common.py
+# / hgs_eval_py312.py), routed via the task-cfg knobs below (D1 of
+# docs/superpowers/plans/2026-07-30-hgs-pop-evolution.md) to the no-compile
+# bridge path instead of the Crex C++ compile+solve path.
+task_name: "cvrp_hgs_pop"
+function_str_to_extract: "Population"
+
+# --- hgs_task_factory.generate_input --------------------------------------
+variant: "CVRP"
+dataset_root: "utils/data/dataset/generated"
+baseline_root: "utils/data/dataset/opt"  # + /<variant>/<size>/pyvrp leaf
+
+# --- D1 per-operator knobs (hgs_common._cfg_get calls) --------------------
+# Defaults for these five keys reproduce cvrp_hgs's Crex behavior exactly;
+# here they select the pure-Python Population.py operator instead.
+candidate_relative_path: "pyvrp/Population.py"
+candidate_suffix: ".py"
+needs_compile: 0
+seed_filename: "Population.original.py"
+sandbox_variant: "CVRP_POP"  # separate slots from cvrp_hgs's CVRP sandboxes
+
+# --- hgs_common.evaluate_candidate (see hgs_common._cfg_get calls) --------
+num_eval_instances: 50
+smoke_instances: 1
+max_iterations: 1000
+hgs_seed: 0
+py312: "/home/zguo/miniconda/envs/rlft/bin/python3.12"
+sandbox_root: "scratch/hgs"
+eval_timeout: 360  # full-run bridge call budget (no compile stage -> smaller than cvrp_hgs's 480)
+smoke_timeout: 120  # smoke-instance bridge call budget (no compile stage -> smaller than cvrp_hgs's 240)
+# Worst case two sequential bridge calls (smoke + full): 120 + 360 = 480s,
+# comfortably under timeout_period (1200s) below.
+# NOTE: compile_timeout is not read by hgs_common.py or hgs_eval_py312.py --
+# see cvrp_hgs.yaml's identical note. Kept here for forward-compat parity;
+# harmless no-op if unused (and there is no compile stage for this task
+# regardless, since needs_compile is 0).
+compile_timeout: 300
+
+# --- framework-standard task keys ------------------------------------------
+failed_score: -20000
+timeout_period: 1200
+mem_limit_gb: 16
+
+programdatabaseConfig:
+  temp: 0.5

@@ -1,0 +1,5 @@
+```python
+{seed_func}
+```
+
+Refer to the complete Population.py baseline above. Be very creative and give an improved full-file implementation of `{func_name}`, preferably with a focused, localized parent-selection improvement inside `select()`. Keep class `Population` and all public signatures unchanged, and output the full Population.py file enclosed in one Python code block: ```python ... ```. Do not output `Population_v2`.

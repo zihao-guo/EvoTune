@@ -52,14 +52,27 @@ HGS_EVAL_SCRIPT = Path(__file__).resolve().with_name("hgs_eval_py312.py")
 # Committed under this module's own seed/ dir (NOT utils/data/Operator/,
 # which is gitignored and absent on a fresh checkout -- see
 # hgs_task_factory._SEED_PATH, the other consumer of this same file).
-PRISTINE_SEED_PATH = Path(__file__).resolve().parent / "seed" / "selective_route_exchange.original.cpp"
-VENDORED_SEED_RELATIVE = Path("pyvrp_rep/pyvrp/cpp/crossover/selective_route_exchange.cpp")
-CANDIDATE_RELATIVE_PATH = Path("pyvrp") / "cpp" / "crossover" / "selective_route_exchange.cpp"
+SEED_DIR = Path(__file__).resolve().parent / "seed"
+
+# D1: per-operator knobs, task-cfg-driven (see `_cfg_get` calls in
+# `evaluate_candidate`), defaulting to EXACTLY the Crex behavior below so
+# existing `cvrp_hgs`-style tasks are unaffected.
+DEFAULT_SEED_FILENAME = "selective_route_exchange.original.cpp"
+DEFAULT_CANDIDATE_RELATIVE_PATH = Path("pyvrp") / "cpp" / "crossover" / "selective_route_exchange.cpp"
+DEFAULT_CANDIDATE_SUFFIX = ".cpp"
+DEFAULT_NEEDS_COMPILE = 1
+
+# Back-compat aliases -- these are the pre-D1 constant names, still equal to
+# the Crex defaults above; kept around in case anything outside this module
+# ever comes to depend on them (grepped clean as of D1, but cheap to keep).
+PRISTINE_SEED_PATH = SEED_DIR / DEFAULT_SEED_FILENAME
+VENDORED_SEED_RELATIVE = Path("pyvrp_rep") / DEFAULT_CANDIDATE_RELATIVE_PATH
+CANDIDATE_RELATIVE_PATH = DEFAULT_CANDIDATE_RELATIVE_PATH
 
 DIAGNOSTIC_TAIL_CHARS = 4000
 _COMPILER_DIAGNOSTIC_MARKERS = ("error:", "fatal error", "undefined reference")
 
-_pristine_seed_cache: dict[Path, str] = {}
+_pristine_seed_cache: dict[tuple[Path, str], str] = {}
 
 
 # ---------------------------------------------------------------------------
@@ -97,27 +110,35 @@ def _repo_root() -> Path:
     return root
 
 
-def _pristine_seed_text(repo_root: Path) -> str:
-    """Returns the pristine Crex seed, verifying it is byte-identical to the
-    vendored copy under pyvrp_rep the first time it's read for a given repo
-    root (cheap: ~7.6KB file)."""
-    cached = _pristine_seed_cache.get(repo_root)
+def _pristine_seed_text(
+    repo_root: Path,
+    seed_filename: str = DEFAULT_SEED_FILENAME,
+    candidate_relative_path: Path = DEFAULT_CANDIDATE_RELATIVE_PATH,
+) -> str:
+    """Returns the pristine operator seed (D1: ``seed_filename``/
+    ``candidate_relative_path`` are task-cfg-driven; defaults == the Crex
+    seed), verifying it is byte-identical to the vendored copy under
+    pyvrp_rep the first time it's read for a given (repo_root, seed_filename)
+    pair (cheap: a few KB file)."""
+    cache_key = (repo_root, seed_filename)
+    cached = _pristine_seed_cache.get(cache_key)
     if cached is not None:
         return cached
 
-    pristine_bytes = PRISTINE_SEED_PATH.read_bytes()
+    seed_path = SEED_DIR / seed_filename
+    pristine_bytes = seed_path.read_bytes()
 
-    vendored_path = repo_root / VENDORED_SEED_RELATIVE
+    vendored_path = repo_root / "pyvrp_rep" / candidate_relative_path
     if vendored_path.is_file():
         vendored_bytes = vendored_path.read_bytes()
         if vendored_bytes != pristine_bytes:
             raise RuntimeError(
-                f"hgs: pristine seed mismatch -- {PRISTINE_SEED_PATH} differs from "
+                f"hgs: pristine seed mismatch -- {seed_path} differs from "
                 f"{vendored_path}; refusing to use it as ground truth."
             )
 
     text = pristine_bytes.decode("utf-8")
-    _pristine_seed_cache[repo_root] = text
+    _pristine_seed_cache[cache_key] = text
     return text
 
 
@@ -126,14 +147,18 @@ def _pristine_seed_text(repo_root: Path) -> str:
 # ---------------------------------------------------------------------------
 
 
-def _sandbox_is_valid(sandbox: Path) -> bool:
+def _sandbox_is_valid(sandbox: Path, candidate_relative_path: Path = DEFAULT_CANDIDATE_RELATIVE_PATH) -> bool:
+    # The compiled-extension checks stay unconditional regardless of the
+    # operator being evolved (D1's `needs_compile` only gates whether the
+    # BRIDGE recompiles per-candidate) -- every sandbox, py or cpp operator
+    # alike, needs the full meson build for `import pyvrp` to work at all.
     if not sandbox.is_dir():
         return False
     if not (sandbox / "build" / "build.ninja").is_file():
         return False
     if not any((sandbox / "pyvrp" / "crossover").glob("_crossover.cpython-*.so")):
         return False
-    if not (sandbox / CANDIDATE_RELATIVE_PATH).is_file():
+    if not (sandbox / candidate_relative_path).is_file():
         return False
     return True
 
@@ -188,9 +213,14 @@ def _prime_sandbox(repo_root: Path, sandbox: Path) -> None:
     _run_step(["meson", "install", "-C", str(build_dir)], cwd=sandbox, env=env)
 
 
-def _restore_pristine_cpp(repo_root: Path, sandbox: Path) -> None:
-    pristine_text = _pristine_seed_text(repo_root)
-    target = sandbox / CANDIDATE_RELATIVE_PATH
+def _restore_pristine_cpp(
+    repo_root: Path,
+    sandbox: Path,
+    seed_filename: str = DEFAULT_SEED_FILENAME,
+    candidate_relative_path: Path = DEFAULT_CANDIDATE_RELATIVE_PATH,
+) -> None:
+    pristine_text = _pristine_seed_text(repo_root, seed_filename, candidate_relative_path)
+    target = sandbox / candidate_relative_path
     target.parent.mkdir(parents=True, exist_ok=True)
     current = target.read_text(encoding="utf-8") if target.is_file() else None
     if current != pristine_text:
@@ -203,16 +233,21 @@ def _slot_paths(task_cfg: Any, repo_root: Path, variant: str, slot: int) -> tupl
     return slot_dir, slot_dir / "pyvrp_rep"
 
 
-def _ensure_slot_locked(repo_root: Path, variant: str, slot: int, sandbox: Path) -> None:
-    """Primes/repairs ``sandbox`` and restores the pristine candidate .cpp.
-    Assumes the caller already holds the per-slot flock (LOCK_EX)."""
-    if not _sandbox_is_valid(sandbox):
+def _ensure_slot_locked(repo_root: Path, variant: str, slot: int, sandbox: Path, task_cfg: Any = None) -> None:
+    """Primes/repairs ``sandbox`` and restores the pristine candidate source
+    (D1: at the task-cfg-driven ``candidate_relative_path``/``seed_filename``,
+    defaulting to the Crex .cpp pair). Assumes the caller already holds the
+    per-slot flock (LOCK_EX)."""
+    candidate_relative_path = Path(_cfg_get(task_cfg, "candidate_relative_path", DEFAULT_CANDIDATE_RELATIVE_PATH))
+    seed_filename = str(_cfg_get(task_cfg, "seed_filename", DEFAULT_SEED_FILENAME))
+
+    if not _sandbox_is_valid(sandbox, candidate_relative_path):
         logging.info(f"[hgs] priming sandbox variant={variant} slot={slot} at {sandbox}")
         if sandbox.exists():
             shutil.rmtree(sandbox)
         _prime_sandbox(repo_root, sandbox)
         logging.info(f"[hgs] sandbox variant={variant} slot={slot} primed successfully")
-    _restore_pristine_cpp(repo_root, sandbox)
+    _restore_pristine_cpp(repo_root, sandbox, seed_filename, candidate_relative_path)
 
 
 def ensure_slot(task_cfg: Any, variant: str, slot: int) -> Path:
@@ -234,7 +269,7 @@ def ensure_slot(task_cfg: Any, variant: str, slot: int) -> Path:
     with open(lock_path, "w") as lock_file:
         fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
         try:
-            _ensure_slot_locked(repo_root, variant, slot, sandbox)
+            _ensure_slot_locked(repo_root, variant, slot, sandbox, task_cfg)
         finally:
             fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
 
@@ -256,7 +291,7 @@ def _held_slot(task_cfg: Any, repo_root: Path, variant: str, slot: int):
     with open(lock_path, "w") as lock_file:
         fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
         try:
-            _ensure_slot_locked(repo_root, variant, slot, sandbox)
+            _ensure_slot_locked(repo_root, variant, slot, sandbox, task_cfg)
             yield sandbox
         finally:
             fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
@@ -285,11 +320,19 @@ def _cache_key(
     max_iterations: int,
     hgs_seed: int,
     smoke_instances: int,
+    candidate_relative_path: Path,
 ) -> str:
     """Hashes the EXACT candidate source bytes (no comment/whitespace
     normalization -- correctness over hit rate) together with every knob
     that affects the resulting score, so identical source evaluated under a
-    different dataset size/seed/iteration budget never collides."""
+    different dataset size/seed/iteration budget never collides.
+
+    D7: ``candidate_relative_path`` is included so two operators sharing a
+    variant's cache file (e.g. Crex's .cpp and Pop's Population.py, both
+    under the "CVRP" cache) never collide on the same hash. This changes the
+    cache key for existing Crex entries too (their context string now has an
+    extra field) -- old entries simply miss and get re-evaluated once; see
+    the commit message for this trade-off."""
 
     def _rel(path: Path) -> str:
         resolved = path.resolve()
@@ -305,6 +348,7 @@ def _cache_key(
         str(max_iterations),
         str(hgs_seed),
         str(smoke_instances),
+        Path(candidate_relative_path).as_posix(),
     ])
     hasher = hashlib.sha256()
     hasher.update(func_str.encode("utf-8"))
@@ -365,6 +409,7 @@ class _EvalContext:
     repo_root: Path
     task_cfg: Any
     variant: str
+    sandbox_variant: str
     slot: int
     sandbox: Path
     py312: str
@@ -375,6 +420,11 @@ class _EvalContext:
     eval_timeout: float
     smoke_timeout: float
     tmp_dir: Path
+    needs_compile: bool
+    candidate_relative_path: Path
+    candidate_suffix: str
+    candidate_kind: str
+    seed_filename: str
 
 
 def _resolve_dataset_config(dataset_config: Any, repo_root: Path) -> tuple[Path, Path, Any]:
@@ -409,6 +459,7 @@ def _bridge_call(
         ctx.py312, str(HGS_EVAL_SCRIPT),
         "--sandbox", str(ctx.sandbox),
         "--candidate", str(candidate_path),
+        "--candidate-kind", ctx.candidate_kind,
         "--variant", ctx.variant,
         "--instances", str(ctx.instances_dir),
         "--baselines", str(ctx.baselines_dir),
@@ -472,8 +523,8 @@ def _probe_pristine_compiles(ctx: _EvalContext, timeout: float) -> bool:
     """One-off compile-only probe used to discriminate "candidate is broken"
     from "sandbox is broken" during the recovery ladder. Returns True if the
     pristine seed compiles cleanly in ctx.sandbox."""
-    pristine_text = _pristine_seed_text(ctx.repo_root)
-    probe_path = ctx.tmp_dir / f"pristine_probe_w{ctx.slot}_{uuid.uuid4().hex}.cpp"
+    pristine_text = _pristine_seed_text(ctx.repo_root, ctx.seed_filename, ctx.candidate_relative_path)
+    probe_path = ctx.tmp_dir / f"pristine_probe_w{ctx.slot}_{uuid.uuid4().hex}{ctx.candidate_suffix}"
     probe_path.write_text(pristine_text, encoding="utf-8")
     try:
         result = _bridge_call(ctx, probe_path, 1, compile_flag=True, timeout=timeout)
@@ -503,7 +554,7 @@ def _compile_and_solve_with_recovery(
     caller (see ``_held_slot``): the re-prime path below calls
     ``_ensure_slot_locked`` directly, not ``ensure_slot``, to avoid
     re-acquiring (and self-deadlocking on) that same lock."""
-    result = _bridge_call(ctx, candidate_path, n_instances, compile_flag=True, timeout=timeout)
+    result = _bridge_call(ctx, candidate_path, n_instances, compile_flag=ctx.needs_compile, timeout=timeout)
     if result.get("ok"):
         return "ok", result
     if result.get("stage") != "compile":
@@ -527,9 +578,9 @@ def _compile_and_solve_with_recovery(
         "(pristine seed also fails to compile); re-priming once."
     )
     shutil.rmtree(ctx.sandbox, ignore_errors=True)
-    _ensure_slot_locked(ctx.repo_root, ctx.variant, ctx.slot, ctx.sandbox)
+    _ensure_slot_locked(ctx.repo_root, ctx.sandbox_variant, ctx.slot, ctx.sandbox, ctx.task_cfg)
 
-    retry = _bridge_call(ctx, candidate_path, n_instances, compile_flag=True, timeout=timeout)
+    retry = _bridge_call(ctx, candidate_path, n_instances, compile_flag=ctx.needs_compile, timeout=timeout)
     if retry.get("ok"):
         return "ok", retry
     if retry.get("stage") == "compile":
@@ -598,6 +649,16 @@ def evaluate_candidate(cfg: Any, dataset_config: Any, function_class):
     repo_root = _repo_root()
 
     variant = _cfg_get(task_cfg, "variant", "CVRP")
+    # D1: sandbox_variant only steers which on-disk slot directory a task's
+    # candidates get built/solved in (default == variant, i.e. no change for
+    # Crex); `variant` itself keeps meaning "the VRP variant the bridge
+    # solves" (--variant flag, cache file name) throughout.
+    sandbox_variant = str(_cfg_get(task_cfg, "sandbox_variant", variant))
+    candidate_relative_path = Path(_cfg_get(task_cfg, "candidate_relative_path", DEFAULT_CANDIDATE_RELATIVE_PATH))
+    candidate_suffix = str(_cfg_get(task_cfg, "candidate_suffix", DEFAULT_CANDIDATE_SUFFIX))
+    needs_compile = bool(int(_cfg_get(task_cfg, "needs_compile", DEFAULT_NEEDS_COMPILE)))
+    seed_filename = str(_cfg_get(task_cfg, "seed_filename", DEFAULT_SEED_FILENAME))
+    candidate_kind = "py" if candidate_suffix == ".py" else "cpp"
     py312 = _cfg_get(task_cfg, "py312", DEFAULT_PY312)
     max_iterations = int(_cfg_get(task_cfg, "max_iterations", 1000))
     hgs_seed = int(_cfg_get(task_cfg, "hgs_seed", 0))
@@ -628,6 +689,7 @@ def evaluate_candidate(cfg: Any, dataset_config: Any, function_class):
         max_iterations=max_iterations,
         hgs_seed=hgs_seed,
         smoke_instances=smoke_instances,
+        candidate_relative_path=candidate_relative_path,
     )
     cached = _cache_lookup(cache_path, cache_key)
     if cached is not None:
@@ -646,7 +708,7 @@ def evaluate_candidate(cfg: Any, dataset_config: Any, function_class):
     tmp_dir = repo_root / "scratch" / "hgs" / "tmp"
     tmp_dir.mkdir(parents=True, exist_ok=True)
 
-    candidate_path = tmp_dir / f"candidate_w{slot}_{os.getpid()}_{uuid.uuid4().hex}.cpp"
+    candidate_path = tmp_dir / f"candidate_w{slot}_{os.getpid()}_{uuid.uuid4().hex}{candidate_suffix}"
     candidate_path.write_text(func_str, encoding="utf-8")
 
     try:
@@ -654,12 +716,14 @@ def evaluate_candidate(cfg: Any, dataset_config: Any, function_class):
         # scored. The per-slot flock is held for the whole prime+compile+
         # solve lifecycle (FIX 4a) so a reused slot blocks until any
         # previous bridge invocation against it has fully exited.
-        with _held_slot(task_cfg, repo_root, variant, slot) as sandbox:
+        with _held_slot(task_cfg, repo_root, sandbox_variant, slot) as sandbox:
             ctx = _EvalContext(
-                repo_root=repo_root, task_cfg=task_cfg, variant=variant, slot=slot, sandbox=sandbox,
-                py312=py312, instances_dir=instances_dir, baselines_dir=baselines_dir,
+                repo_root=repo_root, task_cfg=task_cfg, variant=variant, sandbox_variant=sandbox_variant,
+                slot=slot, sandbox=sandbox, py312=py312, instances_dir=instances_dir, baselines_dir=baselines_dir,
                 max_iterations=max_iterations, hgs_seed=hgs_seed, eval_timeout=eval_timeout,
-                smoke_timeout=smoke_timeout, tmp_dir=tmp_dir,
+                smoke_timeout=smoke_timeout, tmp_dir=tmp_dir, needs_compile=needs_compile,
+                candidate_relative_path=candidate_relative_path, candidate_suffix=candidate_suffix,
+                candidate_kind=candidate_kind, seed_filename=seed_filename,
             )
 
             if smoke_instances > 0:
